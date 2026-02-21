@@ -1,0 +1,12 @@
+{
+  "name": "ava-api",
+  "version": "1.0.0",
+  "description": "Ava AI Chat API for Home Services Template",
+  "main": "serve.js",
+  "scripts": {
+    "start": "node serve.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1"
+  }
+}

@@ -1,0 +1,22 @@
+# Environment variables
+.env
+.env.local
+.env*.local
+api/.env
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Public directory (contains junctions/symlinks to root assets)
+public/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
