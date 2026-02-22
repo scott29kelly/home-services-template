@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
@@ -73,8 +73,8 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
             {/* Form */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
               className="lg:col-span-3"
@@ -189,11 +189,11 @@ export default function Contact() {
                   </button>
                 </form>
               )}
-            </motion.div>
+            </m.div>
 
             {/* Contact Info Sidebar */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="lg:col-span-2 space-y-6"
@@ -251,7 +251,7 @@ export default function Contact() {
                   </li>
                 </ul>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </section>

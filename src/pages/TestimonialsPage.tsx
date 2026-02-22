@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Star } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
@@ -29,7 +29,7 @@ export default function TestimonialsPage() {
             {testimonials.ratingBadges.map((badge, i) => {
               const Icon = getIcon(badge.icon)
               return (
-                <motion.div
+                <m.div
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
                   animate={badgeInView ? { opacity: 1, y: 0 } : {}}
@@ -39,7 +39,7 @@ export default function TestimonialsPage() {
                   <Icon className="w-8 h-8 text-brand-blue mx-auto mb-2" />
                   <p className="font-bold text-navy text-sm">{badge.label}</p>
                   <p className="text-xs text-text-secondary">{badge.sublabel}</p>
-                </motion.div>
+                </m.div>
               )
             })}
           </div>
@@ -51,9 +51,9 @@ export default function TestimonialsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {testimonials.all.map((t, i) => (
-              <motion.div
+              <m.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={gridInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.05 }}
                 className="bg-white rounded-2xl border border-border p-6"
@@ -78,7 +78,7 @@ export default function TestimonialsPage() {
                   ))}
                 </div>
                 <p className="text-text-secondary text-sm leading-relaxed">"{t.quote}"</p>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

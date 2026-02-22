@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Home, PanelLeft, CloudLightning } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
@@ -11,7 +11,7 @@ const container = {
 }
 
 const item = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const } },
 }
 
@@ -22,15 +22,15 @@ export default function BentoGrid() {
     <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14" ref={ref}>
-          <motion.h2
+          <m.h2
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
           >
             Our Services
-          </motion.h2>
-          <motion.p
+          </m.h2>
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -38,17 +38,17 @@ export default function BentoGrid() {
           >
             From storm damage repair to complete roof replacements, we deliver quality
             craftsmanship backed by industry-leading warranties.
-          </motion.p>
+          </m.p>
         </div>
 
-        <motion.div
+        <m.div
           variants={container}
           initial="hidden"
           animate={isInView ? 'show' : 'hidden'}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-4 lg:gap-6"
         >
           {/* Roofing - Large Left */}
-          <motion.div variants={item} className="lg:row-span-2">
+          <m.div variants={item} className="lg:row-span-2">
             <Link
               to="/roofing"
               className="group relative block h-full min-h-[320px] lg:min-h-0 rounded-2xl overflow-hidden bg-navy"
@@ -73,10 +73,10 @@ export default function BentoGrid() {
                 </span>
               </div>
             </Link>
-          </motion.div>
+          </m.div>
 
           {/* Siding - Top Right */}
-          <motion.div variants={item} className="lg:col-span-2">
+          <m.div variants={item} className="lg:col-span-2">
             <Link
               to="/siding"
               className="group relative block h-full min-h-[220px] rounded-2xl overflow-hidden bg-navy"
@@ -101,10 +101,10 @@ export default function BentoGrid() {
                 </span>
               </div>
             </Link>
-          </motion.div>
+          </m.div>
 
           {/* Storm Repair - Bottom Right */}
-          <motion.div variants={item} className="lg:col-span-2">
+          <m.div variants={item} className="lg:col-span-2">
             <Link
               to="/storm-damage"
               className="group relative block h-full min-h-[220px] rounded-2xl overflow-hidden bg-navy"
@@ -129,8 +129,8 @@ export default function BentoGrid() {
                 </span>
               </div>
             </Link>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </div>
     </section>
   )

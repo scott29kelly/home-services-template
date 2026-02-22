@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Building, Clock } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
@@ -24,7 +24,7 @@ export default function ServiceAreas() {
       {/* Office */}
       <section className="py-10 border-b border-border" ref={ref}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
@@ -39,25 +39,25 @@ export default function ServiceAreas() {
                 {SITE.hours.weekday}, {SITE.hours.saturday}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       {/* States */}
       <section className="py-20 lg:py-28" ref={statesRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <motion.h2
+          <m.h2
             initial={{ opacity: 0, y: 20 }}
             animate={statesInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl font-extrabold text-navy mb-10 text-center"
           >
             Service Areas by State
-          </motion.h2>
+          </m.h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {SITE.serviceArea.states.map((state, i) => (
-              <motion.div
+              <m.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 animate={statesInView ? { opacity: 1, y: 0 } : {}}
@@ -82,7 +82,7 @@ export default function ServiceAreas() {
                     </span>
                   ))}
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

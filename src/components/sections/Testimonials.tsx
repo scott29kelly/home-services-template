@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Star } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import Button from '../ui/Button'
@@ -10,7 +10,7 @@ const container = {
 }
 
 const item = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const } },
 }
 
@@ -21,32 +21,32 @@ export default function Testimonials() {
     <section className="py-20 lg:py-28 bg-navy">
       <div className="max-w-7xl mx-auto px-4 sm:px-6" ref={ref}>
         <div className="text-center mb-14">
-          <motion.h2
+          <m.h2
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4"
           >
             What Our Customers Say
-          </motion.h2>
-          <motion.p
+          </m.h2>
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-lg text-white/60 max-w-2xl mx-auto"
           >
             Don't just take our word for it – hear from homeowners we've helped.
-          </motion.p>
+          </m.p>
         </div>
 
-        <motion.div
+        <m.div
           variants={container}
           initial="hidden"
           animate={isInView ? 'show' : 'hidden'}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {testimonials.featured.map((t, i) => (
-            <motion.div
+            <m.div
               key={i}
               variants={item}
               className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 lg:p-8"
@@ -71,11 +71,11 @@ export default function Testimonials() {
               <blockquote className="text-white/70 leading-relaxed text-sm">
                 "{t.quote}"
               </blockquote>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
@@ -84,7 +84,7 @@ export default function Testimonials() {
           <Button variant="outline-white" href="/testimonials">
             Read More Reviews
           </Button>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   )

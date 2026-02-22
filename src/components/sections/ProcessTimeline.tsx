@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform, useInView } from 'framer-motion'
+import { m, useScroll, useTransform, useInView } from 'framer-motion'
 import { Search, FileText, Users, Hammer } from 'lucide-react'
 import Button from '../ui/Button'
 
@@ -41,28 +41,28 @@ export default function ProcessTimeline() {
     <section className="py-20 lg:py-28 bg-surface">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-14">
-          <motion.h2
+          <m.h2
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
           >
             How Insurance Claims Work
-          </motion.h2>
-          <motion.p
+          </m.h2>
+          <m.p
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-lg text-text-secondary max-w-2xl mx-auto"
           >
             We simplify the insurance process so you can focus on what matters most.
-          </motion.p>
+          </m.p>
         </div>
 
         <div ref={containerRef} className="relative max-w-2xl mx-auto">
           {/* Timeline Track */}
           <div className="absolute left-8 lg:left-1/2 lg:-translate-x-px top-0 bottom-0 w-0.5 bg-border">
-            <motion.div
+            <m.div
               style={{ height: lineHeight }}
               className="w-full bg-gradient-to-b from-brand-blue to-safety-orange rounded-full"
             />
@@ -71,9 +71,9 @@ export default function ProcessTimeline() {
           {/* Steps */}
           <div className="space-y-12 lg:space-y-16">
             {steps.map((step, i) => (
-              <motion.div
+              <m.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.2 + i * 0.15 }}
                 className={`relative flex items-start gap-6 lg:gap-0 ${
@@ -99,12 +99,12 @@ export default function ProcessTimeline() {
                   <h3 className="text-xl font-bold text-navy mb-1">{step.title}</h3>
                   <p className="text-text-secondary leading-relaxed">{step.description}</p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.8 }}
@@ -113,7 +113,7 @@ export default function ProcessTimeline() {
           <Button variant="primary" size="lg" href="/storm-damage">
             Learn About Our Process
           </Button>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   )

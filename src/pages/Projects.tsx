@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
 import { useScrollReveal } from '../hooks/useScrollReveal'
@@ -47,12 +47,11 @@ export default function Projects() {
           </div>
 
           {/* Grid */}
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence mode="popLayout">
               {filtered.map((project) => (
-                <motion.div
+                <m.div
                   key={project.id}
-                  layout
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
@@ -75,30 +74,30 @@ export default function Projects() {
                     <p className="text-sm text-text-secondary">{project.location}</p>
                     <p className="text-xs text-brand-blue font-medium mt-1">{project.detail}</p>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Before & After */}
       <section className="py-20 lg:py-28 bg-surface" ref={baRef}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <motion.h2
+          <m.h2
             initial={{ opacity: 0, y: 20 }}
             animate={baInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
             className="text-3xl sm:text-4xl font-extrabold text-navy mb-10 text-center"
           >
             Before & After
-          </motion.h2>
+          </m.h2>
 
           <div className="space-y-10">
             {projects.beforeAfter.map((item, i) => (
-              <motion.div
+              <m.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={baInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.15 }}
                 className="bg-white rounded-2xl border border-border overflow-hidden"
@@ -123,7 +122,7 @@ export default function Projects() {
                     {item.location} &mdash; {item.description}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

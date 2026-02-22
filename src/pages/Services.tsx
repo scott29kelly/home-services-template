@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Shield, Trophy, Award } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Hero from '../components/sections/Hero'
@@ -43,9 +43,9 @@ export default function Services() {
             {services.map((service, i) => {
               const Icon = getIcon(service.icon)
               return (
-                <motion.div
+                <m.div
                   key={service.slug}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.6, delay: 0.1 + i * 0.1 }}
                 >
@@ -75,7 +75,7 @@ export default function Services() {
                       </span>
                     </div>
                   </Link>
-                </motion.div>
+                </m.div>
               )
             })}
           </div>
@@ -86,7 +86,7 @@ export default function Services() {
       <section className="py-20 lg:py-28 bg-surface" ref={whyRef}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: -20 }}
               animate={whyInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6 }}
@@ -102,9 +102,9 @@ export default function Services() {
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, x: 20 }}
               animate={whyInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -119,7 +119,7 @@ export default function Services() {
                   <p className="font-semibold text-navy text-sm">{cert.title}</p>
                 </div>
               ))}
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </section>

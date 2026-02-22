@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Send, MessageCircle } from 'lucide-react'
 import { sendMessage, type Message } from '../lib/api'
 import PageMeta from '../components/ui/PageMeta'
@@ -52,7 +52,7 @@ export default function Ava() {
       <section className="py-10 lg:py-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -69,7 +69,7 @@ export default function Ava() {
           <p className="text-text-secondary">
             Your AI-powered virtual assistant. Ask anything about storm damage, claims, or our services.
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Chat Area */}
         <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">

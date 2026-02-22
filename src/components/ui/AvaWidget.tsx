@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import { X, Send, MessageCircle } from 'lucide-react'
 import { sendMessage, type Message } from '../../lib/api'
 import { SITE } from '../../config/site'
@@ -52,7 +52,7 @@ export default function AvaWidget() {
       {/* Floating Button */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
+          <m.button
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
@@ -70,14 +70,14 @@ export default function AvaWidget() {
                 Ask {SITE.assistant.name}
               </span>
             </span>
-          </motion.button>
+          </m.button>
         )}
       </AnimatePresence>
 
       {/* Chat Modal */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -180,7 +180,7 @@ export default function AvaWidget() {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { m, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 
@@ -20,18 +20,18 @@ export default function FAQ({ title, items }: FAQProps) {
   return (
     <section className="py-20 lg:py-28 bg-surface" ref={ref}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <motion.h2
+        <m.h2
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
           className="text-3xl sm:text-4xl font-extrabold text-navy mb-10 text-center"
         >
           {title}
-        </motion.h2>
+        </m.h2>
 
         <div className="space-y-3">
           {items.map((item, i) => (
-            <motion.div
+            <m.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -53,7 +53,7 @@ export default function FAQ({ title, items }: FAQProps) {
               </button>
               <AnimatePresence initial={false}>
                 {openIndex === i && (
-                  <motion.div
+                  <m.div
                     id={`faq-answer-${i}`}
                     role="region"
                     initial={{ height: 0, opacity: 0 }}
@@ -64,10 +64,10 @@ export default function FAQ({ title, items }: FAQProps) {
                     <div className="px-6 pb-4 text-text-secondary leading-relaxed">
                       {item.answer}
                     </div>
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>

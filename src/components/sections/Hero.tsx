@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import Button from '../ui/Button'
 import { SITE } from '../../config/site'
 
@@ -35,14 +34,9 @@ export default function Hero({
       />
       <div className="absolute inset-0 bg-gradient-to-r from-navy/80 via-navy/60 to-navy/30" />
 
-      {/* Content */}
+      {/* Content — renders instantly, no animation delay for LCP */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full py-20">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-          className="max-w-2xl"
-        >
+        <div className="max-w-2xl">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
             {headline}{' '}
             <span className="text-safety-orange">{highlightText}</span>
@@ -63,7 +57,7 @@ export default function Hero({
               {secondaryCTA.text}
             </Button>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

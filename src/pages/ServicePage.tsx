@@ -1,5 +1,5 @@
 import { useLocation, Navigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
 import { Shield, CheckCircle } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
@@ -64,32 +64,32 @@ function CardGrid({ section }: { section: CardGridSection }) {
       <div className={section.columns === 2 ? 'max-w-4xl mx-auto px-4 sm:px-6' : 'max-w-7xl mx-auto px-4 sm:px-6'}>
         {section.title && (
           <div className="text-center mb-14">
-            <motion.h2
+            <m.h2
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
             >
               {section.title}
-            </motion.h2>
+            </m.h2>
             {section.subtitle && (
-              <motion.p
+              <m.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-lg text-text-secondary max-w-2xl mx-auto"
               >
                 {section.subtitle}
-              </motion.p>
+              </m.p>
             )}
           </div>
         )}
 
         <div className={`grid grid-cols-1 ${cols} gap-6`}>
           {section.cards.map((card, i) => (
-            <motion.div
+            <m.div
               key={i}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
               className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300"
@@ -112,7 +112,7 @@ function CardGrid({ section }: { section: CardGridSection }) {
                   ))}
                 </ul>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>
@@ -136,23 +136,23 @@ function IconGrid({ section }: { section: IconGridSection }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {section.title && (
           <div className="text-center mb-14">
-            <motion.h2
+            <m.h2
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
             >
               {section.title}
-            </motion.h2>
+            </m.h2>
             {section.subtitle && (
-              <motion.p
+              <m.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-lg text-text-secondary"
               >
                 {section.subtitle}
-              </motion.p>
+              </m.p>
             )}
           </div>
         )}
@@ -161,7 +161,7 @@ function IconGrid({ section }: { section: IconGridSection }) {
           {section.cards.map((card, i) => {
             const Icon = getIcon(card.icon)
             return (
-              <motion.div
+              <m.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -179,7 +179,7 @@ function IconGrid({ section }: { section: IconGridSection }) {
                 </div>
                 <h4 className="font-bold text-navy mb-1">{card.title}</h4>
                 <p className="text-sm text-text-secondary">{card.description}</p>
-              </motion.div>
+              </m.div>
             )
           })}
         </div>
@@ -197,30 +197,30 @@ function MaterialGrid({ section }: { section: MaterialGridSection }) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {section.title && (
           <div className="text-center mb-14">
-            <motion.h2
+            <m.h2
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
               className="text-3xl sm:text-4xl font-extrabold text-navy mb-4"
             >
               {section.title}
-            </motion.h2>
+            </m.h2>
             {section.subtitle && (
-              <motion.p
+              <m.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-lg text-text-secondary"
               >
                 {section.subtitle}
-              </motion.p>
+              </m.p>
             )}
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {section.cards.map((mat, i) => (
-            <motion.div
+            <m.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -236,7 +236,7 @@ function MaterialGrid({ section }: { section: MaterialGridSection }) {
                   </li>
                 ))}
               </ul>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>
@@ -253,30 +253,30 @@ function StyleGallery({ section }: { section: StyleGallerySection }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {section.title && (
           <div className="text-center mb-14">
-            <motion.h2
+            <m.h2
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
               className="text-3xl sm:text-4xl font-extrabold text-navy mb-4"
             >
               {section.title}
-            </motion.h2>
+            </m.h2>
             {section.subtitle && (
-              <motion.p
+              <m.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-lg text-text-secondary"
               >
                 {section.subtitle}
-              </motion.p>
+              </m.p>
             )}
           </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {section.cards.map((style, i) => (
-            <motion.div
+            <m.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -288,7 +288,7 @@ function StyleGallery({ section }: { section: StyleGallerySection }) {
                 <h4 className="font-bold text-navy mb-1">{style.title}</h4>
                 <p className="text-sm text-text-secondary">{style.description}</p>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>
@@ -305,8 +305,8 @@ function TrustSectionRenderer({ section }: { section: TrustSection }) {
     <section className={`py-20 lg:py-28 ${bg}`} ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
+          <m.div
+            initial={{ opacity: 0, x: -20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6 }}
           >
@@ -330,10 +330,10 @@ function TrustSectionRenderer({ section }: { section: TrustSection }) {
             <Button variant="primary" href={section.ctaHref}>
               {section.ctaText}
             </Button>
-          </motion.div>
+          </m.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
+          <m.div
+            initial={{ opacity: 0, x: 20 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="bg-surface rounded-2xl border border-border p-6 lg:p-8"
@@ -357,7 +357,7 @@ function TrustSectionRenderer({ section }: { section: TrustSection }) {
                 <strong>Important:</strong> {section.sidebar.footnote}
               </p>
             )}
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </section>
