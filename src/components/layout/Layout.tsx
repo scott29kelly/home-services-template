@@ -3,6 +3,7 @@ import Header from './Header'
 import Footer from './Footer'
 import ScrollToTop from './ScrollToTop'
 import AvaWidget from '../ui/AvaWidget'
+import StickyMobileCTA from '../ui/StickyMobileCTA'
 
 export default function Layout() {
   const { pathname } = useLocation()
@@ -24,6 +25,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <StickyMobileCTA />
       {showAvaWidget && <AvaWidget />}
     </div>
   )

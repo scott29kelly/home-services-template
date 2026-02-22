@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { X, Send, MessageCircle } from 'lucide-react'
 import { sendMessage, type Message } from '../../lib/api'
@@ -17,6 +17,8 @@ export default function AvaWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const openChat = useCallback(() => setIsOpen(true), [])
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
@@ -24,6 +26,12 @@ export default function AvaWidget() {
   useEffect(() => {
     if (isOpen) inputRef.current?.focus()
   }, [isOpen])
+
+  // Listen for open-ava-chat events from StickyMobileCTA
+  useEffect(() => {
+    window.addEventListener('open-ava-chat', openChat)
+    return () => window.removeEventListener('open-ava-chat', openChat)
+  }, [openChat])
 
   const handleSend = async (text?: string) => {
     const userMessage = text || input.trim()
@@ -58,7 +66,7 @@ export default function AvaWidget() {
             exit={{ scale: 0 }}
             onClick={() => setIsOpen(true)}
             aria-label={`Open ${SITE.assistant.name} AI chat assistant`}
-            className="fixed bottom-6 right-6 z-50 group flex items-center gap-2 rounded-full p-[2px] bg-gradient-to-r from-brand-blue to-sky-400 shadow-xl shadow-brand-blue/20 hover:shadow-2xl hover:shadow-brand-blue/30 transition-shadow duration-300"
+            className="fixed bottom-20 right-6 md:bottom-6 z-50 group flex items-center gap-2 rounded-full p-[2px] bg-gradient-to-r from-brand-blue to-sky-400 shadow-xl shadow-brand-blue/20 hover:shadow-2xl hover:shadow-brand-blue/30 transition-shadow duration-300"
           >
             <span className="flex items-center gap-2 bg-white rounded-full pl-1 pr-4 py-1">
               <img
@@ -82,7 +90,7 @@ export default function AvaWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] bg-white rounded-2xl shadow-2xl shadow-navy/15 border border-border flex flex-col overflow-hidden"
+            className="fixed bottom-20 right-6 md:bottom-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] bg-white rounded-2xl shadow-2xl shadow-navy/15 border border-border flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-surface/50">
