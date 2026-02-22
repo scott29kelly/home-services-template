@@ -1,15 +1,15 @@
 # STATE — Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-22T21:38Z
+**Last Updated:** 2026-02-22T21:46Z
 
 ---
 
 ## Current Phase
 
 **Phase:** 2 — Visual Polish & Performance
-**Current Plan:** 2 of 3 (Plan 01 complete)
+**Current Plan:** 3 of 3 (Plans 01-02 complete)
 
-**Next Action:** Execute 02-02-PLAN.md
+**Next Action:** Execute 02-03-PLAN.md
 
 ---
 
@@ -18,7 +18,7 @@
 | Phase | Name | Status | Started | Completed |
 |-------|------|--------|---------|-----------|
 | 1 | Foundation & Config Refactor | COMPLETE | 2026-02-21 | 2026-02-21 |
-| 2 | Visual Polish & Performance | IN PROGRESS (1/3 plans) | 2026-02-22 | — |
+| 2 | Visual Polish & Performance | IN PROGRESS (2/3 plans) | 2026-02-22 | — |
 | 3 | Lead Generation | NOT STARTED | — | — |
 | 4 | Blog System | NOT STARTED | — | — |
 | 5 | SEO & Content | NOT STARTED | — | — |
@@ -29,9 +29,9 @@
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD)
-- **Requirements completed:** 8 (CFG-01 through CFG-06, VIS-01, VIS-04)
-- **Phases completed:** 1 / 6 (Phase 2 in progress: 1/3 plans done)
-- **Overall progress:** ~25%
+- **Requirements completed:** 10 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-04, VIS-05)
+- **Phases completed:** 1 / 6 (Phase 2 in progress: 2/3 plans done)
+- **Overall progress:** ~30%
 
 ---
 
@@ -53,6 +53,10 @@
 | 2026-02-22 | SectionHeading uses whileInView | Self-contained animation, no external isInView ref needed |
 | 2026-02-22 | Hero has zero framer-motion dependency | No animation on above-fold content for instant LCP |
 | 2026-02-22 | Accent line gradient on headings | brand-blue for light, safety-orange for dark theme |
+| 2026-02-22 | Featured testimonials expanded to 5 with service field | Richer carousel rotation; 3 felt too short for autoplay |
+| 2026-02-22 | Pointer Events API for BeforeAfterSlider | Unified mouse/touch with setPointerCapture for smooth drag |
+| 2026-02-22 | TestimonialsPage keeps grid layout | Grid better for scanning 8 reviews; carousel for homepage only |
+| 2026-02-22 | Skeletons for images only per user decision | Text renders instantly from bundled config; no text skeletons |
 
 ---
 
@@ -69,7 +73,7 @@
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-01-PLAN.md (LazyMotion migration + SectionHeading)
+Stopped at: Completed 02-02-PLAN.md (AnimatedTestimonials + BeforeAfterSlider + Skeleton)
 Resume file: N/A
 
 ---

@@ -109,17 +109,17 @@ Optimize Framer Motion bundle and fix CWV-damaging animations.
 - [x] `MotionConfig reducedMotion="user"` set at app root
 - [x] Bundle size reduced by ~15KB gzipped vs. current
 
-### VIS-02: Interactive Before/After Slider — SHOULD
+### VIS-02: Interactive Before/After Slider — SHOULD [COMPLETE]
 
 Replace static side-by-side project comparisons with a draggable slider component.
 
 **Files:** `src/components/ui/BeforeAfterSlider.tsx`, `src/pages/Projects.tsx`
 
 **Acceptance Criteria:**
-- [ ] Draggable slider divider between before/after images
-- [ ] Touch-friendly on mobile
-- [ ] Keyboard accessible (arrow keys move slider)
-- [ ] Projects with `beforeImage`/`afterImage` in config render with slider
+- [x] Draggable slider divider between before/after images
+- [x] Touch-friendly on mobile
+- [x] Keyboard accessible (arrow keys move slider)
+- [x] Projects with `beforeImage`/`afterImage` in config render with slider
 - [ ] Falls back gracefully when only one image exists
 
 ### VIS-03: Sticky Mobile CTA Bar — MUST
@@ -146,16 +146,16 @@ Consistent heading component for all section titles with optional subtitle and a
 - [x] Used across all section components for consistent styling
 - [x] Proper heading hierarchy (h2 for sections, configurable)
 
-### VIS-05: Skeleton Loading States — SHOULD
+### VIS-05: Skeleton Loading States — SHOULD [COMPLETE]
 
 Skeleton placeholders for lazy-loaded content instead of spinner.
 
 **Files:** `src/components/ui/Skeleton.tsx`, `src/App.tsx`
 
 **Acceptance Criteria:**
-- [ ] Skeleton component with pulse animation
-- [ ] Used as Suspense fallback for page-level lazy loads
-- [ ] Matches approximate layout of target page
+- [x] Skeleton component with pulse animation
+- [x] Used as Suspense fallback for page-level lazy loads
+- [x] Matches approximate layout of target page
 
 ---
 
