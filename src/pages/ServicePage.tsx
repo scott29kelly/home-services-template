@@ -6,6 +6,7 @@ import FAQ from '../components/sections/FAQ'
 import CTA from '../components/sections/CTA'
 import ProcessTimeline from '../components/sections/ProcessTimeline'
 import Button from '../components/ui/Button'
+import SectionHeading from '../components/ui/SectionHeading'
 import PageMeta from '../components/ui/PageMeta'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { getServiceBySlug } from '../config/services'
@@ -63,26 +64,11 @@ function CardGrid({ section }: { section: CardGridSection }) {
     <section className={`py-20 lg:py-28 ${bg}`} ref={ref}>
       <div className={section.columns === 2 ? 'max-w-4xl mx-auto px-4 sm:px-6' : 'max-w-7xl mx-auto px-4 sm:px-6'}>
         {section.title && (
-          <div className="text-center mb-14">
-            <m.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
-            >
-              {section.title}
-            </m.h2>
-            {section.subtitle && (
-              <m.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-lg text-text-secondary max-w-2xl mx-auto"
-              >
-                {section.subtitle}
-              </m.p>
-            )}
-          </div>
+          <SectionHeading
+            title={section.title}
+            subtitle={section.subtitle}
+            className="mb-14"
+          />
         )}
 
         <div className={`grid grid-cols-1 ${cols} gap-6`}>
@@ -135,26 +121,11 @@ function IconGrid({ section }: { section: IconGridSection }) {
     <section className={`py-20 lg:py-28 ${bg}`} ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {section.title && (
-          <div className="text-center mb-14">
-            <m.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
-            >
-              {section.title}
-            </m.h2>
-            {section.subtitle && (
-              <m.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-lg text-text-secondary"
-              >
-                {section.subtitle}
-              </m.p>
-            )}
-          </div>
+          <SectionHeading
+            title={section.title}
+            subtitle={section.subtitle}
+            className="mb-14"
+          />
         )}
 
         <div className={`grid grid-cols-1 ${colsClass} gap-6`}>
@@ -196,26 +167,11 @@ function MaterialGrid({ section }: { section: MaterialGridSection }) {
     <section className={`py-20 lg:py-28 ${bg}`} ref={ref}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {section.title && (
-          <div className="text-center mb-14">
-            <m.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="text-3xl sm:text-4xl font-extrabold text-navy mb-4"
-            >
-              {section.title}
-            </m.h2>
-            {section.subtitle && (
-              <m.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-lg text-text-secondary"
-              >
-                {section.subtitle}
-              </m.p>
-            )}
-          </div>
+          <SectionHeading
+            title={section.title}
+            subtitle={section.subtitle}
+            className="mb-14"
+          />
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -252,26 +208,11 @@ function StyleGallery({ section }: { section: StyleGallerySection }) {
     <section className={`py-20 lg:py-28 ${bg}`} ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {section.title && (
-          <div className="text-center mb-14">
-            <m.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="text-3xl sm:text-4xl font-extrabold text-navy mb-4"
-            >
-              {section.title}
-            </m.h2>
-            {section.subtitle && (
-              <m.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-lg text-text-secondary"
-              >
-                {section.subtitle}
-              </m.p>
-            )}
-          </div>
+          <SectionHeading
+            title={section.title}
+            subtitle={section.subtitle}
+            className="mb-14"
+          />
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

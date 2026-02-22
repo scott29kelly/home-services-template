@@ -2,6 +2,7 @@ import { m } from 'framer-motion'
 import { Star } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import Button from '../ui/Button'
+import SectionHeading from '../ui/SectionHeading'
 import { testimonials } from '../../config/testimonials'
 
 const container = {
@@ -20,24 +21,12 @@ export default function Testimonials() {
   return (
     <section className="py-20 lg:py-28 bg-navy">
       <div className="max-w-7xl mx-auto px-4 sm:px-6" ref={ref}>
-        <div className="text-center mb-14">
-          <m.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4"
-          >
-            What Our Customers Say
-          </m.h2>
-          <m.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg text-white/60 max-w-2xl mx-auto"
-          >
-            Don't just take our word for it – hear from homeowners we've helped.
-          </m.p>
-        </div>
+        <SectionHeading
+          title="What Our Customers Say"
+          subtitle="Don't just take our word for it -- hear from homeowners we've helped."
+          theme="dark"
+          className="mb-14"
+        />
 
         <m.div
           variants={container}

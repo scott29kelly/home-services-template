@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
+import SectionHeading from '../components/ui/SectionHeading'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
 import { projects } from '../config/projects'
@@ -84,14 +85,7 @@ export default function Projects() {
       {/* Before & After */}
       <section className="py-20 lg:py-28 bg-surface" ref={baRef}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <m.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={baInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl font-extrabold text-navy mb-10 text-center"
-          >
-            Before & After
-          </m.h2>
+          <SectionHeading title="Before & After" className="mb-10" />
 
           <div className="space-y-10">
             {projects.beforeAfter.map((item, i) => (

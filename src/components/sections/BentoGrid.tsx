@@ -2,6 +2,7 @@ import { m } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Home, PanelLeft, CloudLightning } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import SectionHeading from '../ui/SectionHeading'
 
 const container = {
   hidden: {},
@@ -21,24 +22,11 @@ export default function BentoGrid() {
   return (
     <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14" ref={ref}>
-          <m.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
-          >
-            Our Services
-          </m.h2>
-          <m.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg text-text-secondary max-w-2xl mx-auto"
-          >
-            From storm damage repair to complete roof replacements, we deliver quality
-            craftsmanship backed by industry-leading warranties.
-          </m.p>
+        <div className="mb-14" ref={ref}>
+          <SectionHeading
+            title="Our Services"
+            subtitle="From storm damage repair to complete roof replacements, we deliver quality craftsmanship backed by industry-leading warranties."
+          />
         </div>
 
         <m.div

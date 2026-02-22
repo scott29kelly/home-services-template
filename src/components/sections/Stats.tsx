@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { m } from 'framer-motion'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import SectionHeading from '../ui/SectionHeading'
 import { SITE } from '../../config/site'
 
 const stats = [
@@ -45,24 +46,12 @@ export default function Stats() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-blue/5 rounded-full blur-3xl" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
-          <m.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4"
-          >
-            Why Homeowners Choose Us
-          </m.h2>
-          <m.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg text-slate-300 max-w-2xl mx-auto"
-          >
-            We're not just contractors – we're your advocates throughout the entire process.
-          </m.p>
-        </div>
+        <SectionHeading
+          title="Why Homeowners Choose Us"
+          subtitle="We're not just contractors -- we're your advocates throughout the entire process."
+          theme="dark"
+          className="mb-14"
+        />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((stat, i) => (

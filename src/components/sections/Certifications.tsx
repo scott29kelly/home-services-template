@@ -1,6 +1,7 @@
 import { m } from 'framer-motion'
 import { Trophy, Shield, Award } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import SectionHeading from '../ui/SectionHeading'
 
 const certs = [
   {
@@ -26,24 +27,11 @@ export default function Certifications() {
   return (
     <section className="py-20 lg:py-28" ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
-          <m.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
-          >
-            Trusted & Certified
-          </m.h2>
-          <m.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg text-text-secondary max-w-2xl mx-auto"
-          >
-            Our certifications represent our commitment to excellence and continuous training.
-          </m.p>
-        </div>
+        <SectionHeading
+          title="Trusted & Certified"
+          subtitle="Our certifications represent our commitment to excellence and continuous training."
+          className="mb-14"
+        />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           {certs.map((cert, i) => (

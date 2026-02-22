@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { m, useScroll, useTransform, useInView } from 'framer-motion'
 import { Search, FileText, Users, Hammer } from 'lucide-react'
 import Button from '../ui/Button'
+import SectionHeading from '../ui/SectionHeading'
 
 const steps = [
   {
@@ -40,24 +41,11 @@ export default function ProcessTimeline() {
   return (
     <section className="py-20 lg:py-28 bg-surface">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-14">
-          <m.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-navy mb-4"
-          >
-            How Insurance Claims Work
-          </m.h2>
-          <m.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-lg text-text-secondary max-w-2xl mx-auto"
-          >
-            We simplify the insurance process so you can focus on what matters most.
-          </m.p>
-        </div>
+        <SectionHeading
+          title="How Insurance Claims Work"
+          subtitle="We simplify the insurance process so you can focus on what matters most."
+          className="mb-14"
+        />
 
         <div ref={containerRef} className="relative max-w-2xl mx-auto">
           {/* Timeline Track */}

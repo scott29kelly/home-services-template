@@ -2,6 +2,7 @@ import { m } from 'framer-motion'
 import { Building, Clock } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
+import SectionHeading from '../components/ui/SectionHeading'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
 import { SITE } from '../config/site'
@@ -46,14 +47,7 @@ export default function ServiceAreas() {
       {/* States */}
       <section className="py-20 lg:py-28" ref={statesRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <m.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={statesInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-3xl sm:text-4xl font-extrabold text-navy mb-10 text-center"
-          >
-            Service Areas by State
-          </m.h2>
+          <SectionHeading title="Service Areas by State" className="mb-10" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {SITE.serviceArea.states.map((state, i) => (

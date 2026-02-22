@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import SectionHeading from '../ui/SectionHeading'
 
 interface FAQItem {
   question: string
@@ -20,14 +21,7 @@ export default function FAQ({ title, items }: FAQProps) {
   return (
     <section className="py-20 lg:py-28 bg-surface" ref={ref}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <m.h2
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-3xl sm:text-4xl font-extrabold text-navy mb-10 text-center"
-        >
-          {title}
-        </m.h2>
+        <SectionHeading title={title} className="mb-10" />
 
         <div className="space-y-3">
           {items.map((item, i) => (
