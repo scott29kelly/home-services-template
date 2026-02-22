@@ -3,6 +3,7 @@ import { m, AnimatePresence } from 'framer-motion'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
 import SectionHeading from '../components/ui/SectionHeading'
+import BeforeAfterSlider from '../components/ui/BeforeAfterSlider'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
 import { projects } from '../config/projects'
@@ -85,7 +86,11 @@ export default function Projects() {
       {/* Before & After */}
       <section className="py-20 lg:py-28 bg-surface" ref={baRef}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <SectionHeading title="Before & After" className="mb-10" />
+          <SectionHeading
+            title="Before & After"
+            subtitle="See the transformation -- drag the slider to compare."
+            className="mb-10"
+          />
 
           <div className="space-y-10">
             {projects.beforeAfter.map((item, i) => (
@@ -96,20 +101,11 @@ export default function Projects() {
                 transition={{ duration: 0.6, delay: 0.1 + i * 0.15 }}
                 className="bg-white rounded-2xl border border-border overflow-hidden"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2">
-                  <div className="relative">
-                    <img src={item.before} alt="Before" className="w-full h-64 object-cover" loading="lazy" />
-                    <span className="absolute bottom-3 left-3 px-3 py-1 bg-black/60 text-white text-xs font-medium rounded-full">
-                      Before
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <img src={item.after} alt="After" className="w-full h-64 object-cover" loading="lazy" />
-                    <span className="absolute bottom-3 left-3 px-3 py-1 bg-brand-blue text-white text-xs font-medium rounded-full">
-                      After
-                    </span>
-                  </div>
-                </div>
+                <BeforeAfterSlider
+                  beforeImage={item.before}
+                  afterImage={item.after}
+                  className="h-64 sm:h-80 lg:h-96 rounded-none"
+                />
                 <div className="p-6">
                   <h3 className="font-bold text-navy">{item.title}</h3>
                   <p className="text-sm text-text-secondary">

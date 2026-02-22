@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import Layout from './components/layout/Layout'
+import { PageSkeleton } from './components/ui/Skeleton'
 import { getServiceRoutes } from './lib/route-generator'
 
 // Eager load Home for fast FCP
@@ -19,17 +20,9 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 
 const serviceRoutes = getServiceRoutes()
 
-function PageLoader() {
-  return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="w-8 h-8 border-3 border-brand-blue/30 border-t-brand-blue rounded-full animate-spin" />
-    </div>
-  )
-}
-
 export default function App() {
   return (
-    <Suspense fallback={<PageLoader />}>
+    <Suspense fallback={<PageSkeleton />}>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
