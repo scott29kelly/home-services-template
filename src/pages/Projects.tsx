@@ -64,8 +64,11 @@ export default function Projects() {
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                      width={800}
+                      height={600}
                       loading="lazy"
+                      decoding="async"
+                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <span className="absolute top-3 right-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-navy capitalize">
                       {project.category}

@@ -88,10 +88,12 @@ export default function AnimatedTestimonials({
                 <img
                   src={t.image}
                   alt={`Completed ${t.service || 'project'} in ${t.location}`}
-                  className="w-full h-full object-cover rounded-2xl shadow-xl"
                   width={600}
                   height={400}
+                  loading="lazy"
+                  decoding="async"
                   draggable={false}
+                  className="w-full h-full object-cover rounded-2xl shadow-xl"
                 />
                 {/* Subtle gradient overlay for depth */}
                 {!isActive && (

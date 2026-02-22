@@ -44,8 +44,11 @@ export default function BentoGrid() {
               <img
                 src="/images/hero-roofing.webp"
                 alt="Roofing services"
-                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
+                width={800}
+                height={600}
                 loading="lazy"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
               />
               <div className="relative h-full flex flex-col justify-end p-8">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4">
@@ -72,8 +75,11 @@ export default function BentoGrid() {
               <img
                 src="/images/siding-hero.webp"
                 alt="Siding services"
-                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
+                width={800}
+                height={600}
                 loading="lazy"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
               />
               <div className="relative h-full flex flex-col justify-end p-8">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4">
@@ -100,8 +106,11 @@ export default function BentoGrid() {
               <img
                 src="/images/storm-damage-hero.webp"
                 alt="Storm damage repair"
-                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
+                width={800}
+                height={600}
                 loading="lazy"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
               />
               <div className="relative h-full flex flex-col justify-end p-8">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-4">

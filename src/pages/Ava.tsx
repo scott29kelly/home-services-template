@@ -61,6 +61,10 @@ export default function Ava() {
           <img
             src={SITE.assistant.avatarLarge}
             alt={`${SITE.assistant.name} AI Assistant`}
+            width={80}
+            height={80}
+            loading="lazy"
+            decoding="async"
             className="w-20 h-20 rounded-full mx-auto mb-4 object-cover shadow-lg"
           />
           <h1 className="text-3xl sm:text-4xl font-extrabold text-navy mb-2">
@@ -84,6 +88,10 @@ export default function Ava() {
                   <img
                     src={SITE.assistant.avatarSmall}
                     alt={SITE.assistant.name}
+                    width={32}
+                    height={32}
+                    loading="lazy"
+                    decoding="async"
                     className="w-8 h-8 rounded-full mr-3 shrink-0 mt-1"
                   />
                 )}
@@ -104,6 +112,10 @@ export default function Ava() {
                 <img
                   src={SITE.assistant.avatarSmall}
                   alt={SITE.assistant.name}
+                  width={32}
+                  height={32}
+                  loading="lazy"
+                  decoding="async"
                   className="w-8 h-8 rounded-full mr-3 shrink-0"
                 />
                 <div className="bg-surface border border-border rounded-2xl rounded-bl-md px-4 py-3">

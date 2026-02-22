@@ -73,8 +73,11 @@ export default function About() {
                 <img
                   src={member.image}
                   alt={member.name}
-                  className="w-full aspect-square rounded-2xl object-cover mb-3"
+                  width={400}
+                  height={400}
                   loading="lazy"
+                  decoding="async"
+                  className="w-full aspect-square rounded-2xl object-cover mb-3"
                 />
                 <h4 className="font-bold text-navy text-sm">{member.name}</h4>
                 <p className="text-xs text-text-secondary">{member.title}</p>

@@ -72,6 +72,10 @@ export default function AvaWidget() {
               <img
                 src={SITE.assistant.avatarSmall}
                 alt={`${SITE.assistant.name} AI Assistant`}
+                width={32}
+                height={32}
+                loading="lazy"
+                decoding="async"
                 className="w-8 h-8 rounded-full object-cover"
               />
               <span className="text-sm font-semibold text-navy whitespace-nowrap">
@@ -97,6 +101,10 @@ export default function AvaWidget() {
               <img
                 src={SITE.assistant.avatarSmall}
                 alt={SITE.assistant.name}
+                width={36}
+                height={36}
+                loading="lazy"
+                decoding="async"
                 className="w-9 h-9 rounded-full object-cover"
               />
               <div className="flex-1 min-w-0">

@@ -57,8 +57,11 @@ export default function Services() {
                       <img
                         src={service.overview.image}
                         alt={service.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        width={800}
+                        height={448}
                         loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-navy/60 to-transparent" />
                       <div className="absolute bottom-4 left-4 flex items-center gap-2">
