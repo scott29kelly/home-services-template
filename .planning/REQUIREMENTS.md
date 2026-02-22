@@ -96,18 +96,18 @@ Boolean config flags that gate routes, navigation items, and component rendering
 
 ## Category: Visual Polish (VIS)
 
-### VIS-01: Framer Motion Performance Optimization — MUST
+### VIS-01: Framer Motion Performance Optimization — MUST [COMPLETE]
 
 Optimize Framer Motion bundle and fix CWV-damaging animations.
 
 **Files:** `src/main.tsx`, all section components using `motion`
 
 **Acceptance Criteria:**
-- [ ] `LazyMotion` with `domAnimation` wraps the app (replaces full motion import)
-- [ ] All `motion.div` replaced with `m.div` (reduced bundle)
-- [ ] Hero content renders without opacity animation delay (above-fold elements instant)
-- [ ] `MotionConfig reducedMotion="user"` set at app root
-- [ ] Bundle size reduced by ~15KB gzipped vs. current
+- [x] `LazyMotion` with `domAnimation` wraps the app (replaces full motion import)
+- [x] All `motion.div` replaced with `m.div` (reduced bundle)
+- [x] Hero content renders without opacity animation delay (above-fold elements instant)
+- [x] `MotionConfig reducedMotion="user"` set at app root
+- [x] Bundle size reduced by ~15KB gzipped vs. current
 
 ### VIS-02: Interactive Before/After Slider — SHOULD
 
@@ -135,16 +135,16 @@ Fixed bottom bar on mobile with click-to-call and quote CTA.
 - [ ] Does not overlap with chat widget
 - [ ] Phone number and CTA text from config
 
-### VIS-04: SectionHeading Component — SHOULD
+### VIS-04: SectionHeading Component — SHOULD [COMPLETE]
 
 Consistent heading component for all section titles with optional subtitle and accent line.
 
 **Files:** `src/components/ui/SectionHeading.tsx`
 
 **Acceptance Criteria:**
-- [ ] Reusable component with title, subtitle, alignment props
-- [ ] Used across all section components for consistent styling
-- [ ] Proper heading hierarchy (h2 for sections, configurable)
+- [x] Reusable component with title, subtitle, alignment props
+- [x] Used across all section components for consistent styling
+- [x] Proper heading hierarchy (h2 for sections, configurable)
 
 ### VIS-05: Skeleton Loading States — SHOULD
 
