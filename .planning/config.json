@@ -1,0 +1,25 @@
+{
+  "project": "home-services-template",
+  "milestone": "v1.0",
+  "created": "2026-02-21",
+  "workflow": {
+    "mode": "autonomous",
+    "research": true,
+    "plan_checker": true,
+    "verifier": true,
+    "git_tracking": true,
+    "atomic_commits": true
+  },
+  "models": {
+    "profile": "custom",
+    "planning": "opus",
+    "research": "opus",
+    "execution": "opus",
+    "verification": "opus",
+    "plan_check": "opus"
+  },
+  "parallelization": {
+    "research_agents": 4,
+    "execution_waves": true
+  }
+}
