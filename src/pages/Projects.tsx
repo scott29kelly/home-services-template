@@ -4,52 +4,16 @@ import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
+import { projects } from '../config/projects'
 
 type Category = 'all' | 'roofing' | 'siding' | 'storm'
-
-const projects = [
-  { id: 1, title: 'Complete Roof Replacement', location: 'Anytown, TX', category: 'roofing' as const, detail: 'Architectural Shingles', image: '/images/project-1.webp' },
-  { id: 2, title: 'Vinyl Siding Transformation', location: 'Springfield, TX', category: 'siding' as const, detail: 'Vinyl Siding', image: '/images/project-2.webp' },
-  { id: 3, title: 'Hail Damage Repair', location: 'Riverside, TX', category: 'storm' as const, detail: 'Insurance Claim', image: '/images/project-3.webp' },
-  { id: 4, title: 'Designer Shingle Upgrade', location: 'Fairview, TX', category: 'roofing' as const, detail: 'Premium Shingles', image: '/images/project-4.webp' },
-  { id: 5, title: 'Siding & Trim Package', location: 'Madison, TX', category: 'siding' as const, detail: 'Complete Exterior', image: '/images/project-5.webp' },
-  { id: 6, title: 'Wind Damage Restoration', location: 'Georgetown, TX', category: 'storm' as const, detail: 'Emergency Repair', image: '/images/project-6.webp' },
-  { id: 7, title: 'Multi-Family Roofing', location: 'Lakewood, TX', category: 'roofing' as const, detail: 'Commercial Grade', image: '/images/project-7.webp' },
-  { id: 8, title: 'Historic Home Restoration', location: 'Cedar Park, TX', category: 'siding' as const, detail: 'Custom Match', image: '/images/project-8.webp' },
-  { id: 9, title: 'Estate Roof Replacement', location: 'Tulsa, OK', category: 'roofing' as const, detail: 'Premium Materials', image: '/images/project-9.webp' },
-  { id: 10, title: 'Emergency Tree Damage Repair', location: 'Norman, OK', category: 'storm' as const, detail: 'Storm Response', image: '/images/project-10.webp' },
-]
-
-const beforeAfter = [
-  {
-    title: 'Roof Replacement After Hail Damage',
-    location: 'Anytown, TX',
-    description: 'Insurance covered cost minus deductible.',
-    before: '/images/before-after-1-before.webp',
-    after: '/images/before-after-1-after.webp',
-  },
-  {
-    title: 'Full Vinyl Siding Replacement',
-    location: 'Springfield, TX',
-    description: 'Improved curb appeal and energy efficiency.',
-    before: '/images/before-after-2-before.webp',
-    after: '/images/before-after-2-after.webp',
-  },
-]
-
-const filters: { value: Category; label: string }[] = [
-  { value: 'all', label: 'All Projects' },
-  { value: 'roofing', label: 'Roofing' },
-  { value: 'siding', label: 'Siding' },
-  { value: 'storm', label: 'Storm Damage' },
-]
 
 export default function Projects() {
   const [activeFilter, setActiveFilter] = useState<Category>('all')
   const { ref, isInView } = useScrollReveal()
   const { ref: baRef, isInView: baInView } = useScrollReveal()
 
-  const filtered = activeFilter === 'all' ? projects : projects.filter((p) => p.category === activeFilter)
+  const filtered = activeFilter === 'all' ? projects.items : projects.items.filter((p) => p.category === activeFilter)
 
   return (
     <>
@@ -67,10 +31,10 @@ export default function Projects() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Filters */}
           <div className="flex flex-wrap gap-2 justify-center mb-10">
-            {filters.map((f) => (
+            {projects.filters.map((f) => (
               <button
                 key={f.value}
-                onClick={() => setActiveFilter(f.value)}
+                onClick={() => setActiveFilter(f.value as Category)}
                 className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
                   activeFilter === f.value
                     ? 'bg-navy text-white'
@@ -131,7 +95,7 @@ export default function Projects() {
           </motion.h2>
 
           <div className="space-y-10">
-            {beforeAfter.map((item, i) => (
+            {projects.beforeAfter.map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 30 }}

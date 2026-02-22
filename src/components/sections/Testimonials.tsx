@@ -2,37 +2,7 @@ import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import Button from '../ui/Button'
-
-interface Testimonial {
-  name: string
-  location: string
-  quote: string
-  image: string
-}
-
-const testimonials: Testimonial[] = [
-  {
-    name: 'Michael R.',
-    location: 'Anytown',
-    quote:
-      'They made our roof replacement seamless. The team handled everything with the insurance company. Couldn\'t be happier!',
-    image: '/images/testimonial-1.webp',
-  },
-  {
-    name: 'Jennifer T.',
-    location: 'Springfield',
-    quote:
-      "After the storm, I didn't know where to start. They walked me through the entire insurance process and delivered a beautiful new roof.",
-    image: '/images/testimonial-2.webp',
-  },
-  {
-    name: 'David & Susan K.',
-    location: 'Riverside',
-    quote:
-      'Professional, honest, and they stand behind their work. The new siding transformed our home. Highly recommend!',
-    image: '/images/testimonial-3.webp',
-  },
-]
+import { testimonials } from '../../config/testimonials'
 
 const container = {
   hidden: {},
@@ -75,7 +45,7 @@ export default function Testimonials() {
           animate={isInView ? 'show' : 'hidden'}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {testimonials.map((t, i) => (
+          {testimonials.featured.map((t, i) => (
             <motion.div
               key={i}
               variants={item}

@@ -1,14 +1,13 @@
 import { Routes, Route } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import Layout from './components/layout/Layout'
+import { getServiceRoutes } from './lib/route-generator'
 
 // Eager load Home for fast FCP
 import Home from './pages/Home'
 
 // Lazy load all other pages
-const Roofing = lazy(() => import('./pages/Roofing'))
-const Siding = lazy(() => import('./pages/Siding'))
-const StormDamage = lazy(() => import('./pages/StormDamage'))
+const ServicePage = lazy(() => import('./pages/ServicePage'))
 const Services = lazy(() => import('./pages/Services'))
 const Projects = lazy(() => import('./pages/Projects'))
 const TestimonialsPage = lazy(() => import('./pages/TestimonialsPage'))
@@ -16,6 +15,9 @@ const About = lazy(() => import('./pages/About'))
 const Contact = lazy(() => import('./pages/Contact'))
 const ServiceAreas = lazy(() => import('./pages/ServiceAreas'))
 const Ava = lazy(() => import('./pages/Ava'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+
+const serviceRoutes = getServiceRoutes()
 
 function PageLoader() {
   return (
@@ -31,9 +33,14 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="roofing" element={<Roofing />} />
-          <Route path="siding" element={<Siding />} />
-          <Route path="storm-damage" element={<StormDamage />} />
+          {/* Config-driven service routes */}
+          {serviceRoutes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<ServicePage />}
+            />
+          ))}
           <Route path="services" element={<Services />} />
           <Route path="projects" element={<Projects />} />
           <Route path="testimonials" element={<TestimonialsPage />} />
@@ -41,6 +48,7 @@ export default function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="service-areas" element={<ServiceAreas />} />
           <Route path="ava" element={<Ava />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </Suspense>

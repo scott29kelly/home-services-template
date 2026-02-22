@@ -1,26 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X, ChevronDown } from 'lucide-react'
-import { SITE } from '../../config/site'
+import { company } from '../../config/company'
+import { serviceAreas } from '../../config/service-areas'
+import { getNavLinks } from '../../config/navigation'
 
-const navLinks = [
-  { href: '/', label: 'Home' },
-  {
-    href: '/services',
-    label: 'Services',
-    dropdown: [
-      { href: '/roofing', label: 'Roofing' },
-      { href: '/siding', label: 'Siding' },
-      { href: '/storm-damage', label: 'Storm Repair' },
-    ],
-  },
-  { href: '/projects', label: 'Projects' },
-  { href: '/testimonials', label: 'Testimonials' },
-  { href: '/about', label: 'About' },
-  { href: '/service-areas', label: 'Service Areas' },
-  { href: '/ava', label: 'Ask Ava' },
-  { href: '/contact', label: 'Contact' },
-]
+const navLinks = getNavLinks()
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -59,16 +44,16 @@ export default function Header() {
       {/* Top Bar */}
       <div className="bg-navy text-white text-sm h-8 flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center w-full">
-          <span className="hidden sm:inline text-white/60">{SITE.serviceArea.summary}</span>
+          <span className="hidden sm:inline text-white/60">{serviceAreas.summary}</span>
           <div className="flex items-center gap-4 text-white/60 ml-auto">
-            <a href={`tel:${SITE.phone}`} className="hover:text-white transition-colors">
-              {SITE.phone}
+            <a href={`tel:${company.phone}`} className="hover:text-white transition-colors">
+              {company.phone}
             </a>
             <a
-              href={`mailto:${SITE.email}`}
+              href={`mailto:${company.email}`}
               className="hidden md:inline hover:text-white transition-colors"
             >
-              {SITE.email}
+              {company.email}
             </a>
           </div>
         </div>
@@ -86,9 +71,9 @@ export default function Header() {
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-navy font-heading font-extrabold text-lg tracking-tight">
-                {SITE.name}
+                {company.name}
               </span>
-              <span className="text-navy/70 text-xs font-medium -mt-0.5">{SITE.tagline}</span>
+              <span className="text-navy/70 text-xs font-medium -mt-0.5">{company.tagline}</span>
             </div>
           </Link>
 

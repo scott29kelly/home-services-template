@@ -1,39 +1,11 @@
 import { motion } from 'framer-motion'
-import { Heart, Shield, Users, Star, Home, Building } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
-
-const values = [
-  { icon: Heart, title: 'Integrity', description: 'Doing the right thing even when no one is watching.' },
-  { icon: Shield, title: 'Honesty', description: "Honest advice; we'll tell you if you don't need a new roof." },
-  { icon: Users, title: 'Family', description: 'Treat customers like family; explain, answer calls, stand behind work.' },
-  { icon: Star, title: 'Excellence', description: 'Pursue excellence in every shingle, seam, and interaction.' },
-  { icon: Home, title: 'Protection', description: 'Protect your home from weather and poor contractors.' },
-  { icon: Building, title: 'Community', description: 'Local focus; committed to stronger communities.' },
-]
-
-// TODO: Replace with your team members and photos
-const team = [
-  { name: 'Alex Johnson', title: 'Founder & Owner', image: '/images/team-mike-thompson.webp' },
-  { name: 'Mike Thompson', title: 'Project Manager', image: '/images/team-mike-thompson.webp' },
-  { name: 'Sarah Mitchell', title: 'Office Administrator', image: '/images/team-sarah-mitchell.webp' },
-  { name: 'James Carter', title: 'Sales Consultant', image: '/images/team-james-carter.webp' },
-  { name: 'David Chen', title: 'Sales Consultant', image: '/images/team-david-chen.webp' },
-  { name: 'Marcus Williams', title: 'Sales Consultant', image: '/images/team-marcus-williams.webp' },
-  { name: 'Emily Rodriguez', title: 'Sales Consultant', image: '/images/team-emily-rodriguez.webp' },
-  { name: 'Lisa Nguyen', title: 'Customer Service', image: '/images/team-lisa-nguyen.webp' },
-]
-
-const certs = [
-  'BBB A+ Rating',
-  'Licensed & Insured',
-  'Manufacturer Certified Installer',
-  'Workmanship Warranty',
-  'Industry Award Winner',
-  'Background-Checked Crews',
-]
+import { team } from '../config/team'
+import { getIcon } from '../lib/icons'
 
 export default function About() {
   const { ref: valuesRef, isInView: valuesInView } = useScrollReveal()
@@ -66,21 +38,24 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {values.map((v, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={valuesInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.1 + i * 0.05 }}
-                className="bg-white rounded-2xl border border-border p-6 text-center"
-              >
-                <div className="w-14 h-14 mx-auto mb-4 bg-brand-blue/10 rounded-xl flex items-center justify-center">
-                  <v.icon className="w-7 h-7 text-brand-blue" />
-                </div>
-                <h3 className="text-lg font-bold text-navy mb-1">{v.title}</h3>
-                <p className="text-sm text-text-secondary">{v.description}</p>
-              </motion.div>
-            ))}
+            {team.values.map((v, i) => {
+              const Icon = getIcon(v.icon)
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={valuesInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: 0.1 + i * 0.05 }}
+                  className="bg-white rounded-2xl border border-border p-6 text-center"
+                >
+                  <div className="w-14 h-14 mx-auto mb-4 bg-brand-blue/10 rounded-xl flex items-center justify-center">
+                    <Icon className="w-7 h-7 text-brand-blue" />
+                  </div>
+                  <h3 className="text-lg font-bold text-navy mb-1">{v.title}</h3>
+                  <p className="text-sm text-text-secondary">{v.description}</p>
+                </motion.div>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -108,7 +83,7 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-            {team.map((member, i) => (
+            {team.members.map((member, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -145,7 +120,7 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {certs.map((cert, i) => (
+            {team.certifications.map((cert, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
