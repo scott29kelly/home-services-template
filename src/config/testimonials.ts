@@ -12,11 +12,12 @@ export interface Testimonial {
 }
 
 export const testimonials = {
-  /** Shown on the homepage (max 3 recommended) */
+  /** Shown on the homepage (max 6 recommended for animated carousel) */
   featured: [
     {
       name: 'Michael R.',
       location: 'Anytown',
+      service: 'Roofing',
       quote:
         'They made our roof replacement seamless. The team handled everything with the insurance company. Couldn\'t be happier!',
       image: '/images/testimonial-1.webp',
@@ -24,6 +25,7 @@ export const testimonials = {
     {
       name: 'Jennifer T.',
       location: 'Springfield',
+      service: 'Storm Repair',
       quote:
         "After the storm, I didn't know where to start. They walked me through the entire insurance process and delivered a beautiful new roof.",
       image: '/images/testimonial-2.webp',
@@ -31,9 +33,26 @@ export const testimonials = {
     {
       name: 'David & Susan K.',
       location: 'Riverside',
+      service: 'Siding',
       quote:
         'Professional, honest, and they stand behind their work. The new siding transformed our home. Highly recommend!',
       image: '/images/testimonial-3.webp',
+    },
+    {
+      name: 'Robert H.',
+      location: 'Fairview',
+      service: 'Insurance',
+      quote:
+        'I had three other companies come out after the storm. Two said I didn\'t have damage worth claiming. This team found significant hail damage and helped me get a full roof replacement covered by insurance.',
+      image: '/images/testimonial-4.webp',
+    },
+    {
+      name: 'Lisa M.',
+      location: 'Georgetown',
+      service: 'Storm Repair',
+      quote:
+        'We were nervous about the whole insurance claim process, but they made it so easy. Three weeks later we had a new roof. These guys know what they\'re doing.',
+      image: '/images/testimonial-6.webp',
     },
   ] satisfies Testimonial[],
 
