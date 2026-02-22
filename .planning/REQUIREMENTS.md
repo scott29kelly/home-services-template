@@ -122,18 +122,18 @@ Replace static side-by-side project comparisons with a draggable slider componen
 - [x] Projects with `beforeImage`/`afterImage` in config render with slider
 - [ ] Falls back gracefully when only one image exists
 
-### VIS-03: Sticky Mobile CTA Bar — MUST
+### VIS-03: Sticky Mobile CTA Bar — MUST [COMPLETE]
 
 Fixed bottom bar on mobile with click-to-call and quote CTA.
 
 **Files:** `src/components/ui/StickyMobileCTA.tsx`, `src/components/layout/Layout.tsx`
 
 **Acceptance Criteria:**
-- [ ] Fixed bottom bar visible on mobile viewports (<768px)
-- [ ] Contains click-to-call phone button and "Get Free Quote" CTA
-- [ ] Hides when at top of page, shows on scroll down
-- [ ] Does not overlap with chat widget
-- [ ] Phone number and CTA text from config
+- [x] Fixed bottom bar visible on mobile viewports (<768px)
+- [x] Contains click-to-call phone button and "Get Free Quote" CTA
+- [x] Hides when at top of page, shows on scroll down
+- [x] Does not overlap with chat widget
+- [x] Phone number and CTA text from config
 
 ### VIS-04: SectionHeading Component — SHOULD [COMPLETE]
 
@@ -369,17 +369,17 @@ Protect chat API from abuse.
 
 ## Category: Performance (PERF)
 
-### PERF-01: Image Optimization Pipeline — SHOULD
+### PERF-01: Image Optimization Pipeline — SHOULD [COMPLETE]
 
 Build-time image compression and responsive image support.
 
 **Files:** `vite.config.ts`, image components
 
 **Acceptance Criteria:**
-- [ ] `vite-plugin-image-optimizer` compresses images at build time
+- [x] `vite-plugin-image-optimizer` compresses images at build time
 - [ ] Hero images use `<picture>` with WebP + fallback
-- [ ] All images have explicit `width`/`height` attributes
-- [ ] Below-fold images use `loading="lazy"` and `decoding="async"`
+- [x] All images have explicit `width`/`height` attributes
+- [x] Below-fold images use `loading="lazy"` and `decoding="async"`
 
 ### PERF-02: Performance Monitoring — COULD
 

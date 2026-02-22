@@ -1,15 +1,15 @@
-# STATE — Premium Home Services Template v1.0
+# STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-22T21:46Z
+**Last Updated:** 2026-02-22T22:00Z
 
 ---
 
 ## Current Phase
 
-**Phase:** 2 — Visual Polish & Performance
-**Current Plan:** 3 of 3 (Plans 01-02 complete)
+**Phase:** 3 -- Lead Generation
+**Current Plan:** 1 of 3
 
-**Next Action:** Execute 02-03-PLAN.md
+**Next Action:** Execute 03-01-PLAN.md
 
 ---
 
@@ -18,20 +18,20 @@
 | Phase | Name | Status | Started | Completed |
 |-------|------|--------|---------|-----------|
 | 1 | Foundation & Config Refactor | COMPLETE | 2026-02-21 | 2026-02-21 |
-| 2 | Visual Polish & Performance | IN PROGRESS (2/3 plans) | 2026-02-22 | — |
-| 3 | Lead Generation | NOT STARTED | — | — |
-| 4 | Blog System | NOT STARTED | — | — |
-| 5 | SEO & Content | NOT STARTED | — | — |
-| 6 | Integration & Polish | NOT STARTED | — | — |
+| 2 | Visual Polish & Performance | COMPLETE | 2026-02-22 | 2026-02-22 |
+| 3 | Lead Generation | NOT STARTED | -- | -- |
+| 4 | Blog System | NOT STARTED | -- | -- |
+| 5 | SEO & Content | NOT STARTED | -- | -- |
+| 6 | Integration & Polish | NOT STARTED | -- | -- |
 
 ---
 
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD)
-- **Requirements completed:** 10 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-04, VIS-05)
-- **Phases completed:** 1 / 6 (Phase 2 in progress: 2/3 plans done)
-- **Overall progress:** ~30%
+- **Requirements completed:** 12 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01)
+- **Phases completed:** 2 / 6 (Phase 2 complete)
+- **Overall progress:** ~35%
 
 ---
 
@@ -57,6 +57,10 @@
 | 2026-02-22 | Pointer Events API for BeforeAfterSlider | Unified mouse/touch with setPointerCapture for smooth drag |
 | 2026-02-22 | TestimonialsPage keeps grid layout | Grid better for scanning 8 reviews; carousel for homepage only |
 | 2026-02-22 | Skeletons for images only per user decision | Text renders instantly from bundled config; no text skeletons |
+| 2026-02-22 | Custom Vite plugin for image optimization | Works around lstatSync junction bug in vite-plugin-image-optimizer on Windows |
+| 2026-02-22 | publicDir: false with custom image copy | Vite serves /images from project root in dev; custom plugin handles prod |
+| 2026-02-22 | CustomEvent for StickyMobileCTA-AvaWidget coordination | Avoids prop drilling through Layout; decoupled communication |
+| 2026-02-22 | AvaWidget repositioned on mobile (bottom-20) | Clears sticky CTA bar; md:bottom-6 unchanged on desktop |
 
 ---
 
@@ -66,14 +70,14 @@
 |----------|---------|--------|
 | vite-plugin-markdown Vite 7 compat | Research flagged as MEDIUM confidence | Verify during Phase 4 |
 | vite-plugin-prerender Vite 7 compat | Needed for future SSG phase | Defer to future milestone |
-| Theme config → Tailwind v4 integration | How CSS custom properties map to @theme | Research during Phase 1 |
+| Theme config to Tailwind v4 integration | How CSS custom properties map to @theme | Research during Phase 1 |
 
 ---
 
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-02-PLAN.md (AnimatedTestimonials + BeforeAfterSlider + Skeleton)
+Stopped at: Completed 02-03-PLAN.md (StickyMobileCTA + Image Optimization) -- Phase 2 complete
 Resume file: N/A
 
 ---
