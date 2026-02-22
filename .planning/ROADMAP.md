@@ -77,6 +77,13 @@
 
 **Estimated Complexity:** MEDIUM
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Framer Motion LazyMotion migration + SectionHeading component
+- [ ] 02-02-PLAN.md — Premium UI components (AnimatedTestimonials, BeforeAfterSlider, Skeleton)
+- [ ] 02-03-PLAN.md — Sticky mobile CTA bar + image optimization pipeline
+
 ---
 
 ## Phase 3: Lead Generation
