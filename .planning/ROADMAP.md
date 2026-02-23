@@ -120,6 +120,13 @@ Plans:
 
 **Estimated Complexity:** HIGH
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Form infrastructure + Contact form refactor with RHF + Zod validation
+- [ ] 03-02-PLAN.md — Custom booking calendar + Contact page tab UI
+- [ ] 03-03-PLAN.md — Financing calculator page + announcement banner with external CMS
+
 ---
 
 ## Phase 4: Blog System
