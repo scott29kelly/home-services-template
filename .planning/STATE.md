@@ -9,7 +9,7 @@
 **Phase:** 3 -- Lead Generation
 **Current Plan:** Not started
 
-**Next Action:** Execute 03-01-PLAN.md
+**Next Action:** `/gsd:plan-phase 3` — Plan the Lead Generation phase (CONTEXT.md ready)
 
 ---
 
@@ -19,7 +19,7 @@
 |-------|------|--------|---------|-----------|
 | 1 | Foundation & Config Refactor | COMPLETE | 2026-02-21 | 2026-02-21 |
 | 2 | Visual Polish & Performance | COMPLETE | 2026-02-22 | 2026-02-22 |
-| 3 | Lead Generation | NOT STARTED | -- | -- |
+| 3 | Lead Generation | CONTEXT READY | -- | -- |
 | 4 | Blog System | NOT STARTED | -- | -- |
 | 5 | SEO & Content | NOT STARTED | -- | -- |
 | 6 | Integration & Polish | NOT STARTED | -- | -- |
@@ -77,8 +77,8 @@
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed 02-03-PLAN.md (StickyMobileCTA + Image Optimization) -- Phase 2 complete
-Resume file: N/A
+Stopped at: Phase 3 context gathered -- ready to plan Phase 3
+Resume file: .planning/phases/03-lead-generation/03-CONTEXT.md
 
 ---
 
