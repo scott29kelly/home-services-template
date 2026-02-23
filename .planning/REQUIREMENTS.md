@@ -203,30 +203,30 @@ Date/time picker for scheduling inspections.
 - [x] Mobile-friendly, touch-accessible
 - [x] Keyboard navigable
 
-### LEAD-04: Financing Calculator — SHOULD
+### LEAD-04: Financing Calculator — SHOULD [COMPLETE]
 
 Interactive monthly payment calculator for common project costs.
 
 **Files:** `src/components/ui/FinancingCalculator.tsx`, `src/pages/Financing.tsx`
 
 **Acceptance Criteria:**
-- [ ] Slider/input for project cost
-- [ ] Configurable interest rates and terms
-- [ ] Real-time monthly payment display
-- [ ] CTA to contact/apply
-- [ ] Financing page template with calculator + FAQ + partner logos
+- [x] Slider/input for project cost
+- [x] Configurable interest rates and terms
+- [x] Real-time monthly payment display
+- [x] CTA to contact/apply
+- [x] Financing page template with calculator + FAQ + partner logos
 
-### LEAD-05: Emergency Storm Banner — SHOULD
+### LEAD-05: Emergency Storm Banner — SHOULD [COMPLETE]
 
 Config-toggled banner for storm events.
 
-**Files:** `src/components/ui/EmergencyBanner.tsx`, `src/config/features.ts`, `src/components/layout/Layout.tsx`
+**Files:** `src/components/ui/AnnouncementBanner.tsx`, `src/config/banner.ts`, `src/lib/banner-client.ts`, `src/components/layout/Layout.tsx`
 
 **Acceptance Criteria:**
-- [ ] Toggle in config activates site-wide top banner
-- [ ] Banner text, phone number, and CTA configurable
-- [ ] Dismissible by user (persists dismissal in session)
-- [ ] High-contrast, attention-grabbing design
+- [x] Toggle in config activates site-wide top banner
+- [x] Banner text, phone number, and CTA configurable
+- [x] Dismissible by user (persists dismissal in session)
+- [x] High-contrast, attention-grabbing design
 
 ---
 
