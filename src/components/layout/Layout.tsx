@@ -4,6 +4,7 @@ import Footer from './Footer'
 import ScrollToTop from './ScrollToTop'
 import AvaWidget from '../ui/AvaWidget'
 import StickyMobileCTA from '../ui/StickyMobileCTA'
+import AnnouncementBanner from '../ui/AnnouncementBanner'
 
 export default function Layout() {
   const { pathname } = useLocation()
@@ -20,6 +21,7 @@ export default function Layout() {
       >
         Skip to content
       </a>
+      <AnnouncementBanner />
       <Header />
       <main id="main-content" className="flex-1">
         <Outlet />
