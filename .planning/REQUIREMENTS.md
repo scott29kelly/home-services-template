@@ -161,33 +161,33 @@ Skeleton placeholders for lazy-loaded content instead of spinner.
 
 ## Category: Lead Generation (LEAD)
 
-### LEAD-01: Working Contact Form Submission — MUST
+### LEAD-01: Working Contact Form Submission — MUST [COMPLETE]
 
 Contact form sends data to a real backend. Formspree default, configurable webhook.
 
 **Files:** `src/pages/Contact.tsx`, `src/lib/form-handler.ts`, `src/config/forms.ts`
 
 **Acceptance Criteria:**
-- [ ] Form submission sends data to configured backend (Formspree by default)
-- [ ] Configurable webhook URL in `forms.ts` for CRM integration
-- [ ] Loading state shown during submission
-- [ ] Error state shown on failure with retry option
-- [ ] Success message shown after submission (text from config)
-- [ ] Honeypot field for spam protection
+- [x] Form submission sends data to configured backend (Formspree by default)
+- [x] Configurable webhook URL in `forms.ts` for CRM integration
+- [x] Loading state shown during submission
+- [x] Error state shown on failure with retry option
+- [x] Success message shown after submission (text from config)
+- [x] Honeypot field for spam protection
 
-### LEAD-02: Form Validation — MUST
+### LEAD-02: Form Validation — MUST [COMPLETE]
 
 Client-side validation with React Hook Form + Zod.
 
 **Files:** `src/pages/Contact.tsx`, `src/lib/schemas.ts`
 
 **Acceptance Criteria:**
-- [ ] All required fields validated before submission
-- [ ] Email format validation
-- [ ] Phone number format validation
-- [ ] Inline error messages per field
-- [ ] Service options populated from config
-- [ ] Accessible error announcements (aria-live)
+- [x] All required fields validated before submission
+- [x] Email format validation
+- [x] Phone number format validation
+- [x] Inline error messages per field
+- [x] Service options populated from config
+- [x] Accessible error announcements (aria-live)
 
 ### LEAD-03: Custom Booking Calendar — SHOULD
 
