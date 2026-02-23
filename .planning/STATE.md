@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-23T19:22Z
+**Last Updated:** 2026-02-23T19:31Z
 
 ---
 
 ## Current Phase
 
-**Phase:** 3 -- Lead Generation
-**Current Plan:** 2 of 3
-**Plans Completed:** 03-01
+**Phase:** 3 -- Lead Generation (COMPLETE)
+**Current Plan:** 3 of 3
+**Plans Completed:** 03-01, 03-02, 03-03
 
-**Next Action:** Execute 03-02-PLAN.md (Booking Calendar)
+**Next Action:** Begin Phase 4 (Blog System)
 
 ---
 
@@ -20,7 +20,7 @@
 |-------|------|--------|---------|-----------|
 | 1 | Foundation & Config Refactor | COMPLETE | 2026-02-21 | 2026-02-21 |
 | 2 | Visual Polish & Performance | COMPLETE | 2026-02-22 | 2026-02-22 |
-| 3 | Lead Generation | IN PROGRESS (1/3 plans) | 2026-02-23 | -- |
+| 3 | Lead Generation | COMPLETE | 2026-02-23 | 2026-02-23 |
 | 4 | Blog System | NOT STARTED | -- | -- |
 | 5 | SEO & Content | NOT STARTED | -- | -- |
 | 6 | Integration & Polish | NOT STARTED | -- | -- |
@@ -30,9 +30,9 @@
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD)
-- **Requirements completed:** 14 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02)
-- **Phases completed:** 2 / 6 (Phase 3 in progress: 1/3 plans)
-- **Overall progress:** ~40%
+- **Requirements completed:** 17 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05)
+- **Phases completed:** 3 / 6 (Phase 3 complete)
+- **Overall progress:** ~50%
 
 ---
 
@@ -65,6 +65,13 @@
 | 2026-02-23 | Provider type as union not const | Allows TypeScript strict comparisons in form-handler.ts |
 | 2026-02-23 | zodResolver@5.2.2 works directly with Zod v4 | No standardSchemaResolver fallback needed |
 | 2026-02-23 | onTouched validation mode for RHF | Validates on first blur, then on change -- best UX for lead gen |
+| 2026-02-23 | Roving tabIndex for calendar keyboard nav | ARIA APG grid pattern; Tab exits grid, arrows navigate days |
+| 2026-02-23 | Conditional rendering on tab switch | Remounts forms for clean state; no cross-tab leakage |
+| 2026-02-23 | Local dates for calendar (no ISO parsing) | Avoids timezone offset issues with new Date('yyyy-mm-dd') |
+| 2026-02-23 | Radio cards for time range selection | Better touch targets on mobile than standard radios |
+| 2026-02-23 | projects-hero.webp reused for financing hero | Good quality project image; no new assets needed |
+| 2026-02-23 | Banner manages own visibility in Layout | Renders unconditionally; internal fetch + sessionStorage state |
+| 2026-02-23 | Feature-flagged nav links with spread syntax | Clean conditional insertion into nav arrays |
 
 ---
 
@@ -81,8 +88,8 @@
 ## Session Continuity
 
 Last session: 2026-02-23
-Stopped at: Completed 03-01-PLAN.md (Contact Form Infrastructure)
-Resume file: .planning/phases/03-lead-generation/03-02-PLAN.md
+Stopped at: Completed 03-02-PLAN.md (Booking Calendar)
+Resume file: .planning/phases/03-lead-generation/03-03-PLAN.md
 
 ---
 

@@ -196,12 +196,12 @@ Date/time picker for scheduling inspections.
 **Files:** `src/components/ui/BookingCalendar.tsx`, `src/pages/Contact.tsx`
 
 **Acceptance Criteria:**
-- [ ] Custom-built date picker (no third-party embed)
-- [ ] Shows available dates (configurable blocked dates)
-- [ ] Time slot selection
-- [ ] Integrates with contact form submission
-- [ ] Mobile-friendly, touch-accessible
-- [ ] Keyboard navigable
+- [x] Custom-built date picker (no third-party embed)
+- [x] Shows available dates (configurable blocked dates)
+- [x] Time slot selection
+- [x] Integrates with contact form submission
+- [x] Mobile-friendly, touch-accessible
+- [x] Keyboard navigable
 
 ### LEAD-04: Financing Calculator — SHOULD
 
