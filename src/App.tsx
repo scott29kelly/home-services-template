@@ -16,6 +16,7 @@ const About = lazy(() => import('./pages/About'))
 const Contact = lazy(() => import('./pages/Contact'))
 const ServiceAreas = lazy(() => import('./pages/ServiceAreas'))
 const Ava = lazy(() => import('./pages/Ava'))
+const ThankYou = lazy(() => import('./pages/ThankYou'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const serviceRoutes = getServiceRoutes()
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="service-areas" element={<ServiceAreas />} />
           <Route path="ava" element={<Ava />} />
+          <Route path="thank-you" element={<ThankYou />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

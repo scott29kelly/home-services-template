@@ -5,7 +5,7 @@
 export const forms = {
   submission: {
     /** Form submission backend: 'formspree' | 'webhook' | 'netlify' | 'none' */
-    provider: 'formspree' as const,
+    provider: 'formspree' as 'formspree' | 'webhook' | 'netlify' | 'none',
     /** Formspree form ID (e.g., 'xwkgpqrd'). Leave empty to fall back to console.log. */
     formspreeId: '',
     /** Webhook URL for CRM integration (used when provider is 'webhook') */
