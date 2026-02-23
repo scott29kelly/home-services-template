@@ -100,6 +100,13 @@ None - no external service configuration required.
 - Feature flag gating works: setting `onlineBooking: false` hides the tab UI and shows only the contact form
 - Ready for Plan 03-03 (financing calculator) or Phase 4 (blog system)
 
+## Self-Check: PASSED
+
+- All 4 files verified present on disk
+- Commit de34305 (Task 1) verified in git log
+- Commit 3e844dd (Task 2) verified in git log
+- npm run build succeeds with zero errors
+
 ---
 *Phase: 03-lead-generation*
 *Completed: 2026-02-23*
