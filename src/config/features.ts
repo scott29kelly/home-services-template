@@ -6,8 +6,8 @@ export const features = {
   assistant: true,
   /** Enable the blog / content section (Phase 3) */
   blog: false,
-  /** Enable financing calculator (Phase 4) */
+  /** Enable financing calculator (Phase 3) */
   financingCalculator: false,
-  /** Enable online booking (Phase 4) */
+  /** Enable online booking (Phase 3) */
   onlineBooking: false,
 }
