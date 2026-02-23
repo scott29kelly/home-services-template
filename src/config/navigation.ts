@@ -3,6 +3,7 @@
  * Header and Footer import from here so adding a service auto-updates nav.
  */
 import { services } from './services'
+import { features } from './features'
 
 export interface NavLink {
   href: string
@@ -24,6 +25,9 @@ export function getNavLinks(): NavLink[] {
     { href: '/about', label: 'About' },
     { href: '/service-areas', label: 'Service Areas' },
     { href: '/ava', label: 'Ask Ava' },
+    ...(features.financingCalculator
+      ? [{ href: '/financing', label: 'Financing' }]
+      : []),
     { href: '/contact', label: 'Contact' },
   ]
 }
@@ -48,5 +52,8 @@ export function getFooterCompanyLinks(): { href: string; label: string }[] {
     { href: '/service-areas', label: 'Service Areas' },
     { href: '/contact', label: 'Contact' },
     { href: '/ava', label: 'Ask Ava' },
+    ...(features.financingCalculator
+      ? [{ href: '/financing', label: 'Financing' }]
+      : []),
   ]
 }

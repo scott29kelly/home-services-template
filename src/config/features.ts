@@ -7,7 +7,7 @@ export const features = {
   /** Enable the blog / content section (Phase 3) */
   blog: false,
   /** Enable financing calculator (Phase 3) */
-  financingCalculator: false,
+  financingCalculator: true,
   /** Enable online booking (Phase 3) */
-  onlineBooking: false,
+  onlineBooking: true,
 }

@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react'
 import Layout from './components/layout/Layout'
 import { PageSkeleton } from './components/ui/Skeleton'
 import { getServiceRoutes } from './lib/route-generator'
+import { features } from './config'
 
 // Eager load Home for fast FCP
 import Home from './pages/Home'
@@ -17,6 +18,7 @@ const Contact = lazy(() => import('./pages/Contact'))
 const ServiceAreas = lazy(() => import('./pages/ServiceAreas'))
 const Ava = lazy(() => import('./pages/Ava'))
 const ThankYou = lazy(() => import('./pages/ThankYou'))
+const Financing = lazy(() => import('./pages/Financing'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const serviceRoutes = getServiceRoutes()
@@ -43,6 +45,9 @@ export default function App() {
           <Route path="service-areas" element={<ServiceAreas />} />
           <Route path="ava" element={<Ava />} />
           <Route path="thank-you" element={<ThankYou />} />
+          {features.financingCalculator && (
+            <Route path="financing" element={<Financing />} />
+          )}
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

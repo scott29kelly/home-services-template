@@ -13,6 +13,7 @@ import { seo } from './seo'
 import { features } from './features'
 import { theme } from './theme'
 import { forms } from './forms'
+import { financing } from './financing'
 
 import {
   companySchema,
@@ -44,7 +45,7 @@ export const serviceAreas = validate(serviceAreasSchema, _serviceAreas, 'service
 export const assistant = validate(assistantSchema, _assistant, 'assistant')
 
 // These don't need Zod validation (small utility configs)
-export { seo, features, theme, forms }
+export { seo, features, theme, forms, financing }
 
 // Re-export navigation helpers
 export { getNavLinks, getFooterServiceLinks, getFooterCompanyLinks } from './navigation'
