@@ -263,31 +263,35 @@ Auto-generated landing pages for each city in the service area config.
 
 **Completed:** 05-03 (2026-02-24)
 
-### SEO-03: JSON-LD Structured Data — MUST
+### SEO-03: JSON-LD Structured Data — MUST [COMPLETE]
 
 Schema.org markup generated from config, rendered per page.
 
 **Files:** `src/components/seo/JsonLd.tsx`, `src/lib/seo.ts`
 
 **Acceptance Criteria:**
-- [ ] `LocalBusiness` schema on every page (from company config)
-- [ ] `Service` schema on service pages
-- [ ] `FAQPage` schema on pages with FAQ sections
-- [ ] `AggregateRating` from testimonials config
-- [ ] `BreadcrumbList` on all pages
-- [ ] `BlogPosting` schema on blog posts
-- [ ] Validates with Google Rich Results Test
+- [x] `LocalBusiness` schema on every page (from company config)
+- [x] `Service` schema on service pages
+- [x] `FAQPage` schema on pages with FAQ sections
+- [x] `AggregateRating` from testimonials config
+- [x] `BreadcrumbList` on all pages
+- [x] `BlogPosting` schema on blog posts
+- [x] Validates with Google Rich Results Test
 
-### SEO-04: Sitemap & Robots.txt — MUST
+**Completed:** 05-04 (2026-02-24)
+
+### SEO-04: Sitemap & Robots.txt — MUST [COMPLETE]
 
 Auto-generated sitemap.xml and robots.txt at build time.
 
 **Files:** `vite.config.ts`
 
 **Acceptance Criteria:**
-- [ ] `vite-plugin-sitemap` generates sitemap.xml including all static routes, service pages, city pages, blog posts
-- [ ] robots.txt generated with sitemap reference
-- [ ] Routes dynamically sourced from config (new pages auto-included)
+- [x] Custom Vite plugin generates sitemap.xml including all static routes, service pages, city pages, blog posts (54 URLs)
+- [x] robots.txt generated with sitemap reference
+- [x] Routes dynamically sourced from config (new pages auto-included)
+
+**Completed:** 05-04 (2026-02-24)
 
 ### SEO-05: Complete Meta Tag System — MUST [COMPLETE]
 

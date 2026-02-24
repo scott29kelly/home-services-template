@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-24T17:45Z
+**Last Updated:** 2026-02-24T17:57Z
 
 ---
 
 ## Current Phase
 
 **Phase:** 5 -- SEO & Content (IN PROGRESS)
-**Current Plan:** 05-03 COMPLETE
-**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03
+**Current Plan:** 05-04 COMPLETE
+**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04
 
-**Next Action:** Continue Phase 5 (SEO & Content) — 05-04 (if exists) or begin Phase 6
+**Next Action:** Phase 5 complete — begin Phase 6 (Integration & Polish)
 
 ---
 
@@ -22,7 +22,7 @@
 | 2 | Visual Polish & Performance | COMPLETE | 2026-02-22 | 2026-02-22 |
 | 3 | Lead Generation | COMPLETE | 2026-02-23 | 2026-02-23 |
 | 4 | Blog System | COMPLETE | 2026-02-24 | 2026-02-24 |
-| 5 | SEO & Content | IN PROGRESS | 2026-02-24 | -- |
+| 5 | SEO & Content | COMPLETE | 2026-02-24 | 2026-02-24 |
 | 6 | Integration & Polish | NOT STARTED | -- | -- |
 
 ---
@@ -30,9 +30,9 @@
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD)
-- **Requirements completed:** 21 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02)
-- **Phases completed:** 4 / 6 (Phase 5 in progress)
-- **Overall progress:** ~75%
+- **Requirements completed:** 23 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02, SEO-03, SEO-04)
+- **Phases completed:** 5 / 6 (Phase 6 not started)
+- **Overall progress:** ~85%
 
 ---
 
@@ -86,6 +86,10 @@
 | 2026-02-24 | Single parameterized route service-areas/:slug for all city pages | Simpler than dynamic route generation; handles any slug; plan explicitly recommended this approach |
 | 2026-02-24 | FAQ accordion built inline in CityPage (useState) | No external FAQ component needed; city FAQs are structurally different from service FAQs |
 | 2026-02-24 | ServiceAreas.tsx adds full city listing section below states grid | Provides richer SEO value with city descriptions and direct links without breaking existing layout |
+| 2026-02-24 | Custom Vite plugin for sitemap over vite-plugin-sitemap | Avoids known Vite 7 empty-sitemap bug; consistent with existing copyAndOptimizeImages pattern |
+| 2026-02-24 | Strip JS comments before slug regex extraction in vite.config.ts | JSDoc examples in service-areas.ts interface produced duplicate city routes |
+| 2026-02-24 | Multiple separate JsonLd blocks per page | Google accepts multiple JSON-LD blocks; easier to conditionally compose FAQ and areaServed schemas |
+| 2026-02-24 | hostname hardcoded in vite.config.ts generateSitemap | Cannot ESM-import app config in Vite Node context; comment instructs user to sync with company.url |
 
 ---
 
@@ -102,7 +106,7 @@
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 05-03-PLAN.md (Config-driven City/Service-Area Pages)
+Stopped at: Completed 05-04-PLAN.md (JSON-LD Structured Data and Sitemap)
 Resume file: .planning/phases/05-seo-content/
 
 ---
