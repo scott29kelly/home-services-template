@@ -158,7 +158,7 @@ Plans:
 
 **Estimated Complexity:** MEDIUM
 
-**Plans:** 2/2 plans executed (COMPLETE)
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 04-01-PLAN.md — Blog engine infrastructure + Resources listing page
@@ -281,8 +281,7 @@ All Phases ───────────────────────
 | LEAD-03 | 3 | SHOULD |
 | LEAD-04 | 3 | SHOULD |
 | LEAD-05 | 3 | SHOULD |
-| SEO-01 | 4 | MUST |
-| SEO-02 | 5 | MUST |
+| SEO-01 | 4 | MUST | Complete    | 2026-02-24 | 5 | MUST |
 | SEO-03 | 5 | MUST |
 | SEO-04 | 5 | MUST |
 | SEO-05 | 5 | MUST |
