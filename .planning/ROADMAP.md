@@ -131,33 +131,38 @@ Plans:
 
 ## Phase 4: Blog System
 
-**Goal:** Implement markdown-based blog with frontmatter, listing page, post page, and SEO markup.
+**Goal:** Implement markdown-based "Resources" section with Vite glob + gray-matter + react-markdown, card-grid listing page with tag filtering and pagination, individual post pages with typography and JSON-LD, and 12 SEO/GEO-optimized demo posts.
 
 **Requirements:**
 - SEO-01: Markdown Blog System
 
 **Key Changes:**
-- Install `vite-plugin-markdown`
-- Create `src/content/blog/` directory with 3-5 demo posts
-- Build `src/lib/blog.ts` (glob import, frontmatter validation, sorting)
-- Build `BlogIndex.tsx` (listing page with date, excerpt, cover image, tag filter)
-- Build `BlogPost.tsx` (renders markdown HTML with proper styling)
-- Add `markdown.d.ts` type declarations
-- Add blog routes to route generator (gated by `features.blog`)
-- Add blog to navigation (gated by feature flag)
+- Install gray-matter, react-markdown, remark-gfm, @tailwindcss/typography
+- Create `src/content/blog/` directory with 12 demo posts
+- Build `src/lib/blog.ts` (Vite glob import, gray-matter frontmatter parsing, Zod validation, sorting/filtering)
+- Build `ResourcesIndex.tsx` (listing page with card grid, tag filter pills, pagination)
+- Build `ResourcesPost.tsx` (renders markdown with @tailwindcss/typography, JSON-LD BlogPosting, CTA footer, related posts)
+- Wire feature flag, routes, and navigation for "Resources" section
 - Add `BlogPosting` JSON-LD schema per post
 
 **Dependencies:** Phase 1 (route generator, feature flags, navigation system)
 
 **Success Criteria:**
-- Blog listing page shows all published posts sorted by date
-- Individual post pages render markdown with proper typography
-- Frontmatter validation catches invalid posts at build time
-- Blog posts have proper meta tags (title, description, OG)
-- 3-5 demo posts covering storm damage, insurance, roofing topics
-- Blog nav item appears when `features.blog: true`
+- Resources listing page shows 12 published posts sorted by date in card grid
+- Individual post pages render markdown with proper typography (Medium-style)
+- Frontmatter validated with Zod at load time
+- Blog posts have proper meta tags (title, description, OG) and JSON-LD
+- 12 demo posts covering storm damage, insurance, roofing, siding, maintenance topics
+- Resources nav item appears when `features.blog: true`
+- Tag filtering and pagination functional
 
 **Estimated Complexity:** MEDIUM
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Blog engine infrastructure + Resources listing page
+- [ ] 04-02-PLAN.md — Individual post page + 12 demo blog posts with cover images
 
 ---
 
