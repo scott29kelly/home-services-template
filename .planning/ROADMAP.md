@@ -2,7 +2,7 @@
 
 **Created:** 2026-02-21
 **Milestone:** v1.0 — Premium Template Launch
-**Phases:** 6
+**Phases:** 7
 
 ---
 
@@ -246,6 +246,40 @@ Plans:
 
 ---
 
+## Phase 7: Foundation Verification & Tech Debt Cleanup
+
+**Goal:** Formally verify Phase 01 pre-GSD work (CFG-01 to CFG-06), update REQUIREMENTS.md traceability for SEO-01, and clean up low-severity tech debt from the milestone audit.
+
+**Requirements:**
+- CFG-01: Modular Config System (verify)
+- CFG-02: Config-Driven Navigation (verify)
+- CFG-03: Config-Driven Routing (verify)
+- CFG-04: Content Migration to Config (verify)
+- CFG-05: 404 Page (verify)
+- CFG-06: Feature Flags System (verify)
+
+**Gap Closure:** Closes verification gaps from v1.0 milestone audit
+
+**Key Changes:**
+- Run formal verification of Phase 01 against CFG-01 to CFG-06 acceptance criteria
+- Create VERIFICATION.md for Phase 01
+- Update SEO-01 checkboxes in REQUIREMENTS.md (verified satisfied, checkboxes not updated)
+- Remove `getPostsByTag()` dead code from `src/lib/blog.ts`
+- Fix noindex meta tag placement in `src/pages/ThankYou.tsx` (move into PageMeta)
+
+**Dependencies:** None (verification of completed work)
+
+**Success Criteria:**
+- CFG-01 to CFG-06 formally verified with evidence
+- VERIFICATION.md exists for Phase 01
+- SEO-01 checkboxes updated in REQUIREMENTS.md
+- Dead code removed, meta tag placement fixed
+- All tech debt items from audit addressed or documented
+
+**Estimated Complexity:** LOW
+
+---
+
 ## Phase Dependency Graph
 
 ```
@@ -256,6 +290,8 @@ Phase 1: Foundation & Config ──┬──> Phase 2: Visual Polish
 Phase 2 + Phase 4 ────────────────> Phase 5: SEO & Content
                                          │
 All Phases ────────────────────────> Phase 6: Integration & Polish
+
+Phase 7: Foundation Verification (independent — verifies Phase 1)
 ```
 
 ---
@@ -281,7 +317,8 @@ All Phases ───────────────────────
 | LEAD-03 | 3 | SHOULD |
 | LEAD-04 | 3 | SHOULD |
 | LEAD-05 | 3 | SHOULD |
-| SEO-01 | 4 | MUST | Complete    | 2026-02-24 | 5 | MUST |
+| SEO-01 | 4 | MUST |
+| SEO-02 | 5 | MUST |
 | SEO-03 | 5 | MUST |
 | SEO-04 | 5 | MUST |
 | SEO-05 | 5 | MUST |
@@ -292,8 +329,9 @@ All Phases ───────────────────────
 | AVA-03 | 6 | SHOULD |
 | PERF-02 | 6 | COULD |
 
-**Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5.
+**Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5. Phase 7 verifies CFG-01–06.
 
 ---
 
 *Roadmap created: 2026-02-21*
+*Updated: 2026-02-24 — Added Phase 7 (gap closure from milestone audit)*

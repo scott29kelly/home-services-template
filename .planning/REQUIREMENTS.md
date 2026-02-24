@@ -232,20 +232,20 @@ Config-toggled banner for storm events.
 
 ## Category: Content & SEO (SEO)
 
-### SEO-01: Markdown Blog System — MUST
+### SEO-01: Markdown Blog System — MUST [COMPLETE]
 
 File-based blog with frontmatter metadata, listing page, and post page.
 
 **Files:** `src/content/blog/*.md`, `src/pages/BlogIndex.tsx`, `src/pages/BlogPost.tsx`, `src/lib/blog.ts`
 
 **Acceptance Criteria:**
-- [ ] Blog posts written as markdown files with YAML frontmatter
-- [ ] Frontmatter validated with Zod (title, slug, date, excerpt, tags required)
-- [ ] Blog listing page with date, excerpt, cover image
-- [ ] Individual post page renders markdown as HTML
-- [ ] Proper meta tags per post (title, description, OG)
-- [ ] 3-5 demo blog posts included
-- [ ] Posts sorted by date, filterable by tag
+- [x] Blog posts written as markdown files with YAML frontmatter
+- [x] Frontmatter validated with Zod (title, slug, date, excerpt, tags required)
+- [x] Blog listing page with date, excerpt, cover image
+- [x] Individual post page renders markdown as HTML
+- [x] Proper meta tags per post (title, description, OG)
+- [x] 3-5 demo blog posts included
+- [x] Posts sorted by date, filterable by tag
 
 ### SEO-02: City/Service Area Pages — MUST
 
