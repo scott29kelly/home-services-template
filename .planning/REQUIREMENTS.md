@@ -313,18 +313,18 @@ Testimonial/review data managed entirely in config.
 - [ ] Service-filtered testimonials available on service pages
 - [ ] Google Reviews integration point (placeholder section with embed instructions)
 
-### SEO-07: Portfolio Enhancement — MUST
+### SEO-07: Portfolio Enhancement — MUST ✓ COMPLETE (05-02)
 
 Portfolio/project data in config with before/after support.
 
 **Files:** `src/config/projects.ts`, `src/pages/Projects.tsx`
 
 **Acceptance Criteria:**
-- [ ] Projects defined in `projects.ts` with category, location, images, description
-- [ ] `beforeImage`/`afterImage` fields for before/after comparisons
-- [ ] Category filter on projects page
-- [ ] Featured projects shown on homepage
-- [ ] Project detail view or expanded card
+- [x] Projects defined in `projects.ts` with category, location, images, description
+- [x] `beforeImage`/`afterImage` fields for before/after comparisons
+- [x] Category filter on projects page
+- [x] Featured projects shown on homepage
+- [x] Project detail view or expanded card
 
 ---
 

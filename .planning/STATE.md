@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-24T10:15Z
+**Last Updated:** 2026-02-24T17:34Z
 
 ---
 
 ## Current Phase
 
-**Phase:** 4 -- Blog System (COMPLETE)
-**Current Plan:** Not started
-**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02
+**Phase:** 5 -- SEO & Content (IN PROGRESS)
+**Current Plan:** 05-02 COMPLETE
+**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02
 
-**Next Action:** Begin Phase 5 (SEO & Content)
+**Next Action:** Continue Phase 5 (SEO & Content) — 05-03
 
 ---
 
@@ -22,7 +22,7 @@
 | 2 | Visual Polish & Performance | COMPLETE | 2026-02-22 | 2026-02-22 |
 | 3 | Lead Generation | COMPLETE | 2026-02-23 | 2026-02-23 |
 | 4 | Blog System | COMPLETE | 2026-02-24 | 2026-02-24 |
-| 5 | SEO & Content | NOT STARTED | -- | -- |
+| 5 | SEO & Content | IN PROGRESS | 2026-02-24 | -- |
 | 6 | Integration & Polish | NOT STARTED | -- | -- |
 
 ---
@@ -30,9 +30,9 @@
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD)
-- **Requirements completed:** 19 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02)
-- **Phases completed:** 4 / 6 (Phase 5 next)
-- **Overall progress:** ~67%
+- **Requirements completed:** 20 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07)
+- **Phases completed:** 4 / 6 (Phase 5 in progress)
+- **Overall progress:** ~70%
 
 ---
 
@@ -78,6 +78,8 @@
 | 2026-02-24 | Placeholder ResourcesPost.tsx created in Plan 01 | Prevents TypeScript lazy-import errors before Plan 02 implementation |
 | 2026-02-24 | Blog cover images sourced from existing project assets | Avoids external API dependency; user swaps via frontmatter coverImage path |
 | 2026-02-24 | vite.config.ts copyAndOptimizeImages recurses subdirectories | Fixed bug: images/blog/ was not copied to dist/ without recursive readdir |
+| 2026-02-24 | Project detail pages redirect to /projects on unknown slug | useNavigate replace:true prevents back-button loop to 404 |
+| 2026-02-24 | Hero highlightText empty string for project detail hero | Project title used as headline; no orange highlight word split needed |
 
 ---
 
@@ -94,7 +96,7 @@
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 04-02-PLAN.md (Blog Post Renderer + Demo Content)
+Stopped at: Completed 05-02-PLAN.md (Portfolio Routing & Project Detail Pages)
 Resume file: .planning/phases/05-seo-content/
 
 ---
