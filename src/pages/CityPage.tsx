@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { m } from 'framer-motion'
 import { MapPin, Phone, ArrowRight, Star, ChevronDown, ChevronUp } from 'lucide-react'
 import PageMeta from '../components/ui/PageMeta'
+import JsonLd from '../components/seo/JsonLd'
+import { buildLocalBusinessSchema, buildBreadcrumbSchema, buildFAQSchema } from '../lib/seo'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
 import SectionHeading from '../components/ui/SectionHeading'
@@ -79,6 +81,15 @@ export default function CityPage() {
         description={pageDescription}
         path={`/service-areas/${city.slug}`}
       />
+      <JsonLd data={buildLocalBusinessSchema({ cityName: city.name })} />
+      <JsonLd data={buildBreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Service Areas', url: '/service-areas' },
+        { name: city.name, url: `/service-areas/${city.slug}` },
+      ])} />
+      {city.faqs && city.faqs.length > 0 && (
+        <JsonLd data={buildFAQSchema(city.faqs)} />
+      )}
 
       {/* Hero */}
       <Hero

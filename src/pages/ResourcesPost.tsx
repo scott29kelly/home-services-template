@@ -8,9 +8,10 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import PageMeta from '../components/ui/PageMeta'
+import JsonLd from '../components/seo/JsonLd'
+import { buildBlogPostingSchema, buildBreadcrumbSchema } from '../lib/seo'
 import { getAllPosts, getPostBySlug } from '../lib/blog'
 import type { BlogPost } from '../lib/blog'
-import { company } from '../config/company'
 
 // Month names for timezone-safe date formatting (avoids new Date() UTC offset issues)
 const MONTH_NAMES = [
@@ -24,34 +25,6 @@ const MONTH_NAMES = [
 function formatDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number)
   return `${MONTH_NAMES[month - 1]} ${day}, ${year}`
-}
-
-/**
- * BlogPosting JSON-LD structured data for SEO.
- * Sanitizes JSON to prevent script injection via \u003c escaping.
- */
-function BlogPostingSchema({ post }: { post: BlogPost }) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.title,
-    description: post.excerpt,
-    datePublished: post.date,
-    dateModified: post.date,
-    author: { '@type': 'Organization', name: post.author },
-    image: company.url + post.coverImage,
-    url: company.url + '/resources/' + post.slug,
-    keywords: post.tags.join(', '),
-  }
-
-  const json = JSON.stringify(schema).replace(/</g, '\\u003c')
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: json }}
-    />
-  )
 }
 
 /**
@@ -119,7 +92,12 @@ export default function ResourcesPost() {
         description={post.excerpt}
         path={'/resources/' + post.slug}
       />
-      <BlogPostingSchema post={post} />
+      <JsonLd data={buildBlogPostingSchema(post)} />
+      <JsonLd data={buildBreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Resources', url: '/resources' },
+        { name: post.title, url: `/resources/${post.slug}` },
+      ])} />
 
       {/* Article */}
       <article>

@@ -2,6 +2,9 @@ import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
+import { readdirSync, readFileSync } from 'fs'
+import { resolve } from 'path'
+import matter from 'gray-matter'
 
 /**
  * Custom plugin to copy and optimize images from the root images/ directory.
@@ -121,6 +124,118 @@ function copyAndOptimizeImages(): Plugin {
   }
 }
 
+/**
+ * Discovers all site routes for sitemap generation.
+ * Cannot use import.meta.glob here (Node context, not app bundle).
+ * Dynamic routes are extracted by reading the TypeScript config source files.
+ */
+function getRouteList(): string[] {
+  // Static pages
+  const staticRoutes = [
+    '/', '/services', '/projects', '/testimonials',
+    '/about', '/contact', '/service-areas', '/ava',
+    '/financing', '/resources',
+  ]
+
+  // Service routes — hardcoded list matching src/config/services.ts slugs
+  const serviceRoutes = ['/roofing', '/siding', '/storm-damage']
+
+  // City routes — parse service-areas.ts for slug values
+  // Strip comments first to avoid matching slug values in JSDoc examples
+  let cityRoutes: string[] = []
+  try {
+    const saFile = readFileSync(resolve('src/config/service-areas.ts'), 'utf-8')
+    const stripped = saFile
+      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
+      .replace(/\/\/.*/g, '')              // remove line comments
+    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
+    cityRoutes = [...slugMatches].map((m) => `/service-areas/${m[1]}`)
+  } catch {
+    /* fallback: empty */
+  }
+
+  // Blog routes — read markdown frontmatter from content/blog
+  let blogRoutes: string[] = []
+  try {
+    const blogDir = resolve('src/content/blog')
+    blogRoutes = readdirSync(blogDir)
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => {
+        const { data } = matter(readFileSync(resolve(blogDir, f), 'utf-8'))
+        return data.published !== false ? `/resources/${data.slug}` : null
+      })
+      .filter(Boolean) as string[]
+  } catch {
+    /* no blog posts */
+  }
+
+  // Portfolio routes — parse projects.ts for slug values
+  // Strip comments to avoid false matches in JSDoc examples
+  let portfolioRoutes: string[] = []
+  try {
+    const projFile = readFileSync(resolve('src/config/projects.ts'), 'utf-8')
+    const stripped = projFile
+      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
+      .replace(/\/\/.*/g, '')              // remove line comments
+    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
+    portfolioRoutes = [...slugMatches].map((m) => `/portfolio/${m[1]}`)
+  } catch {
+    /* fallback: empty */
+  }
+
+  return [...staticRoutes, ...serviceRoutes, ...cityRoutes, ...blogRoutes, ...portfolioRoutes]
+}
+
+/**
+ * Custom Vite plugin that generates sitemap.xml and robots.txt at build time.
+ * Runs after bundle close so dist/ directory exists.
+ *
+ * hostname must match company.url. Since this is Node context (cannot import
+ * ESM config), the value is hardcoded here — keep in sync with src/config/company.ts.
+ */
+function generateSitemap(): Plugin {
+  return {
+    name: 'generate-sitemap',
+    enforce: 'post',
+    apply: 'build',
+    async closeBundle() {
+      const fs = await import('fs/promises')
+      const path = await import('path')
+
+      // Keep in sync with company.url in src/config/company.ts
+      const hostname = 'https://example.com'
+      const routes = getRouteList()
+      const excludeSet = new Set(['/thank-you', '/404', '/ava'])
+      const filteredRoutes = routes.filter((r) => !excludeSet.has(r))
+
+      // Build sitemap XML
+      const urlEntries = filteredRoutes
+        .map(
+          (route) =>
+            `  <url>\n    <loc>${hostname}${route}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`
+        )
+        .join('\n')
+
+      const sitemap = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        urlEntries,
+        '</urlset>',
+      ].join('\n')
+
+      const robots = `User-agent: *\nAllow: /\n\nSitemap: ${hostname}/sitemap.xml`
+
+      const distDir = path.resolve('dist')
+      await fs.writeFile(path.join(distDir, 'sitemap.xml'), sitemap, 'utf-8')
+      await fs.writeFile(path.join(distDir, 'robots.txt'), robots, 'utf-8')
+      console.log(
+        `[generate-sitemap] Generated sitemap.xml with ${filteredRoutes.length} URLs`
+      )
+      console.log(`[generate-sitemap] Generated robots.txt`)
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     react(),
@@ -134,6 +249,8 @@ export default defineConfig({
     }),
     // Copies and optimizes images from /images to dist/images
     copyAndOptimizeImages(),
+    // Generates dist/sitemap.xml and dist/robots.txt at build time
+    generateSitemap(),
   ],
   // In dev, Vite serves /images/* directly from the project root
   publicDir: false,

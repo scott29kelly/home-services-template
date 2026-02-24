@@ -7,6 +7,8 @@ import Testimonials from '../components/sections/Testimonials'
 import Certifications from '../components/sections/Certifications'
 import CTA from '../components/sections/CTA'
 import PageMeta from '../components/ui/PageMeta'
+import JsonLd from '../components/seo/JsonLd'
+import { buildLocalBusinessSchema, buildBreadcrumbSchema } from '../lib/seo'
 
 export default function Home() {
   return (
@@ -16,6 +18,8 @@ export default function Home() {
         description="Professional roofing, siding, and storm damage repair services. A+ BBB rated. Licensed & insured. Free inspections."
         path="/"
       />
+      <JsonLd data={buildLocalBusinessSchema()} />
+      <JsonLd data={buildBreadcrumbSchema([{ name: 'Home', url: '/' }])} />
       <Hero />
       <SocialProof />
       <BentoGrid />

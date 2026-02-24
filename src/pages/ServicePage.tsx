@@ -8,6 +8,8 @@ import ProcessTimeline from '../components/sections/ProcessTimeline'
 import Button from '../components/ui/Button'
 import SectionHeading from '../components/ui/SectionHeading'
 import PageMeta from '../components/ui/PageMeta'
+import JsonLd from '../components/seo/JsonLd'
+import { buildServiceSchema, buildBreadcrumbSchema, buildFAQSchema } from '../lib/seo'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { getServiceBySlug } from '../config/services'
 import { company } from '../config/company'
@@ -355,6 +357,15 @@ export default function ServicePage() {
         description={service.meta.description}
         path={`/${service.slug}`}
       />
+      <JsonLd data={buildServiceSchema(service)} />
+      <JsonLd data={buildBreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Services', url: '/services' },
+        { name: service.name, url: `/${service.slug}` },
+      ])} />
+      {service.faqs.items.length > 0 && (
+        <JsonLd data={buildFAQSchema(service.faqs.items)} />
+      )}
       <Hero
         backgroundImage={service.hero.backgroundImage}
         headline={service.hero.headline}
