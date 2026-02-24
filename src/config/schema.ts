@@ -203,6 +203,10 @@ const testimonialSchema = z.object({
   quote: z.string().min(1),
   image: z.string().min(1),
   service: z.string().optional(),
+  rating: z.number().min(1).max(5).optional(),
+  featured: z.boolean().optional(),
+  citySlug: z.string().optional(),
+  serviceSlug: z.string().optional(),
 })
 
 export const testimonialsSchema = z.object({

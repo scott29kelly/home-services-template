@@ -54,6 +54,9 @@ export { getNavLinks, getFooterServiceLinks, getFooterCompanyLinks } from './nav
 // Re-export service lookup
 export { getServiceBySlug } from './services'
 
+// Re-export testimonial filter helpers
+export { getTestimonialsByCity, getTestimonialsByService } from './testimonials'
+
 // Re-export types
 export type { ServiceConfig, ServiceSection } from './services'
 export type { Testimonial } from './testimonials'
