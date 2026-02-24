@@ -7,7 +7,7 @@ import { services as _services } from './services'
 import { testimonials as _testimonials } from './testimonials'
 import { projects as _projects } from './projects'
 import { team as _team } from './team'
-import { serviceAreas as _serviceAreas } from './service-areas'
+import { serviceAreas as _serviceAreas, cityPages as _cityPages } from './service-areas'
 import { assistant as _assistant } from './assistant'
 import { seo } from './seo'
 import { features } from './features'
@@ -24,6 +24,7 @@ import {
   teamSchema,
   serviceAreasSchema,
   assistantSchema,
+  cityPagesSchema,
 } from './schema'
 
 /* ── Validate all configs at import time ──────────────────────────── */
@@ -44,6 +45,7 @@ export const projects = validate(projectsSchema, _projects, 'projects')
 export const team = validate(teamSchema, _team, 'team')
 export const serviceAreas = validate(serviceAreasSchema, _serviceAreas, 'serviceAreas')
 export const assistant = validate(assistantSchema, _assistant, 'assistant')
+export const cityPages = validate(cityPagesSchema, _cityPages, 'cityPages')
 
 // These don't need Zod validation (small utility configs)
 export { seo, features, theme, forms, financing, banner }
@@ -57,8 +59,12 @@ export { getServiceBySlug } from './services'
 // Re-export testimonial filter helpers
 export { getTestimonialsByCity, getTestimonialsByService } from './testimonials'
 
+// Re-export city page helpers
+export { getCityBySlug } from './service-areas'
+
 // Re-export types
 export type { ServiceConfig, ServiceSection } from './services'
 export type { Testimonial } from './testimonials'
 export type { Project, BeforeAfter, ProjectCategory } from './projects'
 export type { TeamMember, Value } from './team'
+export type { CityConfig } from './service-areas'

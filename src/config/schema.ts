@@ -62,6 +62,27 @@ export const serviceAreasSchema = z.object({
   states: z.array(serviceAreaStateSchema).min(1, 'At least one state is required'),
 })
 
+/* ── City Pages ───────────────────────────────────────────────────── */
+
+export const cityFaqSchema = z.object({
+  question: z.string().min(1),
+  answer: z.string().min(1),
+})
+
+export const cityConfigSchema = z.object({
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, and hyphens'),
+  name: z.string().min(1),
+  state: z.string().min(2).max(2),
+  description: z.string().min(1),
+  metaTitle: z.string().min(1).optional(),
+  metaDescription: z.string().min(1).optional(),
+  nearby: z.array(z.string()).min(1),
+  faqs: z.array(cityFaqSchema).optional(),
+  isHQ: z.boolean().optional(),
+})
+
+export const cityPagesSchema = z.array(cityConfigSchema).min(1)
+
 /* ── Services ─────────────────────────────────────────────────────── */
 
 const cardGridSectionSchema = z.object({

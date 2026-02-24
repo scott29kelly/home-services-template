@@ -10,4 +10,6 @@ export const features = {
   financingCalculator: true,
   /** Enable online booking (Phase 3) */
   onlineBooking: true,
+  /** Enable city/service-area pages (Phase 5) */
+  cityPages: true,
 }
