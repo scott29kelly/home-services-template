@@ -219,11 +219,16 @@ export const testimonialsSchema = z.object({
 
 export const projectSchema = z.object({
   id: z.number(),
+  slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
   title: z.string().min(1),
   location: z.string().min(1),
   category: z.enum(['roofing', 'siding', 'storm']),
   detail: z.string().min(1),
   image: z.string().min(1),
+  description: z.string().optional(),
+  featured: z.boolean().optional(),
+  beforeImage: z.string().optional(),
+  afterImage: z.string().optional(),
 })
 
 export const projectsSchema = z.object({
