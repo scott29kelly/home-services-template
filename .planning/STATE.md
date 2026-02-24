@@ -80,6 +80,9 @@
 | 2026-02-24 | vite.config.ts copyAndOptimizeImages recurses subdirectories | Fixed bug: images/blog/ was not copied to dist/ without recursive readdir |
 | 2026-02-24 | Project detail pages redirect to /projects on unknown slug | useNavigate replace:true prevents back-button loop to 404 |
 | 2026-02-24 | Hero highlightText empty string for project detail hero | Project title used as headline; no orange highlight word split needed |
+| 2026-02-24 | OG image URL builder uses company.url prefix for relative paths | Social crawlers require absolute URLs; IIFE checks startsWith('http') |
+| 2026-02-24 | noindex prop on PageMeta replaces standalone meta tag in ThankYou | Cleaner API, single source of truth for robots meta |
+| 2026-02-24 | rating ?? 5 fallback for star rendering in TestimonialsPage | Preserves backward compat with testimonials lacking explicit rating |
 
 ---
 
@@ -96,7 +99,7 @@
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 05-02-PLAN.md (Portfolio Routing & Project Detail Pages)
+Stopped at: Completed 05-01-PLAN.md (Social Meta Tags + Testimonial Filtering)
 Resume file: .planning/phases/05-seo-content/
 
 ---

@@ -287,31 +287,31 @@ Auto-generated sitemap.xml and robots.txt at build time.
 - [ ] robots.txt generated with sitemap reference
 - [ ] Routes dynamically sourced from config (new pages auto-included)
 
-### SEO-05: Complete Meta Tag System — MUST
+### SEO-05: Complete Meta Tag System — MUST [COMPLETE]
 
 Enhance PageMeta with OG image, Twitter cards, canonical URLs.
 
 **Files:** `src/components/ui/PageMeta.tsx`, `src/config/seo.ts`
 
 **Acceptance Criteria:**
-- [ ] `og:image` with absolute URL on all pages
-- [ ] Twitter card meta tags (twitter:card, twitter:image)
-- [ ] Canonical URL on all pages
-- [ ] Default SEO config in `seo.ts` (title template, default description, default OG image)
-- [ ] Per-page override capability
+- [x] `og:image` with absolute URL on all pages
+- [x] Twitter card meta tags (twitter:card, twitter:image)
+- [x] Canonical URL on all pages
+- [x] Default SEO config in `seo.ts` (title template, default description, default OG image)
+- [x] Per-page override capability
 
-### SEO-06: Reviews Config System — MUST
+### SEO-06: Reviews Config System — MUST [COMPLETE]
 
 Testimonial/review data managed entirely in config.
 
 **Files:** `src/config/testimonials.ts`
 
 **Acceptance Criteria:**
-- [ ] All review data in `testimonials.ts` (name, location, service, quote, rating, image, featured flag)
-- [ ] Homepage shows `featured: true` testimonials
-- [ ] Testimonials page shows all
-- [ ] Service-filtered testimonials available on service pages
-- [ ] Google Reviews integration point (placeholder section with embed instructions)
+- [x] All review data in `testimonials.ts` (name, location, service, quote, rating, image, featured flag)
+- [x] Homepage shows `featured: true` testimonials
+- [x] Testimonials page shows all
+- [x] Service-filtered testimonials available on service pages
+- [x] Google Reviews integration point (placeholder section with embed instructions)
 
 ### SEO-07: Portfolio Enhancement — MUST ✓ COMPLETE (05-02)
 
