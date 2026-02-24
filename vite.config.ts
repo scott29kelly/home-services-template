@@ -31,23 +31,36 @@ function copyAndOptimizeImages(): Plugin {
       const srcDir = path.resolve('images')
       const destDir = path.resolve(outDir, 'images')
 
-      // Ensure destination exists
-      await fs.mkdir(destDir, { recursive: true })
+      // Recursively collect all image files from srcDir and subdirectories
+      async function collectImageFiles(dir: string): Promise<{ srcPath: string; relPath: string }[]> {
+        const entries = await fs.readdir(dir, { withFileTypes: true })
+        const results: { srcPath: string; relPath: string }[] = []
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name)
+          if (entry.isDirectory()) {
+            const sub = await collectImageFiles(fullPath)
+            results.push(...sub)
+          } else if (/\.(jpe?g|png|webp|gif|avif|tiff)$/i.test(entry.name)) {
+            results.push({ srcPath: fullPath, relPath: path.relative(srcDir, fullPath) })
+          }
+        }
+        return results
+      }
 
-      const files = await fs.readdir(srcDir)
-      const imageFiles = files.filter((f) =>
-        /\.(jpe?g|png|webp|gif|avif|tiff)$/i.test(f)
-      )
+      const imageFiles = await collectImageFiles(srcDir)
 
       let totalSaved = 0
       let totalOriginal = 0
       const results: string[] = []
 
       await Promise.all(
-        imageFiles.map(async (file) => {
-          const srcPath = path.join(srcDir, file)
-          const destPath = path.join(destDir, file)
-          const ext = path.extname(file).toLowerCase()
+        imageFiles.map(async ({ srcPath, relPath }) => {
+          const file = relPath
+          const destPath = path.join(destDir, relPath)
+          const ext = path.extname(relPath).toLowerCase()
+
+          // Ensure subdirectory exists in dest
+          await fs.mkdir(path.dirname(destPath), { recursive: true })
 
           const srcBuffer = await fs.readFile(srcPath)
           const originalSize = srcBuffer.byteLength
