@@ -21,6 +21,7 @@ const ThankYou = lazy(() => import('./pages/ThankYou'))
 const Financing = lazy(() => import('./pages/Financing'))
 const ResourcesIndex = lazy(() => import('./pages/ResourcesIndex'))
 const ResourcesPost = lazy(() => import('./pages/ResourcesPost'))
+const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const serviceRoutes = getServiceRoutes()
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="resources/:slug" element={<ResourcesPost />} />
             </>
           )}
+          <Route path="portfolio/:slug" element={<ProjectDetail />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
