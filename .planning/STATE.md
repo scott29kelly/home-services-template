@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-23T19:31Z
+**Last Updated:** 2026-02-24T03:15Z
 
 ---
 
 ## Current Phase
 
-**Phase:** 3 -- Lead Generation (COMPLETE)
-**Current Plan:** Not started
-**Plans Completed:** 03-01, 03-02, 03-03
+**Phase:** 4 -- Blog System (IN PROGRESS)
+**Current Plan:** 04-02
+**Plans Completed:** 03-01, 03-02, 03-03, 04-01
 
-**Next Action:** Begin Phase 4 (Blog System)
+**Next Action:** Execute Phase 4 Plan 02 (Demo content + post page)
 
 ---
 
@@ -21,7 +21,7 @@
 | 1 | Foundation & Config Refactor | COMPLETE | 2026-02-21 | 2026-02-21 |
 | 2 | Visual Polish & Performance | COMPLETE | 2026-02-22 | 2026-02-22 |
 | 3 | Lead Generation | COMPLETE | 2026-02-23 | 2026-02-23 |
-| 4 | Blog System | NOT STARTED | -- | -- |
+| 4 | Blog System | IN PROGRESS | 2026-02-24 | -- |
 | 5 | SEO & Content | NOT STARTED | -- | -- |
 | 6 | Integration & Polish | NOT STARTED | -- | -- |
 
@@ -30,9 +30,9 @@
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD)
-- **Requirements completed:** 17 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05)
-- **Phases completed:** 3 / 6 (Phase 3 complete)
-- **Overall progress:** ~50%
+- **Requirements completed:** 18 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01)
+- **Phases completed:** 3 / 6 (Phase 4 in progress, Plan 01 of 2 complete)
+- **Overall progress:** ~55%
 
 ---
 
@@ -72,6 +72,10 @@
 | 2026-02-23 | projects-hero.webp reused for financing hero | Good quality project image; no new assets needed |
 | 2026-02-23 | Banner manages own visibility in Layout | Renders unconditionally; internal fetch + sessionStorage state |
 | 2026-02-23 | Feature-flagged nav links with spread syntax | Clean conditional insertion into nav arrays |
+| 2026-02-24 | Native Vite glob + gray-matter instead of vite-plugin-markdown | Plugin last updated Jan 2024, no Vite 7 test; native approach more resilient |
+| 2026-02-24 | Module-level cache in blog.ts (cachedPosts) | Avoids re-sorting getAllPosts() on every React render call |
+| 2026-02-24 | useSearchParams for tag filter state | Creates shareable/indexable URLs (?tag=roofing) for SEO value |
+| 2026-02-24 | Placeholder ResourcesPost.tsx created in Plan 01 | Prevents TypeScript lazy-import errors before Plan 02 implementation |
 
 ---
 
@@ -79,7 +83,7 @@
 
 | Question | Context | Status |
 |----------|---------|--------|
-| vite-plugin-markdown Vite 7 compat | Research flagged as MEDIUM confidence | Verify during Phase 4 |
+| vite-plugin-markdown Vite 7 compat | Research flagged as MEDIUM confidence | RESOLVED: Skipped; using native Vite glob instead |
 | vite-plugin-prerender Vite 7 compat | Needed for future SSG phase | Defer to future milestone |
 | Theme config to Tailwind v4 integration | How CSS custom properties map to @theme | Research during Phase 1 |
 
@@ -87,8 +91,8 @@
 
 ## Session Continuity
 
-Last session: 2026-02-23
-Stopped at: Completed 03-03-PLAN.md (Financing Calculator & Announcement Banner)
+Last session: 2026-02-24
+Stopped at: Completed 04-01-PLAN.md (Blog Engine + Resources Listing Page)
 Resume file: .planning/phases/04-blog-system/
 
 ---
