@@ -7,4 +7,5 @@ export const seo = {
   defaultDescription:
     'Expert roofing, siding, and storm damage repair. Licensed, insured, and manufacturer-certified. Serving the Greater Metro Area.',
   ogImage: '/images/og-default.webp',
+  twitterCardType: 'summary_large_image' as const,
 }

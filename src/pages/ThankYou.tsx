@@ -14,9 +14,8 @@ export default function ThankYou() {
         title="Thank You"
         description="Your request has been received. We'll be in touch within 24 hours."
         path="/thank-you"
+        noindex
       />
-      {/* noindex — don't index thank-you pages */}
-      <meta name="robots" content="noindex, nofollow" />
 
       <Hero
         backgroundImage="/images/contact-hero.webp"

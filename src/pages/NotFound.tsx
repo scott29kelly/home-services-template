@@ -5,7 +5,7 @@ import PageMeta from '../components/ui/PageMeta'
 export default function NotFound() {
   return (
     <>
-      <PageMeta title="Page Not Found" description="The page you're looking for doesn't exist." path="/404" />
+      <PageMeta title="Page Not Found" description="The page you're looking for doesn't exist." path="/404" noindex />
       <div className="min-h-[70vh] flex items-center justify-center">
         <div className="max-w-md mx-auto px-4 text-center">
           <div className="w-20 h-20 mx-auto mb-6 bg-surface rounded-2xl flex items-center justify-center">
