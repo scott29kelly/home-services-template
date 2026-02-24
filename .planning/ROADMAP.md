@@ -205,6 +205,14 @@ Plans:
 
 **Estimated Complexity:** HIGH
 
+**Plans:** 4 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — Complete meta tag system (OG, Twitter, canonical) + reviews config with filtering fields
+- [ ] 05-02-PLAN.md — Portfolio enhancement with routable project detail pages
+- [ ] 05-03-PLAN.md — City/service-area pages with 20-25 demo cities and unique content
+- [ ] 05-04-PLAN.md — JSON-LD structured data across all page types + sitemap/robots.txt generation
+
 ---
 
 ## Phase 6: Integration & Polish
