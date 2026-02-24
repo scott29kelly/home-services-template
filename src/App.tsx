@@ -19,6 +19,8 @@ const ServiceAreas = lazy(() => import('./pages/ServiceAreas'))
 const Ava = lazy(() => import('./pages/Ava'))
 const ThankYou = lazy(() => import('./pages/ThankYou'))
 const Financing = lazy(() => import('./pages/Financing'))
+const ResourcesIndex = lazy(() => import('./pages/ResourcesIndex'))
+const ResourcesPost = lazy(() => import('./pages/ResourcesPost'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const serviceRoutes = getServiceRoutes()
@@ -47,6 +49,12 @@ export default function App() {
           <Route path="thank-you" element={<ThankYou />} />
           {features.financingCalculator && (
             <Route path="financing" element={<Financing />} />
+          )}
+          {features.blog && (
+            <>
+              <Route path="resources" element={<ResourcesIndex />} />
+              <Route path="resources/:slug" element={<ResourcesPost />} />
+            </>
           )}
           <Route path="*" element={<NotFound />} />
         </Route>

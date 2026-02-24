@@ -28,6 +28,7 @@ export function getNavLinks(): NavLink[] {
     ...(features.financingCalculator
       ? [{ href: '/financing', label: 'Financing' }]
       : []),
+    ...(features.blog ? [{ href: '/resources', label: 'Resources' }] : []),
     { href: '/contact', label: 'Contact' },
   ]
 }
@@ -55,5 +56,6 @@ export function getFooterCompanyLinks(): { href: string; label: string }[] {
     ...(features.financingCalculator
       ? [{ href: '/financing', label: 'Financing' }]
       : []),
+    ...(features.blog ? [{ href: '/resources', label: 'Resources' }] : []),
   ]
 }
