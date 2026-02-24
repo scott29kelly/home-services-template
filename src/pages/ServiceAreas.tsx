@@ -1,15 +1,21 @@
 import { m } from 'framer-motion'
 import { Building, Clock } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
 import SectionHeading from '../components/ui/SectionHeading'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
 import { SITE } from '../config/site'
+import { cityPages } from '../config/service-areas'
 
 export default function ServiceAreas() {
   const { ref, isInView } = useScrollReveal()
   const { ref: statesRef, isInView: statesInView } = useScrollReveal()
+  const { ref: allCitiesRef, isInView: allCitiesInView } = useScrollReveal()
+
+  const texasCities = cityPages.filter(c => c.state === 'TX')
+  const oklahomaCities = cityPages.filter(c => c.state === 'OK')
 
   return (
     <>
@@ -44,7 +50,7 @@ export default function ServiceAreas() {
         </div>
       </section>
 
-      {/* States */}
+      {/* States summary */}
       <section className="py-20 lg:py-28" ref={statesRef}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <SectionHeading title="Service Areas by State" className="mb-10" />
@@ -67,17 +73,115 @@ export default function ServiceAreas() {
                   )}
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {state.areas.map((area) => (
-                    <span
-                      key={area}
-                      className="px-2.5 py-1 bg-surface text-xs text-text-secondary rounded-md"
-                    >
-                      {area}
-                    </span>
-                  ))}
+                  {state.areas.map((area) => {
+                    // Strip the " (HQ)" suffix to find the slug
+                    const displayName = area.replace(' (HQ)', '')
+                    const match = cityPages.find(c => c.name === displayName)
+                    return match ? (
+                      <Link
+                        key={area}
+                        to={`/service-areas/${match.slug}`}
+                        className="px-2.5 py-1 bg-surface text-xs text-text-secondary rounded-md hover:bg-brand-blue/10 hover:text-brand-blue transition-colors"
+                      >
+                        {area}
+                      </Link>
+                    ) : (
+                      <span
+                        key={area}
+                        className="px-2.5 py-1 bg-surface text-xs text-text-secondary rounded-md"
+                      >
+                        {area}
+                      </span>
+                    )
+                  })}
                 </div>
               </m.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* All city pages — grouped by state */}
+      <section className="py-20 lg:py-28 bg-surface" ref={allCitiesRef}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <SectionHeading
+            title="Browse All Service Areas"
+            subtitle="Click any city to see local services, testimonials, and more."
+            className="mb-12"
+          />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* Texas */}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={allCitiesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <h3 className="text-lg font-bold text-navy mb-4 flex items-center gap-2">
+                Texas
+                <span className="px-2 py-0.5 bg-brand-blue/10 text-brand-blue text-xs font-bold rounded-full">HQ</span>
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {texasCities.map((city, i) => (
+                  <m.div
+                    key={city.slug}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={allCitiesInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.4, delay: 0.15 + i * 0.04 }}
+                  >
+                    <Link
+                      to={`/service-areas/${city.slug}`}
+                      className="group flex items-start gap-3 bg-white rounded-xl border border-border p-4 hover:border-brand-blue/40 hover:shadow-sm transition-all duration-200"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-navy text-sm group-hover:text-brand-blue transition-colors">
+                          {city.name}
+                          {city.isHQ && (
+                            <span className="ml-1.5 text-xs text-brand-blue font-normal">(HQ)</span>
+                          )}
+                        </p>
+                        <p className="text-xs text-text-secondary mt-0.5 leading-relaxed line-clamp-2">
+                          {city.description.split('.')[0]}.
+                        </p>
+                      </div>
+                    </Link>
+                  </m.div>
+                ))}
+              </div>
+            </m.div>
+
+            {/* Oklahoma */}
+            <m.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={allCitiesInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <h3 className="text-lg font-bold text-navy mb-4">Oklahoma</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {oklahomaCities.map((city, i) => (
+                  <m.div
+                    key={city.slug}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={allCitiesInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.4, delay: 0.15 + i * 0.04 }}
+                  >
+                    <Link
+                      to={`/service-areas/${city.slug}`}
+                      className="group flex items-start gap-3 bg-white rounded-xl border border-border p-4 hover:border-brand-blue/40 hover:shadow-sm transition-all duration-200"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-navy text-sm group-hover:text-brand-blue transition-colors">
+                          {city.name}
+                        </p>
+                        <p className="text-xs text-text-secondary mt-0.5 leading-relaxed line-clamp-2">
+                          {city.description.split('.')[0]}.
+                        </p>
+                      </div>
+                    </Link>
+                  </m.div>
+                ))}
+              </div>
+            </m.div>
           </div>
         </div>
       </section>

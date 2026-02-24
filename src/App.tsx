@@ -16,6 +16,7 @@ const TestimonialsPage = lazy(() => import('./pages/TestimonialsPage'))
 const About = lazy(() => import('./pages/About'))
 const Contact = lazy(() => import('./pages/Contact'))
 const ServiceAreas = lazy(() => import('./pages/ServiceAreas'))
+const CityPage = lazy(() => import('./pages/CityPage'))
 const Ava = lazy(() => import('./pages/Ava'))
 const ThankYou = lazy(() => import('./pages/ThankYou'))
 const Financing = lazy(() => import('./pages/Financing'))
@@ -46,6 +47,10 @@ export default function App() {
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
           <Route path="service-areas" element={<ServiceAreas />} />
+          {/* Config-driven city page routes */}
+          {features.cityPages && (
+            <Route path="service-areas/:slug" element={<CityPage />} />
+          )}
           <Route path="ava" element={<Ava />} />
           <Route path="thank-you" element={<ThankYou />} />
           {features.financingCalculator && (
