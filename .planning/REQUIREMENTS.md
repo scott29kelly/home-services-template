@@ -247,19 +247,21 @@ File-based blog with frontmatter metadata, listing page, and post page.
 - [x] 3-5 demo blog posts included
 - [x] Posts sorted by date, filterable by tag
 
-### SEO-02: City/Service Area Pages — MUST
+### SEO-02: City/Service Area Pages — MUST [COMPLETE]
 
 Auto-generated landing pages for each city in the service area config.
 
 **Files:** `src/pages/CityPage.tsx`, `src/config/service-areas.ts`
 
 **Acceptance Criteria:**
-- [ ] Each city in config gets its own route (`/service-areas/{slug}`)
-- [ ] City pages have unique content (description, meta title, meta description per city)
-- [ ] City pages show available services, local testimonials, nearby areas
-- [ ] 20-30 demo cities included with unique descriptions
-- [ ] Internal linking between nearby cities
-- [ ] Service area index page links to all city pages
+- [x] Each city in config gets its own route (`/service-areas/{slug}`)
+- [x] City pages have unique content (description, meta title, meta description per city)
+- [x] City pages show available services, local testimonials, nearby areas
+- [x] 20-30 demo cities included with unique descriptions (20 cities: 12 TX + 8 OK)
+- [x] Internal linking between nearby cities
+- [x] Service area index page links to all city pages
+
+**Completed:** 05-03 (2026-02-24)
 
 ### SEO-03: JSON-LD Structured Data — MUST
 

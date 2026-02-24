@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-24T17:34Z
+**Last Updated:** 2026-02-24T17:45Z
 
 ---
 
 ## Current Phase
 
 **Phase:** 5 -- SEO & Content (IN PROGRESS)
-**Current Plan:** 05-02 COMPLETE
-**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02
+**Current Plan:** 05-03 COMPLETE
+**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03
 
-**Next Action:** Continue Phase 5 (SEO & Content) — 05-03
+**Next Action:** Continue Phase 5 (SEO & Content) — 05-04 (if exists) or begin Phase 6
 
 ---
 
@@ -30,9 +30,9 @@
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD)
-- **Requirements completed:** 20 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07)
+- **Requirements completed:** 21 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02)
 - **Phases completed:** 4 / 6 (Phase 5 in progress)
-- **Overall progress:** ~70%
+- **Overall progress:** ~75%
 
 ---
 
@@ -83,6 +83,9 @@
 | 2026-02-24 | OG image URL builder uses company.url prefix for relative paths | Social crawlers require absolute URLs; IIFE checks startsWith('http') |
 | 2026-02-24 | noindex prop on PageMeta replaces standalone meta tag in ThankYou | Cleaner API, single source of truth for robots meta |
 | 2026-02-24 | rating ?? 5 fallback for star rendering in TestimonialsPage | Preserves backward compat with testimonials lacking explicit rating |
+| 2026-02-24 | Single parameterized route service-areas/:slug for all city pages | Simpler than dynamic route generation; handles any slug; plan explicitly recommended this approach |
+| 2026-02-24 | FAQ accordion built inline in CityPage (useState) | No external FAQ component needed; city FAQs are structurally different from service FAQs |
+| 2026-02-24 | ServiceAreas.tsx adds full city listing section below states grid | Provides richer SEO value with city descriptions and direct links without breaking existing layout |
 
 ---
 
@@ -99,7 +102,7 @@
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 05-01-PLAN.md (Social Meta Tags + Testimonial Filtering)
+Stopped at: Completed 05-03-PLAN.md (Config-driven City/Service-Area Pages)
 Resume file: .planning/phases/05-seo-content/
 
 ---
