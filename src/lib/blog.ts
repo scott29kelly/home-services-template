@@ -85,10 +85,3 @@ export function getAllTags(): string[] {
   const all = getAllPosts().flatMap((p) => p.tags)
   return [...new Set(all)].sort()
 }
-
-/**
- * Returns all published posts that include the given tag.
- */
-export function getPostsByTag(tag: string): BlogPost[] {
-  return getAllPosts().filter((p) => p.tags.includes(tag))
-}
