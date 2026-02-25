@@ -286,6 +286,12 @@ Plans:
 
 **Estimated Complexity:** LOW
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Phase 01 CFG verification report (CFG-01 through CFG-06)
+- [ ] 07-02-PLAN.md — REQUIREMENTS.md traceability update + dead code removal + STATE.md closure
+
 ---
 
 ## Phase Dependency Graph
