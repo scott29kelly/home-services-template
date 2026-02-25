@@ -17,80 +17,80 @@ Each requirement has:
 
 ## Category: Infrastructure & Config (CFG)
 
-### CFG-01: Modular Config System — MUST
+### CFG-01: Modular Config System — MUST [COMPLETE]
 
 Split `src/config/site.ts` into modular config files with Zod schema validation.
 
 **Files:** `src/config/index.ts`, `src/config/schema.ts`, `src/config/company.ts`, `src/config/services.ts`, `src/config/service-areas.ts`, `src/config/testimonials.ts`, `src/config/projects.ts`, `src/config/navigation.ts`, `src/config/assistant.ts`, `src/config/forms.ts`, `src/config/theme.ts`, `src/config/seo.ts`, `src/config/features.ts`
 
 **Acceptance Criteria:**
-- [ ] Config split into 10+ domain-specific files
-- [ ] Zod schemas validate all config at import time
-- [ ] Invalid config produces clear, actionable error messages (not React crashes)
-- [ ] Existing `SITE` import still works (backward-compatible barrel export)
-- [ ] All existing components render correctly with new config structure
+- [x] Config split into 10+ domain-specific files
+- [x] Zod schemas validate all config at import time
+- [x] Invalid config produces clear, actionable error messages (not React crashes)
+- [x] Existing `SITE` import still works (backward-compatible barrel export)
+- [x] All existing components render correctly with new config structure
 
-### CFG-02: Config-Driven Navigation — MUST
+### CFG-02: Config-Driven Navigation — MUST [PARTIAL]
 
 Header and Footer navigation auto-generated from services config and page registry. Adding a service to config automatically adds it to nav, routes, and footer.
 
 **Files:** `src/config/navigation.ts`, `src/components/layout/Header.tsx`, `src/components/layout/Footer.tsx`
 
 **Acceptance Criteria:**
-- [ ] Header nav links generated from config (no hardcoded link arrays in Header.tsx)
-- [ ] Footer links generated from config (no hardcoded link arrays in Footer.tsx)
-- [ ] Services dropdown populated from services config
-- [ ] Adding a service to `services.ts` automatically appears in nav and footer
-- [ ] Feature-flagged pages (blog, AI assistant) appear/disappear based on `features.ts`
+- [x] Header nav links generated from config (no hardcoded link arrays in Header.tsx)
+- [x] Footer links generated from config (no hardcoded link arrays in Footer.tsx)
+- [x] Services dropdown populated from services config
+- [x] Adding a service to `services.ts` automatically appears in nav and footer
+- [ ] Feature-flagged pages (blog, AI assistant) appear/disappear based on `features.ts` — PARTIAL: blog/financing flag correctly; `features.assistant` does not gate Ava nav link
 
-### CFG-03: Config-Driven Routing — MUST
+### CFG-03: Config-Driven Routing — MUST [COMPLETE]
 
 Routes generated from services, cities, and feature flags. One template page per entity type instead of per-service page files.
 
 **Files:** `src/App.tsx`, `src/lib/route-generator.ts`, `src/pages/ServicePage.tsx`
 
 **Acceptance Criteria:**
-- [ ] Routes generated from `services.ts` config array
-- [ ] Single `ServicePage.tsx` renders any service by URL slug matching
-- [ ] Adding a new service requires only a config entry (zero component code)
-- [ ] Existing service URLs (`/roofing`, `/siding`, `/storm-damage`) still work
-- [ ] 404 catch-all route exists
+- [x] Routes generated from `services.ts` config array
+- [x] Single `ServicePage.tsx` renders any service by URL slug matching
+- [x] Adding a new service requires only a config entry (zero component code)
+- [x] Existing service URLs (`/roofing`, `/siding`, `/storm-damage`) still work
+- [x] 404 catch-all route exists
 
-### CFG-04: Content Migration to Config — MUST
+### CFG-04: Content Migration to Config — MUST [COMPLETE]
 
 Move all hardcoded content data from components into config files.
 
 **Files:** `src/config/testimonials.ts`, `src/config/projects.ts`, `src/pages/Projects.tsx`, `src/components/sections/Testimonials.tsx`, `src/pages/TestimonialsPage.tsx`
 
 **Acceptance Criteria:**
-- [ ] Testimonials data in `testimonials.ts`, not in component files
-- [ ] `featured` flag controls homepage vs. full-page display (no duplication)
-- [ ] Project/portfolio data in `projects.ts`, not in `Projects.tsx`
-- [ ] FAQ data moved to respective service configs in `services.ts`
-- [ ] Team member data in `team.ts`, not in `About.tsx`
+- [x] Testimonials data in `testimonials.ts`, not in component files
+- [x] `featured` flag controls homepage vs. full-page display (no duplication)
+- [x] Project/portfolio data in `projects.ts`, not in `Projects.tsx`
+- [x] FAQ data moved to respective service configs in `services.ts`
+- [x] Team member data in `team.ts`, not in `About.tsx`
 
-### CFG-05: 404 Page — MUST
+### CFG-05: 404 Page — MUST [PARTIAL]
 
 Add a catch-all route with a styled 404 page.
 
 **Files:** `src/pages/NotFound.tsx`, `src/App.tsx`
 
 **Acceptance Criteria:**
-- [ ] Unknown URLs render a styled 404 page inside the Layout
-- [ ] 404 page includes navigation links to key pages
-- [ ] 404 page includes phone CTA
-- [ ] Page has appropriate meta tags (noindex)
+- [x] Unknown URLs render a styled 404 page inside the Layout
+- [x] 404 page includes navigation links to key pages
+- [ ] 404 page includes phone CTA — MISSING: NotFound.tsx has Go Home/Go Back but no tel: link
+- [x] Page has appropriate meta tags (noindex)
 
-### CFG-06: Feature Flags System — MUST
+### CFG-06: Feature Flags System — MUST [PARTIAL]
 
 Boolean config flags that gate routes, navigation items, and component rendering.
 
 **Files:** `src/config/features.ts`
 
 **Acceptance Criteria:**
-- [ ] `features.blog`, `features.assistant`, `features.cityPages`, `features.beforeAfter` flags exist
-- [ ] Disabling a feature removes its route, nav item, and any related UI
-- [ ] All features enabled by default for demo
+- [ ] `features.blog`, `features.assistant`, `features.cityPages`, `features.beforeAfter` flags exist — PARTIAL: beforeAfter flag missing from features.ts
+- [x] Disabling a feature removes its route, nav item, and any related UI — PARTIAL: blog/cityPages/financingCalculator work; features.assistant does not gate route/nav
+- [x] All features enabled by default for demo
 
 ---
 
