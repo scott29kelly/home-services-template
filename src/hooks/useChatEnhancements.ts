@@ -193,10 +193,7 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
       leadStateRef.current === 'capturing-phone' ||
       leadStateRef.current === 'capturing-email'
     ) {
-      const hasEnough = tryExtractLeadData(userMessage)
-      if (hasEnough && leadStateRef.current !== 'captured') {
-        // Will submit after AI responds
-      }
+      tryExtractLeadData(userMessage)
     }
 
     // Add user message to state

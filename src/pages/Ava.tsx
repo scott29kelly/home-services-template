@@ -1,21 +1,24 @@
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { m } from 'framer-motion'
 import { Send, MessageCircle } from 'lucide-react'
-import { sendMessage, type Message } from '../lib/api'
 import PageMeta from '../components/ui/PageMeta'
 import { SITE } from '../config/site'
+import useChatEnhancements from '../hooks/useChatEnhancements'
 
 export default function Ava() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: SITE.assistant.pageGreeting,
-    },
-  ])
-  const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const {
+    messages,
+    input,
+    setInput,
+    isLoading,
+    rateLimited,
+    quickActions,
+    handleSend,
+    handleKeyDown,
+  } = useChatEnhancements(SITE.assistant.pageGreeting)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -25,26 +28,9 @@ export default function Ava() {
     inputRef.current?.focus()
   }, [])
 
-  const handleSend = async (text?: string) => {
-    const userMessage = text || input.trim()
-    if (!userMessage || isLoading) return
-
-    setInput('')
-    const newMessages: Message[] = [...messages, { role: 'user', content: userMessage }]
-    setMessages(newMessages)
-    setIsLoading(true)
-
-    const data = await sendMessage(newMessages)
-    setMessages((prev) => [...prev, { role: 'assistant', content: data.response }])
-    setIsLoading(false)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
+  // Show quick actions after the last assistant message when not loading
+  const lastMessage = messages[messages.length - 1]
+  const showQuickActions = !isLoading && lastMessage?.role === 'assistant'
 
   return (
     <>
@@ -128,14 +114,18 @@ export default function Ava() {
               </div>
             )}
 
-            {/* Quick Actions */}
-            {messages.length === 1 && !isLoading && (
+            {/* Quick Actions — shown after last assistant message */}
+            {showQuickActions && (
               <div className="flex flex-wrap gap-2 pt-2">
-                {SITE.assistant.pageQuickActions.map((action) => (
+                {quickActions.map((action) => (
                   <button
                     key={action}
                     onClick={() => handleSend(action)}
-                    className="px-3 py-1.5 bg-brand-blue/10 text-brand-blue text-xs font-medium rounded-full hover:bg-brand-blue/20 transition-colors"
+                    className={`px-3 py-1.5 bg-brand-blue/10 text-brand-blue text-xs font-medium rounded-full hover:bg-brand-blue/20 transition-colors${
+                      action === 'Talk to a real person'
+                        ? ' border border-brand-blue/20'
+                        : ''
+                    }`}
                   >
                     {action}
                   </button>
@@ -155,13 +145,13 @@ export default function Ava() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about storm damage, insurance claims, inspections..."
-                disabled={isLoading}
+                placeholder={rateLimited ? 'Please wait...' : 'Ask about storm damage, insurance claims, inspections...'}
+                disabled={isLoading || rateLimited}
                 className="flex-1 px-4 py-3 bg-white border border-border rounded-full text-sm text-navy placeholder:text-navy/30 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue disabled:opacity-50 transition-all"
               />
               <button
                 onClick={() => handleSend()}
-                disabled={!input.trim() || isLoading}
+                disabled={!input.trim() || isLoading || rateLimited}
                 className="p-3 bg-brand-blue text-white rounded-full hover:bg-sky-600 disabled:opacity-40 transition-colors"
                 aria-label="Send message"
               >
