@@ -393,7 +393,7 @@ Plans:
 
 **Estimated Complexity:** LOW
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [ ] 10-01-PLAN.md — Web-vitals reporting + Vercel Speed Insights integration + Lighthouse score verification

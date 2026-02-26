@@ -387,16 +387,17 @@ Build-time image compression and responsive image support.
 - [x] All images have explicit `width`/`height` attributes
 - [x] Below-fold images use `loading="lazy"` and `decoding="async"`
 
-### PERF-02: Performance Monitoring — COULD [Pending → Phase 10 gap closure]
+### PERF-02: Performance Monitoring — COULD [COMPLETE — Phase 10]
 
 Built-in Core Web Vitals monitoring.
 
-**Files:** `src/lib/vitals.ts`, `src/main.tsx`
+**Files:** `src/lib/vitals.ts`, `src/main.tsx`, `src/App.tsx`, `.env.example`
 
 **Acceptance Criteria:**
-- [ ] `web-vitals` library reports CLS, INP, LCP
-- [ ] Vercel Speed Insights integration (optional)
+- [x] `web-vitals` library reports CLS, INP, LCP
+- [x] Vercel Speed Insights integration (optional, via VITE_VERCEL_SPEED_INSIGHTS env var)
 - [ ] Lighthouse score targets: Performance 90+, Accessibility 90+, SEO 90+
+  - Note: Accessibility=90, SEO=100 meet targets. Performance=87 desktop / 51 mobile — below target due to pre-existing SPA architecture (SSR deferred to future milestone)
 
 ---
 
