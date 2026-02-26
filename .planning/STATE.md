@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-26T15:02Z
+**Last Updated:** 2026-02-26T15:11Z
 
 ---
 
 ## Current Phase
 
-**Phase:** 9 -- Ava Chat Enhancement (IN PROGRESS)
-**Current Plan:** 09-01 complete, 09-02 next
-**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04, 07-01, 07-02, 08-01, 09-01
+**Phase:** 9 -- Ava Chat Enhancement (IN PROGRESS — awaiting human verification)
+**Current Plan:** 09-02 tasks complete, awaiting checkpoint:human-verify (Task 3)
+**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04, 07-01, 07-02, 08-01, 09-01, 09-02 (pending verification)
 
-**Next Action:** Execute 09-02 (AvaWidget and Ava page component integration)
+**Next Action:** Human verifies E2E chat flow (see 09-02 Task 3 checkpoint), then approve to finalize phase
 
 ---
 
@@ -33,7 +33,7 @@
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD) + AVA requirements added in Phase 9
-- **Requirements completed:** 26 + AVA-01, AVA-03 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02, SEO-03, SEO-04, CFG-02 (fixed), CFG-06 (added), SEO-04 (enhanced), AVA-01, AVA-03)
+- **Requirements completed:** 26 + AVA-01, AVA-02, AVA-03 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02, SEO-03, SEO-04, CFG-02 (fixed), CFG-06 (added), SEO-04 (enhanced), AVA-01, AVA-02, AVA-03)
 - **Phases completed:** 7 / 9 (Phase 6 not started; Phase 9 in progress)
 - **Overall progress:** ~96%
 
@@ -103,6 +103,10 @@
 | 2026-02-26 | demoMode boolean added to sendMessage return type | Allows components to optionally detect demo state without requiring it |
 | 2026-02-26 | Every quick action set ends with 'Talk to a real person' as final item | Per CONTEXT.md locked decision — always visible as a chip regardless of page |
 | 2026-02-26 | System prompt silently incorporates page context — no AI announcement of page awareness | Per CONTEXT.md: context guides responses, never triggers "I see you're on X page" style announcements |
+| 2026-02-26 | useChatEnhancements hook uses useLocation() internally — components don't pass pathname as prop | Auto-updates on navigation without extra prop wiring |
+| 2026-02-26 | Quick actions shown after every assistant message, not just first | Makes 'Talk to a real person' always accessible deep in conversation |
+| 2026-02-26 | Rate limit feedback via placeholder change to 'Please wait...' — no error toast | Per CONTEXT.md: subtle send-button disable, not an error message |
+| 2026-02-26 | Escalation 'Talk to a real person' injects local message, never hits the API | Phone + hours shown immediately without latency |
 
 ---
 
@@ -119,8 +123,8 @@
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 09-01-PLAN.md (Ava chat infrastructure — chat-context.ts, api.ts enhancements, CORS hardening across all 3 API backends)
-Resume file: .planning/phases/09-ava-chat-enhancement/
+Stopped at: 09-02 Tasks 1+2 complete — awaiting checkpoint:human-verify (Task 3: E2E flow verification). Run `npm run dev` and verify at http://localhost:5173
+Resume file: .planning/phases/09-ava-chat-enhancement/09-02-PLAN.md
 
 ---
 

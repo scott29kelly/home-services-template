@@ -336,7 +336,7 @@ Portfolio/project data in config with before/after support.
 
 ## Category: AI Assistant (AVA)
 
-### AVA-01: Chat Context Awareness — SHOULD [In Progress → 09-01 infrastructure complete, 09-02 component integration pending]
+### AVA-01: Chat Context Awareness — SHOULD [Complete — 09-02]
 
 Ava responds with awareness of current page and user journey.
 
@@ -344,22 +344,22 @@ Ava responds with awareness of current page and user journey.
 
 **Acceptance Criteria:**
 - [x] System prompt includes current page context (buildSystemPrompt() in chat-context.ts — 09-01)
-- [ ] Quick actions change based on current page (getPageContext() ready; AvaWidget integration in 09-02)
+- [x] Quick actions change based on current page (useChatEnhancements hook + getPageContext() — 09-02)
 - [x] Conversation history limited to last 10 messages sent to API (sendMessage() cap + API server cap — 09-01)
 
-### AVA-02: Lead Capture in Chat — SHOULD [Pending → Phase 9 gap closure]
+### AVA-02: Lead Capture in Chat — SHOULD [Complete — 09-02]
 
 Ava collects contact info during natural conversation flow.
 
 **Files:** `src/components/ui/AvaWidget.tsx`, `src/lib/api.ts`
 
 **Acceptance Criteria:**
-- [ ] After 2-3 exchanges, Ava offers to capture name/phone/email
-- [ ] Captured leads sent to the same form submission backend
-- [ ] "Talk to a real person" escalation button shown after initial exchanges
-- [ ] Lead capture is optional (user can continue chatting without providing info)
+- [x] After 2-3 exchanges, Ava offers to capture name/phone/email (AI-driven via system prompt; hook detects and extracts — 09-02)
+- [x] Captured leads sent to the same form submission backend (submitForm() called when name+phone captured — 09-02)
+- [x] "Talk to a real person" escalation chip always visible (persistent in quick actions after every assistant message — 09-02)
+- [x] Lead capture is optional (user can continue chatting without providing info — AI gracefully handles declines per system prompt)
 
-### AVA-03: Chat Rate Limiting & Security — SHOULD [In Progress → 09-01 backend hardening complete, 09-02 client-side rate limit pending]
+### AVA-03: Chat Rate Limiting & Security — SHOULD [Complete — 09-02]
 
 Protect chat API from abuse.
 
@@ -368,7 +368,7 @@ Protect chat API from abuse.
 **Acceptance Criteria:**
 - [x] CORS restricted to site domain (not wildcard `*`) (ALLOWED_ORIGIN env var in all 3 API files — 09-01)
 - [x] Conversation history capped at 10 messages sent to API (client + server both cap — 09-01)
-- [ ] Client-side rate limiting (max 1 message per 2 seconds) (AvaWidget enhancement in 09-02)
+- [x] Client-side rate limiting (max 1 message per 2 seconds) (useChatEnhancements hook — 09-02)
 - [x] Graceful degradation on 429 (rate limit) — switch to demo mode (sendMessage() 429 detection — 09-01)
 
 ---
