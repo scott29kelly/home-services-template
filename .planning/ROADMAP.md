@@ -360,6 +360,12 @@ Plans:
 
 **Estimated Complexity:** MEDIUM
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Chat infrastructure: context utility, API enhancements (history cap, 429 handling, demo enrichment), CORS hardening
+- [ ] 09-02-PLAN.md — Widget & page integration: useChatEnhancements hook, lead capture state machine, persistent escalation chip
+
 ---
 
 ## Phase 10: Performance Monitoring
