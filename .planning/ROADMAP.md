@@ -393,6 +393,11 @@ Plans:
 
 **Estimated Complexity:** LOW
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 10-01-PLAN.md — Web-vitals reporting + Vercel Speed Insights integration + Lighthouse score verification
+
 ---
 
 ## Phase Dependency Graph
