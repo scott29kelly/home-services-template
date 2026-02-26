@@ -2,7 +2,7 @@
 
 **Created:** 2026-02-21
 **Milestone:** v1.0 — Premium Template Launch
-**Phases:** 7
+**Phases:** 10
 
 ---
 
@@ -294,6 +294,96 @@ Plans:
 
 ---
 
+## Phase 8: Feature Flag & Integration Polish
+
+**Goal:** Fix partial MUST requirement gaps in feature flag gating and resolve integration inconsistencies identified by the v1.0 milestone audit.
+
+**Requirements:**
+- CFG-02: Config-Driven Navigation (partial gap — `features.assistant` not gating nav/route)
+- CFG-06: Feature Flags System (partial gap — `features.beforeAfter` flag missing)
+- SEO-04: Sitemap & Robots.txt (edge case — hardcoded routes ignore feature flags)
+
+**Gap Closure:** Closes integration gaps from v1.0 audit
+
+**Key Changes:**
+- Add `features.beforeAfter` flag to `src/config/features.ts`
+- Gate Ava nav link and `/ava` route behind `features.assistant` flag
+- Fix sitemap to respect feature flags (don't include `/financing` or `/resources` when flags are off)
+- Fix ServicePage redirect inconsistency (redirect to parent like CityPage/ResourcesPost)
+
+**Dependencies:** Phase 1 (config system), Phase 7 (verification baseline)
+
+**Success Criteria:**
+- `features.assistant = false` hides Ava nav link and blocks `/ava` route
+- `features.beforeAfter` flag exists in features.ts and gates before/after UI
+- Sitemap excludes routes for disabled features
+- All pages redirect consistently on invalid slugs
+
+**Estimated Complexity:** LOW
+
+---
+
+## Phase 9: Ava Chat Enhancement
+
+**Goal:** Implement context-aware chat, lead capture, and security hardening for the Ava AI assistant, completing the broken "Visitor chats with Ava" E2E flow.
+
+**Requirements:**
+- AVA-01: Chat Context Awareness
+- AVA-02: Lead Capture in Chat
+- AVA-03: Chat Rate Limiting & Security
+
+**Gap Closure:** Closes requirement + flow gaps from v1.0 audit
+
+**Key Changes:**
+- Add page context to Ava system prompt (current page, available services)
+- Change quick actions based on current page context
+- Implement lead capture flow (name/phone/email after 2-3 exchanges)
+- Add "Talk to a real person" escalation button
+- Send captured leads to form submission backend
+- Restrict CORS to site domain (remove wildcard `*`)
+- Cap conversation history at 10 messages sent to API
+- Add client-side rate limiting (max 1 message per 2 seconds)
+- Graceful degradation on 429 — switch to demo mode
+
+**Dependencies:** Phase 8 (feature flag gating for assistant), Phase 3 (form submission backend)
+
+**Success Criteria:**
+- Ava provides context-aware responses based on current page
+- Chat captures leads and sends to form backend
+- Chat API secured (no wildcard CORS, rate limited)
+- "Visitor chats with Ava → Lead capture" E2E flow works end-to-end
+
+**Estimated Complexity:** MEDIUM
+
+---
+
+## Phase 10: Performance Monitoring
+
+**Goal:** Add Core Web Vitals monitoring and performance reporting to meet PERF-02 requirements.
+
+**Requirements:**
+- PERF-02: Performance Monitoring
+
+**Gap Closure:** Closes remaining requirement gap from v1.0 audit
+
+**Key Changes:**
+- Install `web-vitals` library
+- Create `src/lib/vitals.ts` to report CLS, INP, LCP
+- Wire vitals reporting into `src/main.tsx`
+- Add optional Vercel Speed Insights integration
+- Verify Lighthouse score targets: Performance 90+, Accessibility 90+, SEO 90+
+
+**Dependencies:** All prior phases (measures final performance)
+
+**Success Criteria:**
+- `web-vitals` reports CLS, INP, LCP to console/analytics
+- Vercel Speed Insights integration point available
+- Lighthouse scores meet 90+ targets across Performance, Accessibility, SEO
+
+**Estimated Complexity:** LOW
+
+---
+
 ## Phase Dependency Graph
 
 ```
@@ -303,9 +393,12 @@ Phase 1: Foundation & Config ──┬──> Phase 2: Visual Polish
                                          │
 Phase 2 + Phase 4 ────────────────> Phase 5: SEO & Content
                                          │
-All Phases ────────────────────────> Phase 6: Integration & Polish
+All Phases ────────────────────────> Phase 6: Integration & Polish (NOT STARTED — gaps addressed by 8-10)
 
 Phase 7: Foundation Verification (independent — verifies Phase 1)
+Phase 1 + 7 ──────────────────────> Phase 8: Feature Flag & Integration Polish
+Phase 8 + 3 ──────────────────────> Phase 9: Ava Chat Enhancement
+All Phases ────────────────────────> Phase 10: Performance Monitoring
 ```
 
 ---
@@ -337,14 +430,14 @@ Phase 7: Foundation Verification (independent — verifies Phase 1)
 | SEO-05 | 5 | MUST |
 | SEO-06 | 5 | MUST |
 | SEO-07 | 5 | MUST |
-| AVA-01 | 6 | SHOULD |
-| AVA-02 | 6 | SHOULD |
-| AVA-03 | 6 | SHOULD |
-| PERF-02 | 6 | COULD |
+| AVA-01 | 9 | SHOULD |
+| AVA-02 | 9 | SHOULD |
+| AVA-03 | 9 | SHOULD |
+| PERF-02 | 10 | COULD |
 
-**Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5. Phase 7 verifies CFG-01–06.
+**Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5. Phase 7 verifies CFG-01–06. Phase 8 closes CFG-02/CFG-06 partial gaps. Phase 9 closes AVA-01/02/03. Phase 10 closes PERF-02.
 
 ---
 
 *Roadmap created: 2026-02-21*
-*Updated: 2026-02-25 — Phase 07 complete; both plans done (verification + cleanup)*
+*Updated: 2026-02-26 — Gap closure phases 08-10 added from v1.0 milestone audit*

@@ -30,7 +30,7 @@ Split `src/config/site.ts` into modular config files with Zod schema validation.
 - [x] Existing `SITE` import still works (backward-compatible barrel export)
 - [x] All existing components render correctly with new config structure
 
-### CFG-02: Config-Driven Navigation — MUST [PARTIAL]
+### CFG-02: Config-Driven Navigation — MUST [PARTIAL → Phase 8 gap closure]
 
 Header and Footer navigation auto-generated from services config and page registry. Adding a service to config automatically adds it to nav, routes, and footer.
 
@@ -81,7 +81,7 @@ Add a catch-all route with a styled 404 page.
 - [ ] 404 page includes phone CTA — MISSING: NotFound.tsx has Go Home/Go Back but no tel: link
 - [x] Page has appropriate meta tags (noindex)
 
-### CFG-06: Feature Flags System — MUST [PARTIAL]
+### CFG-06: Feature Flags System — MUST [PARTIAL → Phase 8 gap closure]
 
 Boolean config flags that gate routes, navigation items, and component rendering.
 
@@ -336,7 +336,7 @@ Portfolio/project data in config with before/after support.
 
 ## Category: AI Assistant (AVA)
 
-### AVA-01: Chat Context Awareness — SHOULD
+### AVA-01: Chat Context Awareness — SHOULD [Pending → Phase 9 gap closure]
 
 Ava responds with awareness of current page and user journey.
 
@@ -347,7 +347,7 @@ Ava responds with awareness of current page and user journey.
 - [ ] Quick actions change based on current page
 - [ ] Conversation history limited to last 10 messages sent to API
 
-### AVA-02: Lead Capture in Chat — SHOULD
+### AVA-02: Lead Capture in Chat — SHOULD [Pending → Phase 9 gap closure]
 
 Ava collects contact info during natural conversation flow.
 
@@ -359,7 +359,7 @@ Ava collects contact info during natural conversation flow.
 - [ ] "Talk to a real person" escalation button shown after initial exchanges
 - [ ] Lead capture is optional (user can continue chatting without providing info)
 
-### AVA-03: Chat Rate Limiting & Security — SHOULD
+### AVA-03: Chat Rate Limiting & Security — SHOULD [Pending → Phase 9 gap closure]
 
 Protect chat API from abuse.
 
@@ -387,7 +387,7 @@ Build-time image compression and responsive image support.
 - [x] All images have explicit `width`/`height` attributes
 - [x] Below-fold images use `loading="lazy"` and `decoding="async"`
 
-### PERF-02: Performance Monitoring — COULD
+### PERF-02: Performance Monitoring — COULD [Pending → Phase 10 gap closure]
 
 Built-in Core Web Vitals monitoring.
 
