@@ -363,8 +363,8 @@ Plans:
 **Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 09-01-PLAN.md — Chat infrastructure: context utility, API enhancements (history cap, 429 handling, demo enrichment), CORS hardening
-- [ ] 09-02-PLAN.md — Widget & page integration: useChatEnhancements hook, lead capture state machine, persistent escalation chip
+- [x] 09-01-PLAN.md — Chat infrastructure: context utility, API enhancements (history cap, 429 handling, demo enrichment), CORS hardening
+- [x] 09-02-PLAN.md — Widget & page integration: useChatEnhancements hook, lead capture state machine, persistent escalation chip
 
 ---
 
