@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import Layout from './components/layout/Layout'
 import { PageSkeleton } from './components/ui/Skeleton'
@@ -51,7 +51,11 @@ export default function App() {
           {features.cityPages && (
             <Route path="service-areas/:slug" element={<CityPage />} />
           )}
-          <Route path="ava" element={<Ava />} />
+          {features.assistant ? (
+            <Route path="ava" element={<Ava />} />
+          ) : (
+            <Route path="ava" element={<Navigate to="/" replace />} />
+          )}
           <Route path="thank-you" element={<ThankYou />} />
           {features.financingCalculator && (
             <Route path="financing" element={<Financing />} />

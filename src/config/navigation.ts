@@ -24,7 +24,7 @@ export function getNavLinks(): NavLink[] {
     { href: '/testimonials', label: 'Testimonials' },
     { href: '/about', label: 'About' },
     { href: '/service-areas', label: 'Service Areas' },
-    { href: '/ava', label: 'Ask Ava' },
+    ...(features.assistant ? [{ href: '/ava', label: 'Ask Ava' }] : []),
     ...(features.financingCalculator
       ? [{ href: '/financing', label: 'Financing' }]
       : []),
@@ -52,7 +52,7 @@ export function getFooterCompanyLinks(): { href: string; label: string }[] {
     { href: '/testimonials', label: 'Testimonials' },
     { href: '/service-areas', label: 'Service Areas' },
     { href: '/contact', label: 'Contact' },
-    { href: '/ava', label: 'Ask Ava' },
+    ...(features.assistant ? [{ href: '/ava', label: 'Ask Ava' }] : []),
     ...(features.financingCalculator
       ? [{ href: '/financing', label: 'Financing' }]
       : []),

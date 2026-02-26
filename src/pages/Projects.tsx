@@ -8,6 +8,7 @@ import BeforeAfterSlider from '../components/ui/BeforeAfterSlider'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
 import { projects } from '../config/projects'
+import { features } from '../config/features'
 
 type Category = 'all' | 'roofing' | 'siding' | 'storm'
 
@@ -92,39 +93,41 @@ export default function Projects() {
       </section>
 
       {/* Before & After */}
-      <section className="py-20 lg:py-28 bg-surface" ref={baRef}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <SectionHeading
-            title="Before & After"
-            subtitle="See the transformation -- drag the slider to compare."
-            className="mb-10"
-          />
+      {features.beforeAfter && (
+        <section className="py-20 lg:py-28 bg-surface" ref={baRef}>
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
+            <SectionHeading
+              title="Before & After"
+              subtitle="See the transformation -- drag the slider to compare."
+              className="mb-10"
+            />
 
-          <div className="space-y-10">
-            {projects.beforeAfter.map((item, i) => (
-              <m.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={baInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.1 + i * 0.15 }}
-                className="bg-white rounded-2xl border border-border overflow-hidden"
-              >
-                <BeforeAfterSlider
-                  beforeImage={item.before}
-                  afterImage={item.after}
-                  className="h-64 sm:h-80 lg:h-96 rounded-none"
-                />
-                <div className="p-6">
-                  <h3 className="font-bold text-navy">{item.title}</h3>
-                  <p className="text-sm text-text-secondary">
-                    {item.location} &mdash; {item.description}
-                  </p>
-                </div>
-              </m.div>
-            ))}
+            <div className="space-y-10">
+              {projects.beforeAfter.map((item, i) => (
+                <m.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={baInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.6, delay: 0.1 + i * 0.15 }}
+                  className="bg-white rounded-2xl border border-border overflow-hidden"
+                >
+                  <BeforeAfterSlider
+                    beforeImage={item.before}
+                    afterImage={item.after}
+                    className="h-64 sm:h-80 lg:h-96 rounded-none"
+                  />
+                  <div className="p-6">
+                    <h3 className="font-bold text-navy">{item.title}</h3>
+                    <p className="text-sm text-text-secondary">
+                      {item.location} &mdash; {item.description}
+                    </p>
+                  </div>
+                </m.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <CTA />
     </>

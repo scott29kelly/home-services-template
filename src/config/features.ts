@@ -12,4 +12,6 @@ export const features = {
   onlineBooking: true,
   /** Enable city/service-area pages (Phase 5) */
   cityPages: true,
+  /** Show before/after comparison slider on Projects page */
+  beforeAfter: true,
 }
