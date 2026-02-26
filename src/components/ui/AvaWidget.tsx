@@ -1,21 +1,24 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import { X, Send, MessageCircle } from 'lucide-react'
-import { sendMessage, type Message } from '../../lib/api'
 import { SITE } from '../../config/site'
+import useChatEnhancements from '../../hooks/useChatEnhancements'
 
 export default function AvaWidget() {
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: SITE.assistant.greeting,
-    },
-  ])
-  const [input, setInput] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const {
+    messages,
+    input,
+    setInput,
+    isLoading,
+    rateLimited,
+    quickActions,
+    handleSend,
+    handleKeyDown: hookKeyDown,
+  } = useChatEnhancements(SITE.assistant.greeting)
 
   const openChat = useCallback(() => setIsOpen(true), [])
 
@@ -33,27 +36,15 @@ export default function AvaWidget() {
     return () => window.removeEventListener('open-ava-chat', openChat)
   }, [openChat])
 
-  const handleSend = async (text?: string) => {
-    const userMessage = text || input.trim()
-    if (!userMessage || isLoading) return
-
-    setInput('')
-    const newMessages: Message[] = [...messages, { role: 'user', content: userMessage }]
-    setMessages(newMessages)
-    setIsLoading(true)
-
-    const data = await sendMessage(newMessages)
-    setMessages((prev) => [...prev, { role: 'assistant', content: data.response }])
-    setIsLoading(false)
-  }
-
+  // Wrap handleKeyDown to add Escape handling (widget-specific)
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
     if (e.key === 'Escape') setIsOpen(false)
+    hookKeyDown(e)
   }
+
+  // Show quick actions after the last assistant message when not loading
+  const lastMessage = messages[messages.length - 1]
+  const showQuickActions = !isLoading && lastMessage?.role === 'assistant'
 
   return (
     <>
@@ -151,14 +142,18 @@ export default function AvaWidget() {
                 </div>
               )}
 
-              {/* Quick Actions */}
-              {messages.length === 1 && !isLoading && (
+              {/* Quick Actions — shown after last assistant message */}
+              {showQuickActions && (
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {SITE.assistant.quickActions.map((action) => (
+                  {quickActions.map((action) => (
                     <button
                       key={action}
                       onClick={() => handleSend(action)}
-                      className="px-3 py-1.5 bg-brand-blue/10 text-brand-blue text-xs font-medium rounded-full hover:bg-brand-blue/20 transition-colors"
+                      className={`px-3 py-1.5 bg-brand-blue/10 text-brand-blue text-xs font-medium rounded-full hover:bg-brand-blue/20 transition-colors${
+                        action === 'Talk to a real person'
+                          ? ' border border-brand-blue/20'
+                          : ''
+                      }`}
                     >
                       {action}
                     </button>
@@ -178,13 +173,13 @@ export default function AvaWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Ask about storm damage, claims..."
-                  disabled={isLoading}
+                  placeholder={rateLimited ? 'Please wait...' : 'Ask about storm damage, claims...'}
+                  disabled={isLoading || rateLimited}
                   className="flex-1 px-4 py-2.5 bg-surface border border-border rounded-full text-sm text-navy placeholder:text-navy/30 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue disabled:opacity-50 transition-all"
                 />
                 <button
                   onClick={() => handleSend()}
-                  disabled={!input.trim() || isLoading}
+                  disabled={!input.trim() || isLoading || rateLimited}
                   className="p-2.5 bg-brand-blue text-white rounded-full hover:bg-sky-600 disabled:opacity-40 disabled:hover:bg-brand-blue transition-colors"
                   aria-label="Send message"
                 >
