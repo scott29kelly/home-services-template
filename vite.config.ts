@@ -125,16 +125,43 @@ function copyAndOptimizeImages(): Plugin {
 }
 
 /**
+ * Reads feature flags from src/config/features.ts by parsing the source text.
+ * Cannot use ESM import in Vite's Node build context.
+ * Same approach as slug extraction — regex on comment-stripped source.
+ */
+function readFeatureFlags(): Record<string, boolean> {
+  try {
+    const src = readFileSync(resolve('src/config/features.ts'), 'utf-8')
+    // Strip block and line comments to avoid false matches
+    const stripped = src
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*/g, '')
+    const flags: Record<string, boolean> = {}
+    for (const [, key, val] of stripped.matchAll(/(\w+):\s*(true|false)/g)) {
+      flags[key] = val === 'true'
+    }
+    return flags
+  } catch {
+    // Fallback: all features enabled (safe default — include all routes in sitemap)
+    return { assistant: true, blog: true, financingCalculator: true, cityPages: true, beforeAfter: true, onlineBooking: true }
+  }
+}
+
+/**
  * Discovers all site routes for sitemap generation.
  * Cannot use import.meta.glob here (Node context, not app bundle).
  * Dynamic routes are extracted by reading the TypeScript config source files.
  */
 function getRouteList(): string[] {
-  // Static pages
+  const flags = readFeatureFlags()
+
+  // Static pages — feature-flag-aware
   const staticRoutes = [
     '/', '/services', '/projects', '/testimonials',
-    '/about', '/contact', '/service-areas', '/ava',
-    '/financing', '/resources',
+    '/about', '/contact', '/service-areas',
+    ...(flags.assistant ? ['/ava'] : []),
+    ...(flags.financingCalculator ? ['/financing'] : []),
+    ...(flags.blog ? ['/resources'] : []),
   ]
 
   // Service routes — hardcoded list matching src/config/services.ts slugs
@@ -143,30 +170,34 @@ function getRouteList(): string[] {
   // City routes — parse service-areas.ts for slug values
   // Strip comments first to avoid matching slug values in JSDoc examples
   let cityRoutes: string[] = []
-  try {
-    const saFile = readFileSync(resolve('src/config/service-areas.ts'), 'utf-8')
-    const stripped = saFile
-      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
-      .replace(/\/\/.*/g, '')              // remove line comments
-    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
-    cityRoutes = [...slugMatches].map((m) => `/service-areas/${m[1]}`)
-  } catch {
-    /* fallback: empty */
+  if (flags.cityPages) {
+    try {
+      const saFile = readFileSync(resolve('src/config/service-areas.ts'), 'utf-8')
+      const stripped = saFile
+        .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
+        .replace(/\/\/.*/g, '')              // remove line comments
+      const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
+      cityRoutes = [...slugMatches].map((m) => `/service-areas/${m[1]}`)
+    } catch {
+      /* fallback: empty */
+    }
   }
 
   // Blog routes — read markdown frontmatter from content/blog
   let blogRoutes: string[] = []
-  try {
-    const blogDir = resolve('src/content/blog')
-    blogRoutes = readdirSync(blogDir)
-      .filter((f) => f.endsWith('.md'))
-      .map((f) => {
-        const { data } = matter(readFileSync(resolve(blogDir, f), 'utf-8'))
-        return data.published !== false ? `/resources/${data.slug}` : null
-      })
-      .filter(Boolean) as string[]
-  } catch {
-    /* no blog posts */
+  if (flags.blog) {
+    try {
+      const blogDir = resolve('src/content/blog')
+      blogRoutes = readdirSync(blogDir)
+        .filter((f) => f.endsWith('.md'))
+        .map((f) => {
+          const { data } = matter(readFileSync(resolve(blogDir, f), 'utf-8'))
+          return data.published !== false ? `/resources/${data.slug}` : null
+        })
+        .filter(Boolean) as string[]
+    } catch {
+      /* no blog posts */
+    }
   }
 
   // Portfolio routes — parse projects.ts for slug values
@@ -205,7 +236,7 @@ function generateSitemap(): Plugin {
       // Keep in sync with company.url in src/config/company.ts
       const hostname = 'https://example.com'
       const routes = getRouteList()
-      const excludeSet = new Set(['/thank-you', '/404', '/ava'])
+      const excludeSet = new Set(['/thank-you', '/404'])
       const filteredRoutes = routes.filter((r) => !excludeSet.has(r))
 
       // Build sitemap XML

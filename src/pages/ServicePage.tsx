@@ -343,7 +343,7 @@ export default function ServicePage() {
   const service = getServiceBySlug(slug)
 
   if (!service) {
-    return <Navigate to="/404" replace />
+    return <Navigate to="/services" replace />
   }
 
   const secondaryCTA = service.hero.showEmergencyPhone
