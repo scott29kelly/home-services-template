@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-26T13:40Z
+**Last Updated:** 2026-02-26T15:02Z
 
 ---
 
 ## Current Phase
 
-**Phase:** 8 -- Feature Flag Integration & Polish (IN PROGRESS)
-**Current Plan:** Not started
-**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04, 07-01, 07-02, 08-01
+**Phase:** 9 -- Ava Chat Enhancement (IN PROGRESS)
+**Current Plan:** 09-01 complete, 09-02 next
+**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04, 07-01, 07-02, 08-01, 09-01
 
-**Next Action:** Phase 8 complete (single plan phase)
+**Next Action:** Execute 09-02 (AvaWidget and Ava page component integration)
 
 ---
 
@@ -26,15 +26,16 @@
 | 6 | Integration & Polish | NOT STARTED | -- | -- |
 | 7 | Foundation Verification & Cleanup | COMPLETE | 2026-02-25 | 2026-02-25 |
 | 8 | Feature Flag Integration & Polish | COMPLETE | 2026-02-26 | 2026-02-26 |
+| 9 | Ava Chat Enhancement | IN PROGRESS | 2026-02-26 | -- |
 
 ---
 
 ## Milestone Progress
 
-- **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD)
-- **Requirements completed:** 26 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02, SEO-03, SEO-04, CFG-02 (fixed), CFG-06 (added), SEO-04 (enhanced))
-- **Phases completed:** 7 / 8 (Phase 6 not started; Phases 7 and 8 complete)
-- **Overall progress:** ~95%
+- **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD) + AVA requirements added in Phase 9
+- **Requirements completed:** 26 + AVA-01, AVA-03 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02, SEO-03, SEO-04, CFG-02 (fixed), CFG-06 (added), SEO-04 (enhanced), AVA-01, AVA-03)
+- **Phases completed:** 7 / 9 (Phase 6 not started; Phase 9 in progress)
+- **Overall progress:** ~96%
 
 ---
 
@@ -98,6 +99,10 @@
 | 2026-02-26 | Explicit ternary redirect for /ava (Option C) | {features.assistant ? <Route path="ava" element={<Ava />} /> : <Route path="ava" element={<Navigate to="/" replace />} />} honors locked decision redirect-to-home without breaking catch-all NotFound |
 | 2026-02-26 | Regex text-parsing for feature flags in vite.config.ts | Consistent with existing slug extraction pattern; no new files or structural changes required |
 | 2026-02-26 | ServicePage redirects to /services on invalid slug | Matches parent-redirect convention: CityPage -> /service-areas, ResourcesPost -> /resources, ServicePage -> /services |
+| 2026-02-26 | Dynamic CORS uses ALLOWED_ORIGIN env var — dev allows any origin, production restricts to configured domain | Preserves dev experience while enabling production hardening across all 3 API backends |
+| 2026-02-26 | demoMode boolean added to sendMessage return type | Allows components to optionally detect demo state without requiring it |
+| 2026-02-26 | Every quick action set ends with 'Talk to a real person' as final item | Per CONTEXT.md locked decision — always visible as a chip regardless of page |
+| 2026-02-26 | System prompt silently incorporates page context — no AI announcement of page awareness | Per CONTEXT.md: context guides responses, never triggers "I see you're on X page" style announcements |
 
 ---
 
@@ -114,8 +119,8 @@
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 08-01-PLAN.md (Feature flag integration & polish — CFG-02, CFG-06, SEO-04 gap closure)
-Resume file: .planning/phases/08-feature-flag-integration-polish/
+Stopped at: Completed 09-01-PLAN.md (Ava chat infrastructure — chat-context.ts, api.ts enhancements, CORS hardening across all 3 API backends)
+Resume file: .planning/phases/09-ava-chat-enhancement/
 
 ---
 

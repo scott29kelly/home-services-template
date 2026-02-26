@@ -336,16 +336,16 @@ Portfolio/project data in config with before/after support.
 
 ## Category: AI Assistant (AVA)
 
-### AVA-01: Chat Context Awareness — SHOULD [Pending → Phase 9 gap closure]
+### AVA-01: Chat Context Awareness — SHOULD [In Progress → 09-01 infrastructure complete, 09-02 component integration pending]
 
 Ava responds with awareness of current page and user journey.
 
 **Files:** `src/components/ui/AvaWidget.tsx`, API backend
 
 **Acceptance Criteria:**
-- [ ] System prompt includes current page context
-- [ ] Quick actions change based on current page
-- [ ] Conversation history limited to last 10 messages sent to API
+- [x] System prompt includes current page context (buildSystemPrompt() in chat-context.ts — 09-01)
+- [ ] Quick actions change based on current page (getPageContext() ready; AvaWidget integration in 09-02)
+- [x] Conversation history limited to last 10 messages sent to API (sendMessage() cap + API server cap — 09-01)
 
 ### AVA-02: Lead Capture in Chat — SHOULD [Pending → Phase 9 gap closure]
 
@@ -359,17 +359,17 @@ Ava collects contact info during natural conversation flow.
 - [ ] "Talk to a real person" escalation button shown after initial exchanges
 - [ ] Lead capture is optional (user can continue chatting without providing info)
 
-### AVA-03: Chat Rate Limiting & Security — SHOULD [Pending → Phase 9 gap closure]
+### AVA-03: Chat Rate Limiting & Security — SHOULD [In Progress → 09-01 backend hardening complete, 09-02 client-side rate limit pending]
 
 Protect chat API from abuse.
 
 **Files:** `api/chat.js`, `src/components/ui/AvaWidget.tsx`
 
 **Acceptance Criteria:**
-- [ ] CORS restricted to site domain (not wildcard `*`)
-- [ ] Conversation history capped at 10 messages sent to API
-- [ ] Client-side rate limiting (max 1 message per 2 seconds)
-- [ ] Graceful degradation on 429 (rate limit) — switch to demo mode
+- [x] CORS restricted to site domain (not wildcard `*`) (ALLOWED_ORIGIN env var in all 3 API files — 09-01)
+- [x] Conversation history capped at 10 messages sent to API (client + server both cap — 09-01)
+- [ ] Client-side rate limiting (max 1 message per 2 seconds) (AvaWidget enhancement in 09-02)
+- [x] Graceful degradation on 429 (rate limit) — switch to demo mode (sendMessage() 429 detection — 09-01)
 
 ---
 
