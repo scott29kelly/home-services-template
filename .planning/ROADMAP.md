@@ -321,6 +321,11 @@ Plans:
 
 **Estimated Complexity:** LOW
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 08-01-PLAN.md — Feature flag gating (Ava nav/route, beforeAfter, sitemap) + ServicePage redirect fix
+
 ---
 
 ## Phase 9: Ava Chat Enhancement
