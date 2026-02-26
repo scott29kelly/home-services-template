@@ -30,7 +30,7 @@ Split `src/config/site.ts` into modular config files with Zod schema validation.
 - [x] Existing `SITE` import still works (backward-compatible barrel export)
 - [x] All existing components render correctly with new config structure
 
-### CFG-02: Config-Driven Navigation — MUST [PARTIAL → Phase 8 gap closure]
+### CFG-02: Config-Driven Navigation — MUST [COMPLETE]
 
 Header and Footer navigation auto-generated from services config and page registry. Adding a service to config automatically adds it to nav, routes, and footer.
 
@@ -41,7 +41,7 @@ Header and Footer navigation auto-generated from services config and page regist
 - [x] Footer links generated from config (no hardcoded link arrays in Footer.tsx)
 - [x] Services dropdown populated from services config
 - [x] Adding a service to `services.ts` automatically appears in nav and footer
-- [ ] Feature-flagged pages (blog, AI assistant) appear/disappear based on `features.ts` — PARTIAL: blog/financing flag correctly; `features.assistant` does not gate Ava nav link
+- [x] Feature-flagged pages (blog, AI assistant) appear/disappear based on `features.ts` — COMPLETE: all flags gate nav links, routes, and UI sections correctly
 
 ### CFG-03: Config-Driven Routing — MUST [COMPLETE]
 
@@ -81,15 +81,15 @@ Add a catch-all route with a styled 404 page.
 - [ ] 404 page includes phone CTA — MISSING: NotFound.tsx has Go Home/Go Back but no tel: link
 - [x] Page has appropriate meta tags (noindex)
 
-### CFG-06: Feature Flags System — MUST [PARTIAL → Phase 8 gap closure]
+### CFG-06: Feature Flags System — MUST [COMPLETE]
 
 Boolean config flags that gate routes, navigation items, and component rendering.
 
 **Files:** `src/config/features.ts`
 
 **Acceptance Criteria:**
-- [ ] `features.blog`, `features.assistant`, `features.cityPages`, `features.beforeAfter` flags exist — PARTIAL: beforeAfter flag missing from features.ts
-- [x] Disabling a feature removes its route, nav item, and any related UI — PARTIAL: blog/cityPages/financingCalculator work; features.assistant does not gate route/nav
+- [x] `features.blog`, `features.assistant`, `features.cityPages`, `features.beforeAfter` flags exist — COMPLETE: all 6 flags including beforeAfter now in features.ts
+- [x] Disabling a feature removes its route, nav item, and any related UI — COMPLETE: all flags gate routes, nav links, and component sections
 - [x] All features enabled by default for demo
 
 ---

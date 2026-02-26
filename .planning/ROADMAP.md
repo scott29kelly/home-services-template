@@ -321,7 +321,7 @@ Plans:
 
 **Estimated Complexity:** LOW
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [ ] 08-01-PLAN.md — Feature flag gating (Ava nav/route, beforeAfter, sitemap) + ServicePage redirect fix
