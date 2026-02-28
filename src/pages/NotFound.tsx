@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { Home, ArrowLeft } from 'lucide-react'
+import { Home, ArrowLeft, Phone } from 'lucide-react'
 import PageMeta from '../components/ui/PageMeta'
+import { company } from '../config/company'
 
 export default function NotFound() {
   return (
@@ -13,9 +14,20 @@ export default function NotFound() {
           </div>
           <h1 className="text-6xl font-extrabold text-navy mb-2">404</h1>
           <p className="text-xl font-semibold text-navy mb-2">Page Not Found</p>
-          <p className="text-text-secondary mb-8">
+          <p className="text-text-secondary mb-4">
             The page you're looking for doesn't exist or has been moved.
           </p>
+          {/* Phone CTA — CFG-05 */}
+          <div className="mb-6">
+            <p className="text-sm text-text-secondary mb-3">Need help? We're one call away.</p>
+            <a
+              href={`tel:${company.phone}`}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-blue text-white font-semibold rounded-full shadow-lg shadow-brand-blue/25 hover:shadow-brand-blue/40 hover:scale-105 transition-all duration-300"
+            >
+              <Phone className="w-4 h-4" />
+              Call {company.phone}
+            </a>
+          </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               to="/"

@@ -5,11 +5,12 @@ import ScrollToTop from './ScrollToTop'
 import AvaWidget from '../ui/AvaWidget'
 import StickyMobileCTA from '../ui/StickyMobileCTA'
 import AnnouncementBanner from '../ui/AnnouncementBanner'
+import { features } from '../../config'
 
 export default function Layout() {
   const { pathname } = useLocation()
-  // Don't show floating widget on the dedicated Ava page
-  const showAvaWidget = pathname !== '/ava'
+  // Don't show floating widget on the dedicated Ava page, and only when assistant feature is enabled
+  const showAvaWidget = pathname !== '/ava' && features.assistant
 
   return (
     <div className="min-h-screen flex flex-col">
