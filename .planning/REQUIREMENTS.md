@@ -69,7 +69,7 @@ Move all hardcoded content data from components into config files.
 - [x] FAQ data moved to respective service configs in `services.ts`
 - [x] Team member data in `team.ts`, not in `About.tsx`
 
-### CFG-05: 404 Page — MUST [PARTIAL]
+### CFG-05: 404 Page — MUST [COMPLETE]
 
 Add a catch-all route with a styled 404 page.
 
@@ -78,10 +78,12 @@ Add a catch-all route with a styled 404 page.
 **Acceptance Criteria:**
 - [x] Unknown URLs render a styled 404 page inside the Layout
 - [x] 404 page includes navigation links to key pages
-- [ ] 404 page includes phone CTA — MISSING: NotFound.tsx has Go Home/Go Back but no tel: link
+- [x] 404 page includes phone CTA — tel: link button showing company.phone from config
 - [x] Page has appropriate meta tags (noindex)
 
-### CFG-06: Feature Flags System — MUST [PARTIAL]
+**Completed:** 11-01 (2026-02-28)
+
+### CFG-06: Feature Flags System — MUST [COMPLETE]
 
 Boolean config flags that gate routes, navigation items, and component rendering.
 
@@ -89,8 +91,10 @@ Boolean config flags that gate routes, navigation items, and component rendering
 
 **Acceptance Criteria:**
 - [x] `features.blog`, `features.assistant`, `features.cityPages`, `features.beforeAfter` flags exist — COMPLETE: all 6 flags including beforeAfter now in features.ts
-- [ ] Disabling a feature removes its route, nav item, and any related UI — PARTIAL: AvaWidget in Layout.tsx not gated by features.assistant
+- [x] Disabling a feature removes its route, nav item, and any related UI — AvaWidget DOM removal gated by features.assistant in Layout.tsx
 - [x] All features enabled by default for demo
+
+**Completed:** 11-01 (2026-02-28)
 
 ---
 
@@ -280,18 +284,18 @@ Schema.org markup generated from config, rendered per page.
 
 **Completed:** 05-04 (2026-02-24)
 
-### SEO-04: Sitemap & Robots.txt — MUST [PARTIAL]
+### SEO-04: Sitemap & Robots.txt — MUST [COMPLETE]
 
 Auto-generated sitemap.xml and robots.txt at build time.
 
 **Files:** `vite.config.ts`
 
 **Acceptance Criteria:**
-- [x] Custom Vite plugin generates sitemap.xml including all static routes, service pages, city pages, blog posts (54 URLs)
+- [x] Custom Vite plugin generates sitemap.xml including all static routes, service pages, city pages, blog posts (55 URLs)
 - [x] robots.txt generated with sitemap reference
-- [ ] Routes dynamically sourced from config (new pages auto-included) — PARTIAL: service routes hardcoded in vite.config.ts, hostname hardcoded as 'https://example.com'
+- [x] Routes dynamically sourced from config (new pages auto-included) — service routes derived from services.ts slugs; hostname derived from company.ts url field
 
-**Completed:** 05-04 (2026-02-24)
+**Completed:** 05-04 (2026-02-24), enhanced 11-01 (2026-02-28)
 
 ### SEO-05: Complete Meta Tag System — MUST [COMPLETE]
 

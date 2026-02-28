@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-26T22:17Z
+**Last Updated:** 2026-02-28T01:21Z
 
 ---
 
 ## Current Phase
 
-**Phase:** 10 -- Performance Monitoring (COMPLETE)
+**Phase:** 11 -- Final Gap Closure & Cleanup (COMPLETE)
 **Current Plan:** 01 (COMPLETE)
-**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04, 07-01, 07-02, 08-01, 09-01, 09-02, 10-01
+**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04, 07-01, 07-02, 08-01, 09-01, 09-02, 10-01, 11-01
 
-**Next Action:** v1.0 COMPLETE — All planned phases executed. Phase 6 (Integration & Polish) was explicitly not started per project scope decisions.
+**Next Action:** v1.0 COMPLETE — All phases including final gap closure executed. Phase 6 (Integration & Polish) was explicitly not started per project scope decisions. CFG-05, CFG-06, SEO-04 gaps closed. Dead code removed.
 
 ---
 
@@ -28,6 +28,7 @@
 | 8 | Feature Flag Integration & Polish | COMPLETE | 2026-02-26 | 2026-02-26 |
 | 9 | Ava Chat Enhancement | COMPLETE | 2026-02-26 | 2026-02-26 |
 | 10 | Performance Monitoring | COMPLETE | 2026-02-26 | 2026-02-26 |
+| 11 | Final Gap Closure & Cleanup | COMPLETE | 2026-02-28 | 2026-02-28 |
 
 ---
 
@@ -35,8 +36,8 @@
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD) + AVA requirements added in Phase 9
 - **Requirements completed:** 27 + AVA-01, AVA-02, AVA-03 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, PERF-02, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02, SEO-03, SEO-04, CFG-02 (fixed), CFG-06 (added), SEO-04 (enhanced), AVA-01, AVA-02, AVA-03)
-- **Phases completed:** 8 / 10 (Phase 6 not started; Phase 10 complete)
-- **Overall progress:** 100% v1.0 — All planned phases complete. Phase 6 explicitly deferred. PERF-02 closed with web-vitals + Speed Insights integration.
+- **Phases completed:** 9 / 11 (Phase 6 not started; Phase 11 complete)
+- **Overall progress:** 100% v1.0 — All planned phases complete (including Phase 11 gap closure). Phase 6 explicitly deferred. CFG-05, CFG-06, SEO-04 fully closed. Dead exports removed from seo.ts and route-generator.ts.
 
 ---
 
@@ -111,6 +112,8 @@
 | 2026-02-26 | Console-only vitals reporting in dev; production no-op with analytics placeholder | Template ships without analytics backend; extension point documented via comment |
 | 2026-02-26 | SpeedInsights mounted outside Suspense boundary in App() fragment | Ensures component lifecycle not affected by lazy-load suspense boundary |
 | 2026-02-26 | Performance 90+ target not met (mobile=51, desktop=87) — deferred to SSR milestone | Root cause: SPA architecture + PERF-01 hero image gap; pre-existing architectural decisions; Lighthouse Accessibility=90, SEO=100 meet targets |
+| 2026-02-28 | Block-comment-only stripping for hostname regex in vite.config.ts | Line-comment stripping corrupts https:// URLs; use https?:// pattern match instead |
+| 2026-02-28 | features import in Layout.tsx uses config barrel (../../config) | Consistent with App.tsx pattern; avoids direct features.ts import |
 
 ---
 
@@ -126,9 +129,9 @@
 
 ## Session Continuity
 
-Last session: 2026-02-26
-Stopped at: Phase 10 Plan 01 complete — web-vitals reporter, Speed Insights integration, Lighthouse audit documented.
-Resume file: N/A — v1.0 milestone complete.
+Last session: 2026-02-28
+Stopped at: Phase 11 Plan 01 complete — phone CTA on 404, AvaWidget feature gating, dynamic sitemap config, dead code removal.
+Resume file: N/A — v1.0 milestone complete including final gap closure.
 
 ---
 

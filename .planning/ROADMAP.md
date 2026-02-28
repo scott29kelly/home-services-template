@@ -431,7 +431,7 @@ Plans:
 
 **Estimated Complexity:** LOW
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [ ] 11-01-PLAN.md — Close CFG-05/CFG-06/SEO-04 partial gaps + dead code removal
@@ -488,8 +488,7 @@ Phase 8 + 10 ─────────────────────> Ph
 | AVA-01 | 9 | 2/2 | Complete   | 2026-02-26 | 9 | SHOULD |
 | AVA-03 | 9 | SHOULD |
 | PERF-02 | 10 | COULD |
-| CFG-05 | 11 | MUST |
-| CFG-06 | 11 | MUST |
+| CFG-05 | 11 | 1/1 | Complete   | 2026-02-28 | 11 | MUST |
 | SEO-04 | 11 | MUST |
 
 **Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5. Phase 7 verifies CFG-01–06. Phase 8 closes CFG-02/CFG-06 partial gaps. Phase 9 closes AVA-01/02/03. Phase 10 closes PERF-02. Phase 11 closes remaining partial gaps in CFG-05, CFG-06, SEO-04.
