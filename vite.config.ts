@@ -164,8 +164,19 @@ function getRouteList(): string[] {
     ...(flags.blog ? ['/resources'] : []),
   ]
 
-  // Service routes — hardcoded list matching src/config/services.ts slugs
-  const serviceRoutes = ['/roofing', '/siding', '/storm-damage']
+  // Service routes — derived from src/config/services.ts slugs
+  let serviceRoutes: string[] = []
+  try {
+    const svcFile = readFileSync(resolve('src/config/services.ts'), 'utf-8')
+    const stripped = svcFile
+      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
+      .replace(/\/\/.*/g, '')              // remove line comments
+    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
+    serviceRoutes = [...slugMatches].map((m) => `/${m[1]}`)
+  } catch {
+    // Fallback to known slugs if file read fails
+    serviceRoutes = ['/roofing', '/siding', '/storm-damage']
+  }
 
   // City routes — parse service-areas.ts for slug values
   // Strip comments first to avoid matching slug values in JSDoc examples
@@ -221,8 +232,8 @@ function getRouteList(): string[] {
  * Custom Vite plugin that generates sitemap.xml and robots.txt at build time.
  * Runs after bundle close so dist/ directory exists.
  *
- * hostname must match company.url. Since this is Node context (cannot import
- * ESM config), the value is hardcoded here — keep in sync with src/config/company.ts.
+ * Hostname and service routes are auto-read from config source files
+ * using the same regex extraction pattern as city routes.
  */
 function generateSitemap(): Plugin {
   return {
@@ -233,8 +244,18 @@ function generateSitemap(): Plugin {
       const fs = await import('fs/promises')
       const path = await import('path')
 
-      // Keep in sync with company.url in src/config/company.ts
-      const hostname = 'https://example.com'
+      // Read hostname from company.ts config
+      // Match url: 'https://...' directly — strip only block comments to avoid
+      // corrupting https:// URLs with the line-comment stripping regex
+      let hostname = 'https://example.com'
+      try {
+        const companyFile = readFileSync(resolve('src/config/company.ts'), 'utf-8')
+        const stripped = companyFile.replace(/\/\*[\s\S]*?\*\//g, '')
+        const urlMatch = stripped.match(/url:\s*'(https?:\/\/[^']+)'/)
+        if (urlMatch) hostname = urlMatch[1]
+      } catch {
+        // Fallback: keep default
+      }
       const routes = getRouteList()
       const excludeSet = new Set(['/thank-you', '/404'])
       const filteredRoutes = routes.filter((r) => !excludeSet.has(r))
