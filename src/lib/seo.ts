@@ -156,26 +156,6 @@ export function buildFAQSchema(items: FaqItem[]): Record<string, unknown> {
 }
 
 /**
- * buildAggregateRatingSchema
- *
- * Returns a standalone AggregateRating schema computed from testimonials.
- * Returns null if there are no testimonials.
- */
-export function buildAggregateRatingSchema(): Record<string, unknown> | null {
-  const ratings = testimonials.all
-    .map((t) => t.rating ?? 5)
-    .filter((r) => typeof r === 'number')
-
-  if (ratings.length === 0) return null
-
-  return {
-    '@type': 'AggregateRating',
-    ratingValue: (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1),
-    reviewCount: ratings.length,
-  }
-}
-
-/**
  * buildBreadcrumbSchema
  *
  * Returns a BreadcrumbList schema for a page's breadcrumb trail.
