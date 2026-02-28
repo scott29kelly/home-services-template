@@ -431,6 +431,11 @@ Plans:
 
 **Estimated Complexity:** LOW
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 11-01-PLAN.md — Close CFG-05/CFG-06/SEO-04 partial gaps + dead code removal
+
 ---
 
 ## Phase Dependency Graph
