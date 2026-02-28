@@ -81,7 +81,7 @@ Add a catch-all route with a styled 404 page.
 - [ ] 404 page includes phone CTA — MISSING: NotFound.tsx has Go Home/Go Back but no tel: link
 - [x] Page has appropriate meta tags (noindex)
 
-### CFG-06: Feature Flags System — MUST [COMPLETE]
+### CFG-06: Feature Flags System — MUST [PARTIAL]
 
 Boolean config flags that gate routes, navigation items, and component rendering.
 
@@ -89,7 +89,7 @@ Boolean config flags that gate routes, navigation items, and component rendering
 
 **Acceptance Criteria:**
 - [x] `features.blog`, `features.assistant`, `features.cityPages`, `features.beforeAfter` flags exist — COMPLETE: all 6 flags including beforeAfter now in features.ts
-- [x] Disabling a feature removes its route, nav item, and any related UI — COMPLETE: all flags gate routes, nav links, and component sections
+- [ ] Disabling a feature removes its route, nav item, and any related UI — PARTIAL: AvaWidget in Layout.tsx not gated by features.assistant
 - [x] All features enabled by default for demo
 
 ---
@@ -280,7 +280,7 @@ Schema.org markup generated from config, rendered per page.
 
 **Completed:** 05-04 (2026-02-24)
 
-### SEO-04: Sitemap & Robots.txt — MUST [COMPLETE]
+### SEO-04: Sitemap & Robots.txt — MUST [PARTIAL]
 
 Auto-generated sitemap.xml and robots.txt at build time.
 
@@ -289,7 +289,7 @@ Auto-generated sitemap.xml and robots.txt at build time.
 **Acceptance Criteria:**
 - [x] Custom Vite plugin generates sitemap.xml including all static routes, service pages, city pages, blog posts (54 URLs)
 - [x] robots.txt generated with sitemap reference
-- [x] Routes dynamically sourced from config (new pages auto-included)
+- [ ] Routes dynamically sourced from config (new pages auto-included) — PARTIAL: service routes hardcoded in vite.config.ts, hostname hardcoded as 'https://example.com'
 
 **Completed:** 05-04 (2026-02-24)
 

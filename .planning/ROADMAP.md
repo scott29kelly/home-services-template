@@ -2,7 +2,7 @@
 
 **Created:** 2026-02-21
 **Milestone:** v1.0 — Premium Template Launch
-**Phases:** 10
+**Phases:** 11
 
 ---
 
@@ -400,6 +400,39 @@ Plans:
 
 ---
 
+## Phase 11: Final Gap Closure & Cleanup
+
+**Goal:** Close the 3 remaining partial requirement gaps (CFG-05, CFG-06, SEO-04), fix 2 broken E2E flows, and remove dead code exports identified by the v1.0 milestone audit.
+
+**Requirements:**
+- CFG-05: 404 Page (partial gap — no phone CTA)
+- CFG-06: Feature Flags System (partial gap — AvaWidget not gated by features.assistant)
+- SEO-04: Sitemap & Robots.txt (partial gap — service routes hardcoded, hostname hardcoded)
+
+**Gap Closure:** Closes all remaining partial gaps from v1.0 audit
+
+**Key Changes:**
+- Add `tel:` link with company.phone to NotFound.tsx (CFG-05)
+- Gate AvaWidget behind `features.assistant` in Layout.tsx (CFG-06)
+- Derive sitemap service routes from services.ts config instead of hardcoded array (SEO-04)
+- Sync sitemap hostname from company.url instead of hardcoded 'https://example.com' (SEO-04)
+- Remove dead export `buildAggregateRatingSchema()` from seo.ts
+- Remove dead export `getCityRoutes()` from route-generator.ts
+
+**Dependencies:** Phase 8 (feature flags), Phase 10 (final phase before cleanup)
+
+**Success Criteria:**
+- NotFound.tsx includes a clickable phone link from config
+- `features.assistant = false` hides AvaWidget floating button
+- Sitemap service routes auto-derived from services.ts config
+- Sitemap hostname synced from company.url
+- No dead exports in seo.ts or route-generator.ts
+- E2E Flows 4 and 1 pass re-audit
+
+**Estimated Complexity:** LOW
+
+---
+
 ## Phase Dependency Graph
 
 ```
@@ -415,6 +448,7 @@ Phase 7: Foundation Verification (independent — verifies Phase 1)
 Phase 1 + 7 ──────────────────────> Phase 8: Feature Flag & Integration Polish
 Phase 8 + 3 ──────────────────────> Phase 9: Ava Chat Enhancement
 All Phases ────────────────────────> Phase 10: Performance Monitoring
+Phase 8 + 10 ─────────────────────> Phase 11: Final Gap Closure & Cleanup
 ```
 
 ---
@@ -449,10 +483,13 @@ All Phases ───────────────────────
 | AVA-01 | 9 | 2/2 | Complete   | 2026-02-26 | 9 | SHOULD |
 | AVA-03 | 9 | SHOULD |
 | PERF-02 | 10 | COULD |
+| CFG-05 | 11 | MUST |
+| CFG-06 | 11 | MUST |
+| SEO-04 | 11 | MUST |
 
-**Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5. Phase 7 verifies CFG-01–06. Phase 8 closes CFG-02/CFG-06 partial gaps. Phase 9 closes AVA-01/02/03. Phase 10 closes PERF-02.
+**Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5. Phase 7 verifies CFG-01–06. Phase 8 closes CFG-02/CFG-06 partial gaps. Phase 9 closes AVA-01/02/03. Phase 10 closes PERF-02. Phase 11 closes remaining partial gaps in CFG-05, CFG-06, SEO-04.
 
 ---
 
 *Roadmap created: 2026-02-21*
-*Updated: 2026-02-26 — Gap closure phases 08-10 added from v1.0 milestone audit*
+*Updated: 2026-02-27 — Gap closure phase 11 added from v1.0 milestone audit (final partial gaps)*
