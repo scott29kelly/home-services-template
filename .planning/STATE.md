@@ -1,16 +1,16 @@
 # STATE -- Premium Home Services Template v1.0
 
-**Last Updated:** 2026-02-28T01:21Z
+**Last Updated:** 2026-03-01T20:07Z
 
 ---
 
 ## Current Phase
 
-**Phase:** 11 -- Final Gap Closure & Cleanup (COMPLETE)
+**Phase:** 12 -- StickyMobileCTA Feature Flag Fix (COMPLETE)
 **Current Plan:** 01 (COMPLETE)
-**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04, 07-01, 07-02, 08-01, 09-01, 09-02, 10-01, 11-01
+**Plans Completed:** 03-01, 03-02, 03-03, 04-01, 04-02, 05-01, 05-02, 05-03, 05-04, 07-01, 07-02, 08-01, 09-01, 09-02, 10-01, 11-01, 12-01
 
-**Next Action:** v1.0 COMPLETE — All phases including final gap closure executed. Phase 6 (Integration & Polish) was explicitly not started per project scope decisions. CFG-05, CFG-06, SEO-04 gaps closed. Dead code removed.
+**Next Action:** v1.0 COMPLETE — All phases including Phase 12 gap closure executed. CFG-06 (features.assistant gating StickyMobileCTA Chat) fully closed. INT-01 E2E Flow 4 gap resolved.
 
 ---
 
@@ -29,15 +29,16 @@
 | 9 | Ava Chat Enhancement | COMPLETE | 2026-02-26 | 2026-02-26 |
 | 10 | Performance Monitoring | COMPLETE | 2026-02-26 | 2026-02-26 |
 | 11 | Final Gap Closure & Cleanup | COMPLETE | 2026-02-28 | 2026-02-28 |
+| 12 | StickyMobileCTA Feature Flag Fix | COMPLETE | 2026-03-01 | 2026-03-01 |
 
 ---
 
 ## Milestone Progress
 
 - **Requirements defined:** 28 (17 MUST, 10 SHOULD, 1 COULD) + AVA requirements added in Phase 9
-- **Requirements completed:** 27 + AVA-01, AVA-02, AVA-03 (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, PERF-02, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02, SEO-03, SEO-04, CFG-02 (fixed), CFG-06 (added), SEO-04 (enhanced), AVA-01, AVA-02, AVA-03)
-- **Phases completed:** 9 / 11 (Phase 6 not started; Phase 11 complete)
-- **Overall progress:** 100% v1.0 — All planned phases complete (including Phase 11 gap closure). Phase 6 explicitly deferred. CFG-05, CFG-06, SEO-04 fully closed. Dead exports removed from seo.ts and route-generator.ts.
+- **Requirements completed:** 27 + AVA-01, AVA-02, AVA-03 + CFG-06 (re-confirmed via Phase 12) (CFG-01 through CFG-06, VIS-01, VIS-02, VIS-03, VIS-04, VIS-05, PERF-01, PERF-02, LEAD-01, LEAD-02, LEAD-03, LEAD-04, LEAD-05, SEO-01, BLOG-01, BLOG-02, SEO-07, SEO-02, SEO-03, SEO-04, CFG-02 (fixed), CFG-06 (complete), SEO-04 (enhanced), AVA-01, AVA-02, AVA-03)
+- **Phases completed:** 10 / 12 (Phase 6 not started; Phases 11 and 12 complete)
+- **Overall progress:** 100% v1.0 — All planned phases complete (including Phase 12 gap closure). Phase 6 explicitly deferred. CFG-06 (INT-01 E2E Flow 4) fully closed: features.assistant gates AvaWidget (Phase 11) and StickyMobileCTA Chat button (Phase 12).
 
 ---
 
@@ -114,6 +115,7 @@
 | 2026-02-26 | Performance 90+ target not met (mobile=51, desktop=87) — deferred to SSR milestone | Root cause: SPA architecture + PERF-01 hero image gap; pre-existing architectural decisions; Lighthouse Accessibility=90, SEO=100 meet targets |
 | 2026-02-28 | Block-comment-only stripping for hostname regex in vite.config.ts | Line-comment stripping corrupts https:// URLs; use https?:// pattern match instead |
 | 2026-02-28 | features import in Layout.tsx uses config barrel (../../config) | Consistent with App.tsx pattern; avoids direct features.ts import |
+| 2026-03-01 | Direct import of features in StickyMobileCTA.tsx (../../config/features not barrel) | Consistent with existing company import pattern in same file; closes INT-01 gap |
 
 ---
 
@@ -129,9 +131,9 @@
 
 ## Session Continuity
 
-Last session: 2026-02-28
-Stopped at: Phase 11 Plan 01 complete — phone CTA on 404, AvaWidget feature gating, dynamic sitemap config, dead code removal.
-Resume file: N/A — v1.0 milestone complete including final gap closure.
+Last session: 2026-03-01
+Stopped at: Phase 12 Plan 01 complete — StickyMobileCTA Chat button gated behind features.assistant, INT-01 E2E Flow 4 gap closed.
+Resume file: N/A — v1.0 milestone complete including Phase 12 gap closure.
 
 ---
 
