@@ -460,6 +460,11 @@ Plans:
 
 **Estimated Complexity:** TRIVIAL
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 12-01-PLAN.md — Gate StickyMobileCTA Chat button behind features.assistant (CFG-06 / INT-01)
+
 ---
 
 ## Phase Dependency Graph
