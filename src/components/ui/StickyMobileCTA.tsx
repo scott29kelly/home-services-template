@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom'
 import { m, AnimatePresence } from 'framer-motion'
 import { Phone, MessageSquare, FileText } from 'lucide-react'
 import { company } from '../../config/company'
+import { features } from '../../config/features'
 
 /** Scroll threshold (px) before the sticky CTA bar appears. */
 const SCROLL_THRESHOLD = 300
@@ -73,13 +74,15 @@ export default function StickyMobileCTA() {
               </Link>
 
               {/* Ava Chat */}
-              <button
-                onClick={handleOpenAvaChat}
-                className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-navy hover:bg-slate-100 active:bg-slate-200 transition-colors min-w-[72px]"
-              >
-                <MessageSquare className="w-5 h-5 text-brand-blue" />
-                <span className="text-[11px] font-semibold text-navy/70">Chat</span>
-              </button>
+              {features.assistant && (
+                <button
+                  onClick={handleOpenAvaChat}
+                  className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-navy hover:bg-slate-100 active:bg-slate-200 transition-colors min-w-[72px]"
+                >
+                  <MessageSquare className="w-5 h-5 text-brand-blue" />
+                  <span className="text-[11px] font-semibold text-navy/70">Chat</span>
+                </button>
+              )}
             </div>
           </div>
         </m.div>
