@@ -1,92 +1,121 @@
 # PROJECT — Premium Home Services Template
 
-## Vision
+## What This Is
 
-Transform the existing home services website template from a basic marketing site into a **premium template product sold to small home service businesses**. The template must serve as a demo-ready showcase that justifies a significant price premium through visual polish, lead generation capability, content/SEO features, and config-driven customizability.
+A **premium, demo-ready website template** for small home service businesses (roofing, siding, storm damage restoration). Config-driven customization, full lead generation suite, SEO engine with 20 city pages, markdown blog, and AI chat assistant — all without touching component code.
+
+## Core Value
+
+**Config-driven customizability** — a developer rebrands the entire site by editing config files. Adding a service, city, blog post, or testimonial requires zero component changes.
 
 ## Problem
 
-Small home service businesses (roofing, siding, storm damage restoration) need professional websites but face two bad options:
+Small home service businesses need professional websites but face two bad options:
 1. **Generic website builders** — cheap but cookie-cutter, no industry-specific features
 2. **Custom development** — expensive, slow, and hard to maintain
 
-There's a gap for a **premium, pre-built template** purpose-built for home services that looks custom, generates leads, and can be configured without code changes.
+This template fills the gap: premium, pre-built, purpose-built for home services.
 
 ## Target Audience
 
-**Primary buyer**: Small home service businesses (1-20 employees) in the roofing, siding, and storm damage restoration space. Initial geographic focus is the tri-state/Philadelphia area, but the template must be fully configurable for any US market.
+**Primary buyer**: Small home service businesses (1-20 employees) in roofing, siding, and storm damage restoration. Template is fully configurable for any US market.
 
-**Buyer profile**:
-- Not technical — needs config-driven customization, not code editing
-- Cares about looking professional and trustworthy
-- Wants the site to generate leads (quote requests, phone calls, inspections)
-- Values social proof (reviews, certifications, portfolio)
+## Requirements
 
-## Core Value Proposition
+### Validated
 
-A demo-ready template that small businesses can see in action and immediately understand the value. Four pillars:
+- ✓ CFG-01: Modular Config System — v1.0
+- ✓ CFG-02: Config-Driven Navigation — v1.0
+- ✓ CFG-03: Config-Driven Routing — v1.0
+- ✓ CFG-04: Content Migration to Config — v1.0
+- ✓ CFG-05: 404 Page — v1.0
+- ✓ CFG-06: Feature Flags System — v1.0
+- ✓ VIS-01: Framer Motion Performance Optimization — v1.0
+- ✓ VIS-02: Interactive Before/After Slider — v1.0
+- ✓ VIS-03: Sticky Mobile CTA Bar — v1.0
+- ✓ VIS-04: SectionHeading Component — v1.0
+- ✓ VIS-05: Skeleton Loading States — v1.0
+- ✓ PERF-01: Image Optimization Pipeline — v1.0
+- ✓ LEAD-01: Working Contact Form Submission — v1.0
+- ✓ LEAD-02: Form Validation — v1.0
+- ✓ LEAD-03: Custom Booking Calendar — v1.0
+- ✓ LEAD-04: Financing Calculator — v1.0
+- ✓ LEAD-05: Emergency Storm Banner — v1.0
+- ✓ SEO-01: Markdown Blog System — v1.0
+- ✓ SEO-02: City/Service Area Pages — v1.0
+- ✓ SEO-03: JSON-LD Structured Data — v1.0
+- ✓ SEO-04: Sitemap & Robots.txt — v1.0
+- ✓ SEO-05: Complete Meta Tag System — v1.0
+- ✓ SEO-06: Reviews Config System — v1.0
+- ✓ SEO-07: Portfolio Enhancement — v1.0
+- ✓ AVA-01: Chat Context Awareness — v1.0
+- ✓ AVA-02: Lead Capture in Chat — v1.0
+- ✓ AVA-03: Chat Rate Limiting & Security — v1.0
+- ✓ PERF-02: Performance Monitoring — v1.0 (partial: Lighthouse Performance below 90+ target, SSR deferred)
 
-1. **Visual Polish** — Parallax effects, page transitions, micro-interactions, premium typography. The site must *feel* expensive.
-2. **Lead Generation** — Multi-step quote form, custom booking calendar, financing calculator, CRM webhook support. Every page drives conversions.
-3. **Content & SEO** — Markdown blog, auto-generated city/service-area pages, review showcase, portfolio with before/after, Schema.org markup. Organic traffic engine.
-4. **Config-Driven Customizability** — Modular configuration system. Business owner (or their developer) edits config files to change branding, services, cities, reviews, portfolio, and content without touching component code.
+### Active
 
-## Decisions
+(None — define with `/gsd:new-milestone`)
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Quote form submission | Email notification default + configurable CRM webhook | Low-friction default; CRM integration for advanced users |
-| Blog source | Local markdown files with frontmatter | No external dependency; CMS-pluggable architecture for future |
-| Reviews/testimonials | Config-driven (paste into config) | No API dependency; business owner controls what's shown |
-| Calendar/booking | Custom-built date/time picker component | No third-party embed; consistent design; no external dependency |
-| Service area city pages | Config-driven, auto-generated routes | ~20-30 cities for demo; business configures their own cities |
-| Portfolio/projects data | Config array | Moves out of hardcoded component into config |
-| Theme | Light only | No dark mode toggle; reduces complexity |
-| Navigation | Config-driven | Header/Footer links generated from config, not hardcoded |
+### Out of Scope
 
-## Existing Codebase
+- Dark mode toggle — light-only; reduces complexity
+- Multi-step quote wizard — basic form + booking calendar sufficient
+- Google Maps embed — requires API key; city list sufficient
+- Calendly/Cal.com integration — custom calendar covers this
+- Multi-language (i18n) — English-only
+- Photo upload in lead form — requires backend file handling
+- Customer portal / project tracker — requires backend + auth
+- Online payment integration — requires payment processor
+- CMS admin panel — template is config-driven, not CMS-driven
+- Pre-rendering / SSG — significant refactor (RR7 framework mode); dedicated milestone
+- Cost/price calculator widget — financing calculator is sufficient
 
-**Stack**: React 19 + Vite 7 + Tailwind CSS v4 + TypeScript 5.9 + Framer Motion 12 + React Router 7
+## Context
 
-**Current state** (11 pages):
-- Home, Roofing, Siding, Storm Damage, Services, Projects, Testimonials, About, Contact, Service Areas, Ava (AI chat)
-- Central config at `src/config/site.ts` (company info, contact, service areas, AI assistant)
-- Framer Motion scroll animations throughout
-- AI chat assistant (Ava) with Groq API backend + demo fallback
-- Lazy-loaded routes with Suspense
-- Serverless API (Vercel/Cloudflare) for chat
+Shipped v1.0 with 9,031 LOC TypeScript/TSX across 210 files.
 
-**Key gaps to address**:
-- Navigation is hardcoded in Header.tsx (lines 6-23) and Footer.tsx (lines 6-18)
-- Project data hardcoded in Projects.tsx (lines 10-38)
-- Testimonial data hardcoded in Testimonials.tsx (lines 13-35)
-- Contact form is a no-op (doesn't submit anywhere)
-- No blog system
-- No city-level SEO pages
-- No booking/calendar functionality
-- No 404 page
-- Config is a single flat file; needs modular structure for premium template
+**Tech stack:** React 19 + Vite 7 + Tailwind CSS v4 + TypeScript 5.9 + Framer Motion 12 + React Router 7
+
+**Pages:** Home, Services (dynamic), Projects, Portfolio detail, Testimonials, About, Contact (with booking calendar), Financing, Resources (blog index + posts), Service Areas (index + 20 city pages), Ava (AI chat), 404
+
+**Config system:** 13 modular config files with Zod validation, feature flags, barrel export
+
+**Known issues:**
+- Lighthouse Performance 87 desktop / 51 mobile — SPA without SSR; pre-rendering deferred
+- `api/contact.js` and `api/banner.js` orphan serverless files
+- `getTestimonialsByService()` exported but unused
+- `vitals.ts` production handler is no-op placeholder
+
+## Key Decisions
+
+| Decision | Choice | Outcome |
+|----------|--------|---------|
+| Quote form submission | Formspree default + webhook | ✓ Good — working submission pipeline |
+| Blog source | Local markdown + Vite glob | ✓ Good — 12 posts, no external deps |
+| Reviews/testimonials | Config-driven | ✓ Good — featured flag, service/city tags |
+| Calendar/booking | Custom date/time picker | ✓ Good — ARIA accessible, touch-friendly |
+| City pages | Config-driven, auto-generated | ✓ Good — 20 cities with unique content |
+| Theme | Light only | ✓ Good — reduced complexity |
+| Navigation | Config-driven | ✓ Good — feature flags gate all nav items |
+| Framer Motion | LazyMotion + domAnimation | ✓ Good — ~15KB bundle savings |
+| Hero animation | Zero framer-motion on above-fold | ✓ Good — instant LCP |
+| Image optimization | Custom Vite plugin | ✓ Good — works around Windows junction bug |
+| Ava CORS | ALLOWED_ORIGIN env var | ✓ Good — dev-friendly, production-secure |
+| Pre-rendering | Deferred to future milestone | ⚠️ Revisit — Lighthouse Performance below target |
 
 ## Constraints
 
 - **No dark mode** — Light theme only
-- **No external service dependencies for core features** — Reviews, portfolio, blog all config/file-driven
-- **Must work on Vercel deployment** — Existing deployment target
-- **Must remain config-driven** — Non-technical users should only edit config files
-- **React 19 + Vite + Tailwind v4** — Keep existing stack, no framework migration
+- **No external service dependencies for core features** — config/file-driven
+- **Vercel deployment** — existing target
+- **Config-driven** — non-technical users edit config files only
+- **React 19 + Vite + Tailwind v4** — keep existing stack
 
-## Success Criteria
+## Milestones
 
-1. **Demo-ready**: A visitor to the demo site immediately sees a premium, polished product
-2. **Lead generation**: At least 3 distinct conversion paths (quote form, calendar booking, phone CTA, chat)
-3. **SEO-ready**: Blog posts render with proper meta tags, city pages have unique content, Schema.org markup present
-4. **Configurable**: A developer can rebrand and customize the template by editing only config files
-5. **No broken features**: Every interactive element (forms, chat, calendar, navigation) works end-to-end
-
-## Milestone
-
-**v1.0 — Premium Template Launch**: All four pillars implemented, demo site live, template ready for sale.
+- ✅ **v1.0 Premium Template Launch** — shipped 2026-03-01
 
 ---
 
-*Project initialized: 2026-02-21*
+*Last updated: 2026-03-01 after v1.0 milestone*
