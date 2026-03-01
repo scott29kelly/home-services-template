@@ -460,7 +460,7 @@ Plans:
 
 **Estimated Complexity:** TRIVIAL
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
 - [x] 12-01-PLAN.md — Gate StickyMobileCTA Chat button behind features.assistant (CFG-06 / INT-01) ✓ 2026-03-01
@@ -528,4 +528,4 @@ Phase 11 ───────────────────────�
 ---
 
 *Roadmap created: 2026-02-21*
-*Updated: 2026-03-01 — Gap closure phase 12 added from v1.0 milestone audit (INT-01 StickyMobileCTA feature flag)*
+*Updated: 2026-03-01 — Phase 12 complete: StickyMobileCTA Chat button gated behind features.assistant, INT-01 closed*
