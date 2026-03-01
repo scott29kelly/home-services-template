@@ -2,7 +2,7 @@
 
 **Created:** 2026-02-21
 **Milestone:** v1.0 — Premium Template Launch
-**Phases:** 11
+**Phases:** 12
 
 ---
 
@@ -438,6 +438,30 @@ Plans:
 
 ---
 
+## Phase 12: StickyMobileCTA Feature Flag Fix
+
+**Goal:** Gate the Chat button in StickyMobileCTA behind `features.assistant` so that disabling the assistant feature consistently removes all chat-related UI, closing INT-01 and fixing E2E Flow 4.
+
+**Requirements:**
+- CFG-06: Feature Flags System (integration gap — StickyMobileCTA Chat button bypasses features.assistant)
+
+**Gap Closure:** Closes INT-01 from v1.0 milestone audit
+
+**Key Changes:**
+- Import `features` in `StickyMobileCTA.tsx`
+- Conditionally render Chat button only when `features.assistant` is enabled
+
+**Dependencies:** Phase 11 (final gap closure baseline)
+
+**Success Criteria:**
+- `features.assistant = false` hides Chat button in StickyMobileCTA
+- E2E Flow 4 (feature flag off → consistent removal) passes
+- No functional regression when `features.assistant = true` (default)
+
+**Estimated Complexity:** TRIVIAL
+
+---
+
 ## Phase Dependency Graph
 
 ```
@@ -454,6 +478,7 @@ Phase 1 + 7 ──────────────────────> 
 Phase 8 + 3 ──────────────────────> Phase 9: Ava Chat Enhancement
 All Phases ────────────────────────> Phase 10: Performance Monitoring
 Phase 8 + 10 ─────────────────────> Phase 11: Final Gap Closure & Cleanup
+Phase 11 ─────────────────────────> Phase 12: StickyMobileCTA Feature Flag Fix
 ```
 
 ---
@@ -491,9 +516,11 @@ Phase 8 + 10 ─────────────────────> Ph
 | CFG-05 | 11 | 1/1 | Complete    | 2026-02-28 | 11 | MUST |
 | SEO-04 | 11 | MUST |
 
-**Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5. Phase 7 verifies CFG-01–06. Phase 8 closes CFG-02/CFG-06 partial gaps. Phase 9 closes AVA-01/02/03. Phase 10 closes PERF-02. Phase 11 closes remaining partial gaps in CFG-05, CFG-06, SEO-04.
+| CFG-06 | 12 | MUST |
+
+**Coverage:** 28/28 requirements mapped to phases. All 17 MUST requirements covered in Phases 1-5. Phase 7 verifies CFG-01–06. Phase 8 closes CFG-02/CFG-06 partial gaps. Phase 9 closes AVA-01/02/03. Phase 10 closes PERF-02. Phase 11 closes remaining partial gaps in CFG-05, CFG-06, SEO-04. Phase 12 closes INT-01 (StickyMobileCTA feature flag gap).
 
 ---
 
 *Roadmap created: 2026-02-21*
-*Updated: 2026-02-27 — Gap closure phase 11 added from v1.0 milestone audit (final partial gaps)*
+*Updated: 2026-03-01 — Gap closure phase 12 added from v1.0 milestone audit (INT-01 StickyMobileCTA feature flag)*
