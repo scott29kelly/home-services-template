@@ -110,6 +110,16 @@ None - no external service configuration required.
 - v1.1 milestone requires PERF-05 satisfaction — desktop fully met, mobile partially met with documented blocker
 - Follow-up tasks if mobile 90+ is required: (1) self-host Inter + Plus Jakarta Sans, (2) inline critical CSS, (3) evaluate lighter animation library
 
+## Self-Check: PASSED
+
+- [x] `src/root.tsx` exists with async Google Fonts preload+onload pattern
+- [x] `src/root.tsx` hero preload has `imageSrcSet` and `imageSizes` attributes
+- [x] `.planning/phases/14-performance-validation-optimization/14-VERIFICATION.md` exists with all page template measurements
+- [x] `.planning/phases/14-performance-validation-optimization/14-02-SUMMARY.md` exists (this file)
+- [x] Commit `5e3ea4e` exists (Task 1 — async fonts + responsive preload)
+- [x] Commit `765e373` exists (Task 2 — Lighthouse verification)
+- [x] Commit `f5171bb` exists (metadata — SUMMARY + STATE + ROADMAP)
+
 ---
 *Phase: 14-performance-validation-optimization*
 *Completed: 2026-03-03*
