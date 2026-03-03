@@ -1,6 +1,6 @@
 # STATE -- Premium Home Services Template
 
-**Last Updated:** 2026-03-03T17:32Z
+**Last Updated:** 2026-03-03T23:53Z
 
 ---
 
@@ -9,14 +9,14 @@
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Config-driven customizability — rebrand by editing config files only
-**Current focus:** Phase 13 — RR7 Framework Mode Migration
+**Current focus:** Phase 14 — Performance Validation & Optimization (COMPLETE)
 
 ---
 
 ## Current Position
 
-**Phase:** 13-rr7-framework-mode-migration
-**Current Plan:** Not started
+**Phase:** 14-performance-validation-optimization
+**Current Plan:** Complete (2/2 plans done)
 **Progress:** [██████████] 100%
 
 ---
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Milestone History
 
 - ✅ **v1.0 Premium Template Launch** — shipped 2026-03-01 (12 phases, 20 plans, 112 commits)
-- 🔄 **v2.0 Performance & Framework Mode** — in progress (Phase 13)
+- ✅ **v2.0 Performance & Framework Mode** — Phase 13 complete (RR7 framework mode), Phase 14 complete (performance validation)
 
 ---
 
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 **Open blockers:** None
 
 **Tech debt carried forward:**
-- Lighthouse Performance below 90+ target (requires SSR/pre-rendering — being addressed in Phase 13)
+- Mobile Lighthouse Performance 68-74 (below 90 target) — architectural blocker: requires font self-hosting + JS bundle reduction (deferred from Phase 14)
 - Orphan API files: `api/contact.js`, `api/banner.js`
 - Unused export: `getTestimonialsByService()`
 - `vitals.ts` production handler is no-op placeholder
@@ -54,6 +54,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 - **13-03:** Unique id option added to routes.ts service routes (roofing/siding/storm-damage share service-page.tsx) to fix duplicate route id error
 - **13-03:** vercel.json: removed SPA rewrite, outputDirectory build/client, cleanUrls true — pre-rendered routes each have index.html
 
+
+- **14-02:** Async Google Fonts accepted FOUT tradeoff — display=swap handles CSS fallback; onLoad fires after hydration to switch rel to stylesheet
+- **14-02:** Mobile Performance 68-74 documented as architectural blocker (font self-hosting + JS bundle reduction required) — deferred per user decision
+- **14-02:** Hero preload updated with imageSrcSet/imageSizes matching Hero.tsx srcset variants (768w, 1280w, 1920w)
+
 ---
 
 ## Performance Metrics
@@ -63,11 +68,13 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 | 13-rr7-framework-mode-migration | 01 | 298 | 2 | 10 |
 | 13-rr7-framework-mode-migration | 02 | 226 | 2 | 16 |
 | 13-rr7-framework-mode-migration | 03 | 253 | 2 | 8 |
+| 14-performance-validation-optimization | 01 | 1620 | 2 | 3 |
+| 14-performance-validation-optimization | 02 | 933 | 2 | 2 |
 
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 13-03-PLAN.md (prerender configuration)
+Stopped at: Completed 14-02-PLAN.md (async fonts + final Lighthouse validation)
 Resume file: N/A
 
 ---
