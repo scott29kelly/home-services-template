@@ -3,6 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 Premium Template Launch** — Phases 1-12 (shipped 2026-03-01)
+- 🔄 **v1.1 Performance & Cleanup** — Phases 13+ (in progress)
 
 ## Phases
 
@@ -40,8 +41,35 @@
 | 10. Performance Monitoring | v1.0 | 1/1 | Complete | 2026-02-26 |
 | 11. Final Gap Closure | v1.0 | 1/1 | Complete | 2026-02-28 |
 | 12. StickyMobileCTA Fix | v1.0 | 1/1 | Complete | 2026-03-01 |
+| 13. RR7 Framework Mode Migration | v1.1 | 0/? | Pending | — |
+| 14. Performance Validation | v1.1 | 0/? | Pending | — |
+| 15. Tech Debt Cleanup | v1.1 | 0/? | Pending | — |
+
+### v1.1 Performance & Cleanup
+
+- [ ] Phase 13: RR7 Framework Mode Migration
+- [ ] Phase 14: Performance Validation & Optimization
+- [ ] Phase 15: Tech Debt Cleanup
+
+### Phase 13: RR7 Framework Mode Migration
+
+**Goal:** Convert from SPA to React Router 7 framework mode with static pre-rendering. Server entry, client entry, route modules with loaders, pre-rendering config for all routes (static + dynamic).
+
+**Requirements:** [PERF-03, PERF-04]
+
+### Phase 14: Performance Validation & Optimization
+
+**Goal:** Measure Lighthouse Performance scores after migration, optimize until 90+ on both desktop and mobile. Address LCP, CLS, and render-blocking resources.
+
+**Requirements:** [PERF-05]
+
+### Phase 15: Tech Debt Cleanup
+
+**Goal:** Remove orphan API files (api/contact.js, api/banner.js), remove unused exports (getTestimonialsByService), fix or remove vitals.ts no-op handler. Zero dead code.
+
+**Requirements:** [CLEAN-01, CLEAN-02]
 
 ---
 
 *Roadmap created: 2026-02-21*
-*Updated: 2026-03-01 — v1.0 milestone archived*
+*Updated: 2026-03-03 — v1.1 phases defined*

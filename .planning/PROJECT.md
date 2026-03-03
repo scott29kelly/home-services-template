@@ -53,9 +53,13 @@ This template fills the gap: premium, pre-built, purpose-built for home services
 - ✓ AVA-03: Chat Rate Limiting & Security — v1.0
 - ✓ PERF-02: Performance Monitoring — v1.0 (partial: Lighthouse Performance below 90+ target, SSR deferred)
 
-### Active
+### Active — v1.1 Performance & Cleanup
 
-(None — define with `/gsd:new-milestone`)
+- PERF-03: React Router 7 Framework Mode Migration
+- PERF-04: Static Pre-rendering (all routes)
+- PERF-05: Lighthouse Performance 90+ (desktop & mobile)
+- CLEAN-01: Remove Orphan Files & Unused Exports
+- CLEAN-02: Fix or Remove Vitals Handler
 
 ### Out of Scope
 
@@ -68,7 +72,7 @@ This template fills the gap: premium, pre-built, purpose-built for home services
 - Customer portal / project tracker — requires backend + auth
 - Online payment integration — requires payment processor
 - CMS admin panel — template is config-driven, not CMS-driven
-- Pre-rendering / SSG — significant refactor (RR7 framework mode); dedicated milestone
+- ~~Pre-rendering / SSG~~ — moved to v1.1 Active
 - Cost/price calculator widget — financing calculator is sufficient
 
 ## Context
@@ -102,7 +106,7 @@ Shipped v1.0 with 9,031 LOC TypeScript/TSX across 210 files.
 | Hero animation | Zero framer-motion on above-fold | ✓ Good — instant LCP |
 | Image optimization | Custom Vite plugin | ✓ Good — works around Windows junction bug |
 | Ava CORS | ALLOWED_ORIGIN env var | ✓ Good — dev-friendly, production-secure |
-| Pre-rendering | Deferred to future milestone | ⚠️ Revisit — Lighthouse Performance below target |
+| Pre-rendering | RR7 framework mode + static pre-rendering | v1.1 — addressing Lighthouse scores |
 
 ## Constraints
 
@@ -115,7 +119,8 @@ Shipped v1.0 with 9,031 LOC TypeScript/TSX across 210 files.
 ## Milestones
 
 - ✅ **v1.0 Premium Template Launch** — shipped 2026-03-01
+- 🔄 **v1.1 Performance & Cleanup** — in progress
 
 ---
 
-*Last updated: 2026-03-01 after v1.0 milestone*
+*Last updated: 2026-03-01 after v1.1 milestone definition*
