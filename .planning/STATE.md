@@ -16,7 +16,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 **Phase:** 13-rr7-framework-mode-migration
-**Current Plan:** 04 of 04
+**Current Plan:** Not started
 **Progress:** [██████████] 100%
 
 ---
