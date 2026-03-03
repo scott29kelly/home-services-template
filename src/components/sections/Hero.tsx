@@ -11,6 +11,13 @@ interface HeroProps {
   compact?: boolean
 }
 
+function heroSrcSet(src: string) {
+  const dot = src.lastIndexOf('.')
+  const base = src.substring(0, dot)
+  const ext = src.substring(dot)
+  return `${base}-768w${ext} 768w, ${base}-1280w${ext} 1280w, ${src} 1920w`
+}
+
 export default function Hero({
   backgroundImage = '/images/hero-roofing.webp',
   headline = 'Protecting Your Home,',
@@ -27,6 +34,8 @@ export default function Hero({
       {/* Background — uses <img> for LCP optimization and accessibility */}
       <img
         src={backgroundImage}
+        srcSet={heroSrcSet(backgroundImage)}
+        sizes="100vw"
         alt=""
         role="presentation"
         fetchPriority="high"

@@ -57,6 +57,12 @@ function copyAndOptimizeImages(): Plugin {
       let totalOriginal = 0
       const results: string[] = []
 
+      // Hero images get responsive variants (768w, 1280w)
+      const heroWidths = [768, 1280]
+      function isHeroImage(filename: string) {
+        return /hero/i.test(path.basename(filename))
+      }
+
       await Promise.all(
         imageFiles.map(async ({ srcPath, relPath }) => {
           const file = relPath
@@ -104,6 +110,23 @@ function copyAndOptimizeImages(): Plugin {
               await fs.copyFile(srcPath, destPath)
               totalOriginal += originalSize
               results.push(`  ${file}: ${(originalSize / 1024).toFixed(0)}kB (already optimal)`)
+            }
+
+            // Generate responsive variants for hero images
+            if (isHeroImage(relPath) && ext === '.webp') {
+              for (const w of heroWidths) {
+                const baseName = path.basename(relPath, ext)
+                const variantName = `${baseName}-${w}w${ext}`
+                const variantPath = path.join(path.dirname(destPath), variantName)
+                const variant = await sharp(srcBuffer)
+                  .resize(w, undefined, { withoutEnlargement: true })
+                  .webp({ quality: 80, lossless: false })
+                  .toBuffer()
+                await fs.writeFile(variantPath, variant)
+                results.push(
+                  `  ${path.join(path.dirname(relPath), variantName)}: ${(variant.byteLength / 1024).toFixed(0)}kB (${w}w variant)`
+                )
+              }
             }
           } catch {
             // Fallback: copy without optimization
