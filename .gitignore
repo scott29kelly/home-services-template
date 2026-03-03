@@ -9,7 +9,11 @@ node_modules/
 
 # Build output
 dist/
+build/
 *.tsbuildinfo
+
+# React Router generated files
+.react-router/
 
 # Public directory (contains junctions/symlinks to root assets)
 public/

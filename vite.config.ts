@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite'
-import react from '@vitejs/plugin-react'
+import { reactRouter } from '@react-router/dev/vite'
+import tsconfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
 import { readdirSync, readFileSync } from 'fs'
@@ -277,7 +278,7 @@ function generateSitemap(): Plugin {
 
       const robots = `User-agent: *\nAllow: /\n\nSitemap: ${hostname}/sitemap.xml`
 
-      const distDir = path.resolve('dist')
+      const distDir = path.resolve('build/client')
       await fs.writeFile(path.join(distDir, 'sitemap.xml'), sitemap, 'utf-8')
       await fs.writeFile(path.join(distDir, 'robots.txt'), robots, 'utf-8')
       console.log(
@@ -290,8 +291,9 @@ function generateSitemap(): Plugin {
 
 export default defineConfig({
   plugins: [
-    react(),
+    reactRouter(),
     tailwindcss(),
+    tsconfigPaths(),
     // Optimizes any images imported through the JS/CSS build pipeline
     ViteImageOptimizer({
       logStats: true,
@@ -299,16 +301,11 @@ export default defineConfig({
       jpeg: { quality: 80 },
       webp: { lossless: false, quality: 80 },
     }),
-    // Copies and optimizes images from /images to dist/images
+    // Copies and optimizes images from /images to build/client/images
     copyAndOptimizeImages(),
-    // Generates dist/sitemap.xml and dist/robots.txt at build time
+    // Generates build/client/sitemap.xml and build/client/robots.txt at build time
     generateSitemap(),
   ],
   // In dev, Vite serves /images/* directly from the project root
   publicDir: false,
-  build: {
-    rollupOptions: {
-      input: 'index.html',
-    },
-  },
 })
