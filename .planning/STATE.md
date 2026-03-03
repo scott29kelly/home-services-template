@@ -1,6 +1,6 @@
 # STATE -- Premium Home Services Template
 
-**Last Updated:** 2026-03-03T17:25Z
+**Last Updated:** 2026-03-03T17:32Z
 
 ---
 
@@ -16,8 +16,8 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 **Phase:** 13-rr7-framework-mode-migration
-**Current Plan:** 03 of 04
-**Progress:** [██████████] 96%
+**Current Plan:** 04 of 04
+**Progress:** [██████████] 100%
 
 ---
 
@@ -50,6 +50,10 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 - **13-02:** Dynamic route modules rewrite component inline to replace useParams/useEffect with loaderData; feature flag checks placed in loader (not component) via throw redirect
 - **13-02:** service-page.tsx loader extracts slug from URL pathname (new URL(request.url).pathname) not params — 3 explicit routes share the same route module with no :slug param
 
+- **13-03:** Shared build-routes.ts module exports readFeatureFlags, getServiceSlugs, getCitySlugs, getBlogSlugs, getPortfolioSlugs, getAllRoutes used by both prerender config and sitemap plugin
+- **13-03:** Unique id option added to routes.ts service routes (roofing/siding/storm-damage share service-page.tsx) to fix duplicate route id error
+- **13-03:** vercel.json: removed SPA rewrite, outputDirectory build/client, cleanUrls true — pre-rendered routes each have index.html
+
 ---
 
 ## Performance Metrics
@@ -58,11 +62,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 |-------|------|-------------|-------|-------|
 | 13-rr7-framework-mode-migration | 01 | 298 | 2 | 10 |
 | 13-rr7-framework-mode-migration | 02 | 226 | 2 | 16 |
+| 13-rr7-framework-mode-migration | 03 | 253 | 2 | 8 |
 
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 13-02-PLAN.md (RR7 route modules)
+Stopped at: Completed 13-03-PLAN.md (prerender configuration)
 Resume file: N/A
 
 ---
