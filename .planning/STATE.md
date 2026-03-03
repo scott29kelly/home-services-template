@@ -1,6 +1,6 @@
 # STATE -- Premium Home Services Template
 
-**Last Updated:** 2026-03-03T17:19Z
+**Last Updated:** 2026-03-03T17:25Z
 
 ---
 
@@ -16,8 +16,8 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 **Phase:** 13-rr7-framework-mode-migration
-**Current Plan:** 02 of 04
-**Progress:** Plan 01 complete
+**Current Plan:** 03 of 04
+**Progress:** [██████████] 96%
 
 ---
 
@@ -46,6 +46,10 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 - **13-01:** Created `react-router.config.ts` with `appDirectory: "src"`, `ssr: false` — required for framework mode to find files in `src/` instead of default `app/`
 - **13-01:** `generateSitemap()` output dir updated to `build/client` to match framework mode build output
 
+- **13-02:** Static routes use minimal wrapper pattern — import page component from pages/, re-export as default; PageMeta continues to handle metadata
+- **13-02:** Dynamic route modules rewrite component inline to replace useParams/useEffect with loaderData; feature flag checks placed in loader (not component) via throw redirect
+- **13-02:** service-page.tsx loader extracts slug from URL pathname (new URL(request.url).pathname) not params — 3 explicit routes share the same route module with no :slug param
+
 ---
 
 ## Performance Metrics
@@ -53,13 +57,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 | Phase | Plan | Duration (s) | Tasks | Files |
 |-------|------|-------------|-------|-------|
 | 13-rr7-framework-mode-migration | 01 | 298 | 2 | 10 |
-
----
+| 13-rr7-framework-mode-migration | 02 | 226 | 2 | 16 |
 
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 13-01-PLAN.md (RR7 framework mode infrastructure)
+Stopped at: Completed 13-02-PLAN.md (RR7 route modules)
 Resume file: N/A
 
 ---
