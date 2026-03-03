@@ -6,9 +6,10 @@ export default [
     index('routes/home.tsx'),
 
     // Explicit service routes — avoids :serviceSlug collision with /services and other top-level routes
-    route('roofing', 'routes/service-page.tsx'),
-    route('siding', 'routes/service-page.tsx'),
-    route('storm-damage', 'routes/service-page.tsx'),
+    // Each shares service-page.tsx but needs a unique id to avoid duplicate route id error
+    route('roofing', 'routes/service-page.tsx', { id: 'routes/service-page/roofing' }),
+    route('siding', 'routes/service-page.tsx', { id: 'routes/service-page/siding' }),
+    route('storm-damage', 'routes/service-page.tsx', { id: 'routes/service-page/storm-damage' }),
 
     route('services', 'routes/services.tsx'),
     route('projects', 'routes/projects.tsx'),
