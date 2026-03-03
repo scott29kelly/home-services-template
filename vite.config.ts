@@ -3,9 +3,9 @@ import { reactRouter } from '@react-router/dev/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
-import { readdirSync, readFileSync } from 'fs'
+import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import matter from 'gray-matter'
+import { getAllRoutes } from './src/lib/build-routes'
 
 /**
  * Custom plugin to copy and optimize images from the root images/ directory.
@@ -126,110 +126,6 @@ function copyAndOptimizeImages(): Plugin {
 }
 
 /**
- * Reads feature flags from src/config/features.ts by parsing the source text.
- * Cannot use ESM import in Vite's Node build context.
- * Same approach as slug extraction — regex on comment-stripped source.
- */
-function readFeatureFlags(): Record<string, boolean> {
-  try {
-    const src = readFileSync(resolve('src/config/features.ts'), 'utf-8')
-    // Strip block and line comments to avoid false matches
-    const stripped = src
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .replace(/\/\/.*/g, '')
-    const flags: Record<string, boolean> = {}
-    for (const [, key, val] of stripped.matchAll(/(\w+):\s*(true|false)/g)) {
-      flags[key] = val === 'true'
-    }
-    return flags
-  } catch {
-    // Fallback: all features enabled (safe default — include all routes in sitemap)
-    return { assistant: true, blog: true, financingCalculator: true, cityPages: true, beforeAfter: true, onlineBooking: true }
-  }
-}
-
-/**
- * Discovers all site routes for sitemap generation.
- * Cannot use import.meta.glob here (Node context, not app bundle).
- * Dynamic routes are extracted by reading the TypeScript config source files.
- */
-function getRouteList(): string[] {
-  const flags = readFeatureFlags()
-
-  // Static pages — feature-flag-aware
-  const staticRoutes = [
-    '/', '/services', '/projects', '/testimonials',
-    '/about', '/contact', '/service-areas',
-    ...(flags.assistant ? ['/ava'] : []),
-    ...(flags.financingCalculator ? ['/financing'] : []),
-    ...(flags.blog ? ['/resources'] : []),
-  ]
-
-  // Service routes — derived from src/config/services.ts slugs
-  let serviceRoutes: string[] = []
-  try {
-    const svcFile = readFileSync(resolve('src/config/services.ts'), 'utf-8')
-    const stripped = svcFile
-      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
-      .replace(/\/\/.*/g, '')              // remove line comments
-    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
-    serviceRoutes = [...slugMatches].map((m) => `/${m[1]}`)
-  } catch {
-    // Fallback to known slugs if file read fails
-    serviceRoutes = ['/roofing', '/siding', '/storm-damage']
-  }
-
-  // City routes — parse service-areas.ts for slug values
-  // Strip comments first to avoid matching slug values in JSDoc examples
-  let cityRoutes: string[] = []
-  if (flags.cityPages) {
-    try {
-      const saFile = readFileSync(resolve('src/config/service-areas.ts'), 'utf-8')
-      const stripped = saFile
-        .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
-        .replace(/\/\/.*/g, '')              // remove line comments
-      const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
-      cityRoutes = [...slugMatches].map((m) => `/service-areas/${m[1]}`)
-    } catch {
-      /* fallback: empty */
-    }
-  }
-
-  // Blog routes — read markdown frontmatter from content/blog
-  let blogRoutes: string[] = []
-  if (flags.blog) {
-    try {
-      const blogDir = resolve('src/content/blog')
-      blogRoutes = readdirSync(blogDir)
-        .filter((f) => f.endsWith('.md'))
-        .map((f) => {
-          const { data } = matter(readFileSync(resolve(blogDir, f), 'utf-8'))
-          return data.published !== false ? `/resources/${data.slug}` : null
-        })
-        .filter(Boolean) as string[]
-    } catch {
-      /* no blog posts */
-    }
-  }
-
-  // Portfolio routes — parse projects.ts for slug values
-  // Strip comments to avoid false matches in JSDoc examples
-  let portfolioRoutes: string[] = []
-  try {
-    const projFile = readFileSync(resolve('src/config/projects.ts'), 'utf-8')
-    const stripped = projFile
-      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
-      .replace(/\/\/.*/g, '')              // remove line comments
-    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
-    portfolioRoutes = [...slugMatches].map((m) => `/portfolio/${m[1]}`)
-  } catch {
-    /* fallback: empty */
-  }
-
-  return [...staticRoutes, ...serviceRoutes, ...cityRoutes, ...blogRoutes, ...portfolioRoutes]
-}
-
-/**
  * Custom Vite plugin that generates sitemap.xml and robots.txt at build time.
  * Runs after bundle close so dist/ directory exists.
  *
@@ -257,7 +153,7 @@ function generateSitemap(): Plugin {
       } catch {
         // Fallback: keep default
       }
-      const routes = getRouteList()
+      const routes = getAllRoutes()
       const excludeSet = new Set(['/thank-you', '/404'])
       const filteredRoutes = routes.filter((r) => !excludeSet.has(r))
 
