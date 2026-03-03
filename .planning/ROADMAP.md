@@ -41,7 +41,7 @@
 | 10. Performance Monitoring | v1.0 | 1/1 | Complete | 2026-02-26 |
 | 11. Final Gap Closure | v1.0 | 1/1 | Complete | 2026-02-28 |
 | 12. StickyMobileCTA Fix | v1.0 | 1/1 | Complete | 2026-03-01 |
-| 13. RR7 Framework Mode Migration | v1.1 | 0/? | Pending | — |
+| 13. RR7 Framework Mode Migration | v1.1 | 0/3 | Planned | — |
 | 14. Performance Validation | v1.1 | 0/? | Pending | — |
 | 15. Tech Debt Cleanup | v1.1 | 0/? | Pending | — |
 
@@ -56,6 +56,13 @@
 **Goal:** Convert from SPA to React Router 7 framework mode with static pre-rendering. Server entry, client entry, route modules with loaders, pre-rendering config for all routes (static + dynamic).
 
 **Requirements:** [PERF-03, PERF-04]
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — Framework mode infrastructure (packages, entry files, routes config, layout route)
+- [ ] 13-02-PLAN.md — Route module conversion (16 pages to route modules with loaders)
+- [ ] 13-03-PLAN.md — Pre-rendering config, production build, Vercel deployment update
 
 ### Phase 14: Performance Validation & Optimization
 
@@ -72,4 +79,4 @@
 ---
 
 *Roadmap created: 2026-02-21*
-*Updated: 2026-03-03 — v1.1 phases defined*
+*Updated: 2026-03-03 — Phase 13 planned (3 plans in 3 waves)*
