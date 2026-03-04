@@ -57,7 +57,7 @@ export { getNavLinks, getFooterServiceLinks, getFooterCompanyLinks } from './nav
 export { getServiceBySlug } from './services'
 
 // Re-export testimonial filter helpers
-export { getTestimonialsByCity, getTestimonialsByService } from './testimonials'
+export { getTestimonialsByCity } from './testimonials'
 
 // Re-export city page helpers
 export { getCityBySlug } from './service-areas'

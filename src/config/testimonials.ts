@@ -193,7 +193,3 @@ export function getTestimonialsByCity(slug: string): Testimonial[] {
   return testimonials.all.filter(t => t.citySlug === slug)
 }
 
-/** Filter testimonials by service slug */
-export function getTestimonialsByService(slug: string): Testimonial[] {
-  return testimonials.all.filter(t => t.serviceSlug === slug)
-}
