@@ -1,6 +1,6 @@
 # STATE -- Premium Home Services Template
 
-**Last Updated:** 2026-03-04T10:05Z
+**Last Updated:** 2026-03-04T15:08Z
 
 ---
 
@@ -9,15 +9,15 @@
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Config-driven customizability — rebrand by editing config files only
-**Current focus:** Phase 14 — Performance Validation & Optimization (In Progress — font self-hosting complete)
+**Current focus:** Phase 14 — Performance Validation & Optimization (In Progress — CSS animation migration complete, page components remaining)
 
 ---
 
 ## Current Position
 
 **Phase:** 14-performance-validation-optimization
-**Current Plan:** 03 of 6
-**Progress:** [█████████░] 90%
+**Current Plan:** 04 of 6
+**Progress:** [█████████░] 93%
 
 ---
 
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 **Open blockers:** None
 
 **Tech debt carried forward:**
-- Mobile Lighthouse Performance 68-74 (below 90 target) — font self-hosting now complete (14-03); JS bundle reduction still needed for full 90+ score
+- Mobile Lighthouse Performance 68-74 (below 90 target) — font self-hosting (14-03) and shared component CSS animation migration (14-04) complete; page component JS bundle reduction needed in 14-05 for full 90+ score
 - Orphan API files: `api/contact.js`, `api/banner.js`
 - Unused export: `getTestimonialsByService()`
 - `vitals.ts` production handler is no-op placeholder
@@ -62,6 +62,9 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ---
 - [Phase 14-03]: Vite deduplicates identical woff2 binaries — all Inter weights share same file hash, same for Plus Jakarta Sans; all 7 @font-face declarations still correct in CSS
 - [Phase 14-03]: Self-hosted fonts pattern: download woff2 to src/fonts/, @font-face in index.css with font-display:swap and latin unicode-range — eliminates 2 external origin round-trips
+- [Phase 14-04]: AnimatedTestimonials word-by-word blur reveal replaced with simple fade — CSS per-word stagger requires JS loops, fade is functionally equivalent
+- [Phase 14-04]: FAQ accordion uses CSS grid-template-rows: 0fr/1fr pattern — smooth height animation without JS measurement
+- [Phase 14-04]: ProcessTimeline scroll-driven line uses passive scroll event listener — replaces framer useScroll/useTransform at zero JS animation cost
 
 ## Performance Metrics
 
@@ -73,11 +76,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 | 14-performance-validation-optimization | 01 | 1620 | 2 | 3 |
 | 14-performance-validation-optimization | 02 | 933 | 2 | 2 |
 | 14-performance-validation-optimization | 03 | 262 | 2 | 9 |
+| 14-performance-validation-optimization | 04 | 422 | 2 | 16 |
 
 ## Session Continuity
 
 Last session: 2026-03-04
-Stopped at: Completed 14-03-PLAN.md (self-hosted fonts — Inter + Plus Jakarta Sans woff2)
+Stopped at: Completed 14-04-PLAN.md (framer-motion to CSS animation migration in shared components)
 Resume file: N/A
 
 ---
