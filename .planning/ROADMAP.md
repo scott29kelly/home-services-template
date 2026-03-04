@@ -43,7 +43,7 @@
 | 12. StickyMobileCTA Fix | v1.0 | 1/1 | Complete | 2026-03-01 |
 | 13. RR7 Framework Mode Migration | 3/3 | Complete    | 2026-03-03 | — |
 | 14. Performance Validation | 8/8 | Complete    | 2026-03-04 | — |
-| 15. Tech Debt Cleanup | v1.1 | 0/? | Pending | — |
+| 15. Tech Debt Cleanup | v1.1 | 0/1 | Pending | — |
 
 ### v1.1 Performance & Cleanup
 
@@ -87,6 +87,11 @@ Plans:
 **Goal:** Remove orphan API files (api/contact.js, api/banner.js), remove unused exports (getTestimonialsByService), fix or remove vitals.ts no-op handler. Zero dead code.
 
 **Requirements:** [CLEAN-01, CLEAN-02]
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 15-01-PLAN.md — Remove dead code: orphan API file verification, unused export removal, vitals.ts deletion + web-vitals uninstall
 
 ---
 
