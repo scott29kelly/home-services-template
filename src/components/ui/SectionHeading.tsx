@@ -1,4 +1,4 @@
-import { m } from 'framer-motion'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 
 interface SectionHeadingProps {
   title: string
@@ -44,24 +44,7 @@ export default function SectionHeading({
     isCenter ? 'mx-auto' : '',
   ].filter(Boolean).join(' ')
 
-  // Animation configuration for subtle fade-up
-  const animProps = animated
-    ? {
-        initial: { opacity: 0, y: 20 } as const,
-        whileInView: { opacity: 1, y: 0 } as const,
-        viewport: { once: true, amount: 0.5 } as const,
-        transition: { duration: 0.6 },
-      }
-    : {}
-
-  const subtitleAnimProps = animated
-    ? {
-        initial: { opacity: 0, y: 20 } as const,
-        whileInView: { opacity: 1, y: 0 } as const,
-        viewport: { once: true, amount: 0.5 } as const,
-        transition: { duration: 0.6, delay: 0.1 },
-      }
-    : {}
+  const { ref, isInView } = useScrollReveal()
 
   if (!animated) {
     return (
@@ -77,19 +60,18 @@ export default function SectionHeading({
   }
 
   return (
-    <div className={wrapperClasses}>
+    <div className={wrapperClasses} ref={ref as React.RefObject<HTMLDivElement>}>
       {/* Accent line */}
-      <m.div
-        {...animProps}
-        className={`h-1 w-10 rounded-full mb-5 ${accentColor} ${isCenter ? 'mx-auto' : ''}`}
+      <div
+        className={`scroll-reveal ${isInView ? 'in-view' : ''} h-1 w-10 rounded-full mb-5 ${accentColor} ${isCenter ? 'mx-auto' : ''}`}
       />
-      <m.div {...animProps}>
+      <div className={`scroll-reveal ${isInView ? 'in-view' : ''}`}>
         <Tag className={titleClasses}>{title}</Tag>
-      </m.div>
+      </div>
       {subtitle && (
-        <m.p {...subtitleAnimProps} className={subtitleClasses}>
+        <p className={`scroll-reveal delay-1 ${isInView ? 'in-view' : ''} ${subtitleClasses}`}>
           {subtitle}
-        </m.p>
+        </p>
       )}
     </div>
   )

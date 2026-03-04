@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { m, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { fetchBanner, type BannerData } from '../../lib/banner-client'
 
@@ -35,50 +34,44 @@ export default function AnnouncementBanner() {
 
   const show = bannerData && !dismissed
 
+  if (!show) return null
+
   return (
-    <AnimatePresence>
-      {show && (
-        <m.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-          role={bannerData.urgency === 'high' ? 'alert' : 'status'}
-          className={`overflow-hidden ${urgencyStyles[bannerData.urgency]}`}
+    <div
+      role={bannerData.urgency === 'high' ? 'alert' : 'status'}
+      className={`fade-enter visible overflow-hidden ${urgencyStyles[bannerData.urgency]}`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-center gap-3 text-sm">
+        <p className="text-center flex-1 font-medium">
+          {bannerData.text}
+          {bannerData.ctaText && bannerData.ctaHref && (
+            <>
+              {' '}
+              <a
+                href={bannerData.ctaHref}
+                className={`inline-flex items-center font-bold underline underline-offset-2 hover:no-underline ${
+                  bannerData.urgency === 'low'
+                    ? 'text-brand-blue'
+                    : 'text-inherit'
+                }`}
+              >
+                {bannerData.ctaText}
+              </a>
+            </>
+          )}
+        </p>
+        <button
+          onClick={handleDismiss}
+          aria-label="Dismiss announcement"
+          className={`shrink-0 p-1 rounded-full transition-colors ${
+            bannerData.urgency === 'low'
+              ? 'hover:bg-blue-100'
+              : 'hover:bg-white/20'
+          }`}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-center gap-3 text-sm">
-            <p className="text-center flex-1 font-medium">
-              {bannerData.text}
-              {bannerData.ctaText && bannerData.ctaHref && (
-                <>
-                  {' '}
-                  <a
-                    href={bannerData.ctaHref}
-                    className={`inline-flex items-center font-bold underline underline-offset-2 hover:no-underline ${
-                      bannerData.urgency === 'low'
-                        ? 'text-brand-blue'
-                        : 'text-inherit'
-                    }`}
-                  >
-                    {bannerData.ctaText}
-                  </a>
-                </>
-              )}
-            </p>
-            <button
-              onClick={handleDismiss}
-              aria-label="Dismiss announcement"
-              className={`shrink-0 p-1 rounded-full transition-colors ${
-                bannerData.urgency === 'low'
-                  ? 'hover:bg-blue-100'
-                  : 'hover:bg-white/20'
-              }`}
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </m.div>
-      )}
-    </AnimatePresence>
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
   )
 }

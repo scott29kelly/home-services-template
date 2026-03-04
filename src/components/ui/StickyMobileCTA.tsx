@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useLocation, Link } from 'react-router-dom'
-import { m, AnimatePresence } from 'framer-motion'
 import { Phone, MessageSquare, FileText } from 'lucide-react'
 import { company } from '../../config/company'
 import { features } from '../../config/features'
@@ -44,15 +43,9 @@ export default function StickyMobileCTA() {
   if (isAvaPage) return null
 
   return (
-    <AnimatePresence>
+    <>
       {isVisible && (
-        <m.div
-          initial={{ y: '100%' }}
-          animate={{ y: 0 }}
-          exit={{ y: '100%' }}
-          transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-          className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
-        >
+        <div className={`slide-up-enter ${isVisible ? 'visible' : ''} fixed bottom-0 left-0 right-0 z-40 md:hidden`}>
           <div className="bg-white/95 backdrop-blur-md border-t border-border/60 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] rounded-t-2xl pb-[env(safe-area-inset-bottom)]">
             <div className="flex items-center justify-around px-3 py-2.5 max-w-lg mx-auto">
               {/* Phone */}
@@ -85,8 +78,8 @@ export default function StickyMobileCTA() {
               )}
             </div>
           </div>
-        </m.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   )
 }

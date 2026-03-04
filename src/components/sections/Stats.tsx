@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { m } from 'framer-motion'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import SectionHeading from '../ui/SectionHeading'
 import { SITE } from '../../config/site'
@@ -40,7 +39,7 @@ export default function Stats() {
   const { ref, isInView } = useScrollReveal('0px 0px')
 
   return (
-    <section className="py-20 lg:py-28 bg-navy relative overflow-hidden" ref={ref}>
+    <section className="py-20 lg:py-28 bg-navy relative overflow-hidden" ref={ref as React.RefObject<HTMLElement>}>
       {/* Background accent */}
       <div className="absolute inset-0 bg-gradient-to-br from-navy via-slate-800 to-navy" />
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-brand-blue/5 rounded-full blur-3xl" />
@@ -55,12 +54,10 @@ export default function Stats() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((stat, i) => (
-            <m.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
-              className="text-center"
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} text-center`}
+              style={{ transitionDelay: `${0.2 + i * 0.1}s` }}
             >
               <div className="text-4xl lg:text-5xl font-extrabold text-brand-blue mb-2">
                 <CountUp end={stat.end} suffix={stat.suffix} trigger={isInView} />
@@ -68,7 +65,7 @@ export default function Stats() {
               <div className="text-sm font-medium text-slate-400 uppercase tracking-wider">
                 {stat.label}
               </div>
-            </m.div>
+            </div>
           ))}
         </div>
       </div>

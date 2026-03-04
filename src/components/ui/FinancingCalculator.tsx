@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { m } from 'framer-motion'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import { financing } from '../../config/financing'
 
@@ -51,14 +50,11 @@ export default function FinancingCalculator() {
     100
 
   return (
-    <section className="py-20 lg:py-28" ref={ref}>
+    <section className="py-20 lg:py-28" ref={ref as React.RefObject<HTMLElement>}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* Loan Amount Slider */}
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-          className="mb-12"
+        <div
+          className={`scroll-reveal ${isInView ? 'in-view' : ''} mb-12`}
         >
           <div className="flex items-center justify-between mb-4">
             <label
@@ -94,7 +90,7 @@ export default function FinancingCalculator() {
             <span>{currencyFmt.format(financing.minLoanAmount)}</span>
             <span>{currencyFmt.format(financing.maxLoanAmount)}</span>
           </div>
-        </m.div>
+        </div>
 
         {/* Comparison Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
@@ -108,16 +104,14 @@ export default function FinancingCalculator() {
             const totalInterest = totalCost - loanAmount
 
             return (
-              <m.div
+              <div
                 key={option.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
-                className={`relative rounded-2xl border p-6 transition-shadow hover:shadow-lg ${
+                className={`scroll-reveal ${isInView ? 'in-view' : ''} relative rounded-2xl border p-6 transition-shadow hover:shadow-lg ${
                   option.featured
                     ? 'border-brand-blue bg-brand-blue/5 shadow-md ring-2 ring-brand-blue/20'
                     : 'border-border bg-white'
                 }`}
+                style={{ transitionDelay: `${0.1 + i * 0.08}s` }}
               >
                 {option.featured && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-blue text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
@@ -168,20 +162,18 @@ export default function FinancingCalculator() {
                     </span>
                   </div>
                 </div>
-              </m.div>
+              </div>
             )
           })}
         </div>
 
         {/* Disclaimer */}
-        <m.p
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="mt-8 text-xs text-text-secondary text-center max-w-2xl mx-auto"
+        <p
+          className={`scroll-reveal ${isInView ? 'in-view' : ''} mt-8 text-xs text-text-secondary text-center max-w-2xl mx-auto`}
+          style={{ transitionDelay: '0.5s' }}
         >
           {financing.disclaimer}
-        </m.p>
+        </p>
       </div>
     </section>
   )

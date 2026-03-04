@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { m, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import SectionHeading from '../ui/SectionHeading'
@@ -19,18 +18,16 @@ export default function FAQ({ title, items }: FAQProps) {
   const { ref, isInView } = useScrollReveal()
 
   return (
-    <section className="py-20 lg:py-28 bg-surface" ref={ref}>
+    <section className="py-20 lg:py-28 bg-surface" ref={ref as React.RefObject<HTMLElement>}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <SectionHeading title={title} className="mb-10" />
 
         <div className="space-y-3">
           {items.map((item, i) => (
-            <m.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.1 + i * 0.05 }}
-              className="bg-white rounded-xl border border-border overflow-hidden"
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} bg-white rounded-xl border border-border overflow-hidden`}
+              style={{ transitionDelay: `${0.1 + i * 0.05}s` }}
             >
               <button
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
@@ -45,23 +42,18 @@ export default function FAQ({ title, items }: FAQProps) {
                   }`}
                 />
               </button>
-              <AnimatePresence initial={false}>
-                {openIndex === i && (
-                  <m.div
-                    id={`faq-answer-${i}`}
-                    role="region"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                  >
-                    <div className="px-6 pb-4 text-text-secondary leading-relaxed">
-                      {item.answer}
-                    </div>
-                  </m.div>
-                )}
-              </AnimatePresence>
-            </m.div>
+              <div
+                id={`faq-answer-${i}`}
+                role="region"
+                className={`accordion-content ${openIndex === i ? 'open' : ''}`}
+              >
+                <div>
+                  <div className="px-6 pb-4 text-text-secondary leading-relaxed">
+                    {item.answer}
+                  </div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </div>

@@ -1,20 +1,7 @@
-import { m } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Home, PanelLeft, CloudLightning } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import SectionHeading from '../ui/SectionHeading'
-
-const container = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.15 },
-  },
-}
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const } },
-}
 
 export default function BentoGrid() {
   const { ref, isInView } = useScrollReveal()
@@ -22,21 +9,19 @@ export default function BentoGrid() {
   return (
     <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="mb-14" ref={ref}>
+        <div className="mb-14" ref={ref as React.RefObject<HTMLDivElement>}>
           <SectionHeading
             title="Our Services"
             subtitle="From storm damage repair to complete roof replacements, we deliver quality craftsmanship backed by industry-leading warranties."
           />
         </div>
 
-        <m.div
-          variants={container}
-          initial="hidden"
-          animate={isInView ? 'show' : 'hidden'}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-4 lg:gap-6"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-4 lg:gap-6">
           {/* Roofing - Large Left */}
-          <m.div variants={item} className="lg:row-span-2">
+          <div
+            className={`scroll-reveal ${isInView ? 'in-view' : ''} lg:row-span-2`}
+            style={{ transitionDelay: '0s' }}
+          >
             <Link
               to="/roofing"
               className="group relative block h-full min-h-[320px] lg:min-h-0 rounded-2xl overflow-hidden bg-navy"
@@ -64,10 +49,13 @@ export default function BentoGrid() {
                 </span>
               </div>
             </Link>
-          </m.div>
+          </div>
 
           {/* Siding - Top Right */}
-          <m.div variants={item} className="lg:col-span-2">
+          <div
+            className={`scroll-reveal ${isInView ? 'in-view' : ''} lg:col-span-2`}
+            style={{ transitionDelay: '0.15s' }}
+          >
             <Link
               to="/siding"
               className="group relative block h-full min-h-[220px] rounded-2xl overflow-hidden bg-navy"
@@ -95,10 +83,13 @@ export default function BentoGrid() {
                 </span>
               </div>
             </Link>
-          </m.div>
+          </div>
 
           {/* Storm Repair - Bottom Right */}
-          <m.div variants={item} className="lg:col-span-2">
+          <div
+            className={`scroll-reveal ${isInView ? 'in-view' : ''} lg:col-span-2`}
+            style={{ transitionDelay: '0.3s' }}
+          >
             <Link
               to="/storm-damage"
               className="group relative block h-full min-h-[220px] rounded-2xl overflow-hidden bg-navy"
@@ -126,8 +117,8 @@ export default function BentoGrid() {
                 </span>
               </div>
             </Link>
-          </m.div>
-        </m.div>
+          </div>
+        </div>
       </div>
     </section>
   )

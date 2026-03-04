@@ -1,4 +1,3 @@
-import { m } from 'framer-motion'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import Button from '../ui/Button'
 import SectionHeading from '../ui/SectionHeading'
@@ -8,7 +7,7 @@ export default function CTA() {
   const { ref, isInView } = useScrollReveal()
 
   return (
-    <section className="py-20 lg:py-28 bg-gradient-to-br from-navy via-slate-800 to-navy" ref={ref}>
+    <section className="py-20 lg:py-28 bg-gradient-to-br from-navy via-slate-800 to-navy" ref={ref as React.RefObject<HTMLElement>}>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
         <SectionHeading
           title="Ready to Protect Your Home?"
@@ -16,11 +15,9 @@ export default function CTA() {
           theme="dark"
           className="mb-8"
         />
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+        <div
+          className={`scroll-reveal ${isInView ? 'in-view' : ''} flex flex-col sm:flex-row gap-4 justify-center`}
+          style={{ transitionDelay: '0.2s' }}
         >
           <Button variant="primary" size="lg" href="/contact">
             Schedule Free Inspection
@@ -28,7 +25,7 @@ export default function CTA() {
           <Button variant="outline-white" size="lg" href={`tel:${SITE.phone}`} external>
             Call {SITE.phone}
           </Button>
-        </m.div>
+        </div>
       </div>
     </section>
   )

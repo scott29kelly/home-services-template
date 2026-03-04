@@ -1,4 +1,3 @@
-import { m } from 'framer-motion'
 import { Trophy, Shield, Award } from 'lucide-react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import SectionHeading from '../ui/SectionHeading'
@@ -25,7 +24,7 @@ export default function Certifications() {
   const { ref, isInView } = useScrollReveal()
 
   return (
-    <section className="py-20 lg:py-28" ref={ref}>
+    <section className="py-20 lg:py-28" ref={ref as React.RefObject<HTMLElement>}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeading
           title="Trusted & Certified"
@@ -35,19 +34,17 @@ export default function Certifications() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           {certs.map((cert, i) => (
-            <m.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
-              className="text-center"
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} text-center`}
+              style={{ transitionDelay: `${0.2 + i * 0.1}s` }}
             >
               <div className="w-16 h-16 mx-auto mb-4 bg-brand-blue/10 rounded-2xl flex items-center justify-center">
                 <cert.icon className="w-8 h-8 text-brand-blue" />
               </div>
               <h3 className="text-lg font-bold text-navy mb-1">{cert.title}</h3>
               <p className="text-text-secondary text-sm">{cert.description}</p>
-            </m.div>
+            </div>
           ))}
         </div>
       </div>

@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { m, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Testimonial {
@@ -23,15 +22,23 @@ export default function AnimatedTestimonials({
 }: AnimatedTestimonialsProps) {
   const [active, setActive] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  const [prevActive, setPrevActive] = useState<number | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const next = useCallback(() => {
+    setPrevActive(active)
     setActive((prev) => (prev + 1) % testimonials.length)
-  }, [testimonials.length])
+  }, [active, testimonials.length])
 
   const prev = useCallback(() => {
+    setPrevActive(active)
     setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length)
-  }, [testimonials.length])
+  }, [active, testimonials.length])
+
+  const goTo = useCallback((i: number) => {
+    setPrevActive(active)
+    setActive(i)
+  }, [active])
 
   // Autoplay
   useEffect(() => {
@@ -43,10 +50,16 @@ export default function AnimatedTestimonials({
     }
   }, [autoplay, isPaused, next, interval])
 
-  // Randomize initial slight rotations for the stacked cards (stable across renders)
+  // Clear prevActive after transition
+  useEffect(() => {
+    if (prevActive === null) return
+    const timer = setTimeout(() => setPrevActive(null), 500)
+    return () => clearTimeout(timer)
+  }, [prevActive])
+
+  // Stable rotations for stacked cards
   const rotations = useRef<number[]>(
     testimonials.map((_, i) => {
-      // Alternate between slight left and right rotations
       const base = i % 2 === 0 ? -1 : 1
       return base * (2 + (i % 3))
     })
@@ -62,102 +75,76 @@ export default function AnimatedTestimonials({
     >
       {/* Image stack */}
       <div className="relative h-72 sm:h-80 md:h-96 w-full max-w-md mx-auto md:mx-0">
-        <AnimatePresence>
-          {testimonials.map((t, i) => {
-            const isActive = i === active
-            const offset = i - active
-            // Only render the active card and the 2 cards visually behind it
-            const distance = Math.abs(offset)
-            if (!isActive && distance > 2) return null
+        {testimonials.map((t, i) => {
+          const isActive = i === active
+          const offset = i - active
+          const distance = Math.abs(offset)
+          if (!isActive && distance > 2) return null
 
-            return (
-              <m.div
-                key={t.image + i}
-                initial={{ opacity: 0, scale: 0.9, rotate: rotations.current[i] }}
-                animate={{
-                  opacity: isActive ? 1 : 0.7,
-                  scale: isActive ? 1 : 0.95 - distance * 0.02,
-                  rotate: isActive ? 0 : rotations.current[i],
-                  zIndex: isActive ? 30 : 20 - distance,
-                  y: isActive ? 0 : distance * 8,
-                }}
-                exit={{ opacity: 0, scale: 0.9, rotate: rotations.current[i] }}
-                transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                className="absolute inset-0 origin-bottom"
-              >
-                <img
-                  src={t.image}
-                  alt={`Completed ${t.service || 'project'} in ${t.location}`}
-                  width={600}
-                  height={400}
-                  loading="lazy"
-                  decoding="async"
-                  draggable={false}
-                  className="w-full h-full object-cover rounded-2xl shadow-xl"
-                />
-                {/* Subtle gradient overlay for depth */}
-                {!isActive && (
-                  <div className="absolute inset-0 bg-navy/20 rounded-2xl" />
-                )}
-              </m.div>
-            )
-          })}
-        </AnimatePresence>
+          const rotation = rotations.current[i]
+          const scale = isActive ? 1 : 0.95 - distance * 0.02
+          const zIndex = isActive ? 30 : 20 - distance
+          const translateY = isActive ? 0 : distance * 8
+          const opacity = isActive ? 1 : 0.7
+
+          return (
+            <div
+              key={t.image + i}
+              className="absolute inset-0 origin-bottom"
+              style={{
+                zIndex,
+                opacity,
+                transform: `rotate(${isActive ? 0 : rotation}deg) scale(${scale}) translateY(${translateY}px)`,
+                transition: 'all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)',
+              }}
+            >
+              <img
+                src={t.image}
+                alt={`Completed ${t.service || 'project'} in ${t.location}`}
+                width={600}
+                height={400}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+                className="w-full h-full object-cover rounded-2xl shadow-xl"
+              />
+              {/* Subtle gradient overlay for depth */}
+              {!isActive && (
+                <div className="absolute inset-0 bg-navy/20 rounded-2xl" />
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {/* Text content */}
       <div className="flex flex-col justify-center">
-        {/* Quote with word-by-word blur reveal */}
+        {/* Quote */}
         <div aria-live="polite" className="min-h-[120px] sm:min-h-[140px]">
-          <AnimatePresence mode="wait">
-            <m.blockquote
-              key={active}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed font-light"
-            >
-              <span className="text-safety-orange text-3xl leading-none mr-1">"</span>
-              {currentTestimonial.quote.split(' ').map((word, i) => (
-                <m.span
-                  key={`${active}-${i}`}
-                  initial={{ opacity: 0, filter: 'blur(8px)' }}
-                  animate={{ opacity: 1, filter: 'blur(0px)' }}
-                  transition={{
-                    duration: 0.3,
-                    delay: 0.1 + i * 0.035,
-                    ease: 'easeOut',
-                  }}
-                  className="inline-block mr-[0.25em]"
-                >
-                  {word}
-                </m.span>
-              ))}
-              <span className="text-safety-orange text-3xl leading-none ml-0.5">"</span>
-            </m.blockquote>
-          </AnimatePresence>
+          <blockquote
+            key={active}
+            className="fade-enter visible text-lg sm:text-xl lg:text-2xl text-white/90 leading-relaxed font-light"
+            style={{ animationDuration: '0.2s' }}
+          >
+            <span className="text-safety-orange text-3xl leading-none mr-1">"</span>
+            {currentTestimonial.quote}
+            <span className="text-safety-orange text-3xl leading-none ml-0.5">"</span>
+          </blockquote>
         </div>
 
         {/* Author info */}
-        <AnimatePresence mode="wait">
-          <m.div
-            key={active}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, delay: 0.3 }}
-            className="mt-6"
-          >
-            <p className="font-semibold text-white text-lg">{currentTestimonial.name}</p>
-            <p className="text-white/50 text-sm">
-              {currentTestimonial.location}
-              {currentTestimonial.service && (
-                <span> &middot; {currentTestimonial.service}</span>
-              )}
-            </p>
-          </m.div>
-        </AnimatePresence>
+        <div
+          key={`author-${active}`}
+          className="fade-enter visible mt-6"
+        >
+          <p className="font-semibold text-white text-lg">{currentTestimonial.name}</p>
+          <p className="text-white/50 text-sm">
+            {currentTestimonial.location}
+            {currentTestimonial.service && (
+              <span> &middot; {currentTestimonial.service}</span>
+            )}
+          </p>
+        </div>
 
         {/* Navigation */}
         <div className="flex items-center gap-3 mt-8">
@@ -181,7 +168,7 @@ export default function AnimatedTestimonials({
             {testimonials.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setActive(i)}
+                onClick={() => goTo(i)}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                   i === active
                     ? 'bg-safety-orange w-6'
