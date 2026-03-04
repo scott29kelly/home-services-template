@@ -5,7 +5,6 @@ import {
   Scripts,
   ScrollRestoration,
 } from 'react-router'
-import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion'
 import './index.css'
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -24,23 +23,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
 
-        {/* Google Fonts — async loading eliminates render-blocking resource */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="preload"
-          as="style"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
-          onLoad={(e: React.SyntheticEvent<HTMLLinkElement>) => {
-            e.currentTarget.rel = 'stylesheet'
-          }}
-        />
-        <noscript>
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
-          />
-        </noscript>
+        {/* Fonts served from same origin via @font-face in index.css — no Google Fonts external requests */}
 
         {/* Preload LCP hero image — responsive variants matched to Hero srcSet */}
         <link
@@ -99,10 +82,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
       </head>
       <body>
-        {/* LazyMotion wraps the entire app so framer-motion features are loaded once */}
-        <LazyMotion features={domAnimation} strict>
-          <MotionConfig reducedMotion="user">{children}</MotionConfig>
-        </LazyMotion>
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
