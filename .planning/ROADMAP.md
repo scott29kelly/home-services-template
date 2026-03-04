@@ -42,13 +42,13 @@
 | 11. Final Gap Closure | v1.0 | 1/1 | Complete | 2026-02-28 |
 | 12. StickyMobileCTA Fix | v1.0 | 1/1 | Complete | 2026-03-01 |
 | 13. RR7 Framework Mode Migration | 3/3 | Complete    | 2026-03-03 | — |
-| 14. Performance Validation | 2/2 | Complete   | 2026-03-03 | — |
+| 14. Performance Validation | 2/6 | Gap Closure | — | — |
 | 15. Tech Debt Cleanup | v1.1 | 0/? | Pending | — |
 
 ### v1.1 Performance & Cleanup
 
-- [x] Phase 13: RR7 Framework Mode Migration (completed 2026-03-03)
-- [x] Phase 14: Performance Validation & Optimization (completed 2026-03-03)
+- [x] Phase 13: RR7 Framework Mode Migration (completed 2026-03-03)
+- [ ] Phase 14: Performance Validation & Optimization (gap closure -- mobile 90+ target)
 - [ ] Phase 15: Tech Debt Cleanup
 
 ### Phase 13: RR7 Framework Mode Migration
@@ -70,11 +70,15 @@ Plans:
 
 **Requirements:** [PERF-05]
 
-**Plans:** 2/2 plans complete
+**Plans:** 6 plans (2 complete, 4 gap closure)
 
 Plans:
-- [ ] 14-01-PLAN.md — Baseline Lighthouse measurement + responsive hero image srcset optimization
-- [ ] 14-02-PLAN.md — Async Google Fonts loading, hero preload fix, final Lighthouse validation
+- [x] 14-01-PLAN.md — Baseline Lighthouse measurement + responsive hero image srcset optimization
+- [x] 14-02-PLAN.md — Async Google Fonts loading, hero preload fix, final Lighthouse validation
+- [ ] 14-03-PLAN.md — Self-host Google Fonts (eliminate external DNS/TCP round-trips)
+- [ ] 14-04-PLAN.md — Replace framer-motion with CSS animations in shared components
+- [ ] 14-05-PLAN.md — Replace framer-motion in page components + uninstall package
+- [ ] 14-06-PLAN.md — Final mobile Lighthouse re-validation (confirm 90+ mobile)
 
 ### Phase 15: Tech Debt Cleanup
 
@@ -85,4 +89,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-21*
-*Updated: 2026-03-03 — Phase 14 planned (2 plans in 2 waves)*
+*Updated: 2026-03-03 — Phase 14 gap closure planned (4 new plans in 3 waves)*
