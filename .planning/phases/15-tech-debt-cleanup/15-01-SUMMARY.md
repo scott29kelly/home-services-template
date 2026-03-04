@@ -107,6 +107,17 @@ None - no external service configuration required.
 - Codebase clean — no orphan files, unused exports, or no-op handlers
 - Ready for any remaining Phase 15 plans or final project wrap-up
 
+## Self-Check: PASSED
+
+- FOUND: src/config/testimonials.ts
+- FOUND: src/config/index.ts
+- CONFIRMED DELETED: src/lib/vitals.ts
+- FOUND: 15-01-SUMMARY.md
+- FOUND commit 76e96c7: chore(15-01): remove dead getTestimonialsByService export
+- FOUND commit f4ebd67: chore(15-01): delete vitals.ts and uninstall web-vitals package
+- FOUND commit 6188955: docs(15-01): complete dead code removal plan
+- FOUND commit f856cf8: docs(15-01): update SUMMARY with final metadata commit hash
+
 ---
 *Phase: 15-tech-debt-cleanup*
 *Completed: 2026-03-04*
