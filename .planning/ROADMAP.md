@@ -42,13 +42,13 @@
 | 11. Final Gap Closure | v1.0 | 1/1 | Complete | 2026-02-28 |
 | 12. StickyMobileCTA Fix | v1.0 | 1/1 | Complete | 2026-03-01 |
 | 13. RR7 Framework Mode Migration | 3/3 | Complete    | 2026-03-03 | — |
-| 14. Performance Validation | 6/6 | Complete   | 2026-03-04 | — |
+| 14. Performance Validation | 6/8 | Gap Closure | — | — |
 | 15. Tech Debt Cleanup | v1.1 | 0/? | Pending | — |
 
 ### v1.1 Performance & Cleanup
 
 - [x] Phase 13: RR7 Framework Mode Migration (completed 2026-03-03)
-- [x] Phase 14: Performance Validation & Optimization (gap closure -- mobile 90+ target) (completed 2026-03-04)
+- [ ] Phase 14: Performance Validation & Optimization (gap closure -- mobile 90+ target)
 - [ ] Phase 15: Tech Debt Cleanup
 
 ### Phase 13: RR7 Framework Mode Migration
@@ -70,15 +70,17 @@ Plans:
 
 **Requirements:** [PERF-05]
 
-**Plans:** 6/6 plans complete
+**Plans:** 8 plans (6 complete, 2 gap closure pending)
 
 Plans:
 - [x] 14-01-PLAN.md — Baseline Lighthouse measurement + responsive hero image srcset optimization
 - [x] 14-02-PLAN.md — Async Google Fonts loading, hero preload fix, final Lighthouse validation
-- [ ] 14-03-PLAN.md — Self-host Google Fonts (eliminate external DNS/TCP round-trips)
-- [ ] 14-04-PLAN.md — Replace framer-motion with CSS animations in shared components
-- [ ] 14-05-PLAN.md — Replace framer-motion in page components + uninstall package
-- [ ] 14-06-PLAN.md — Final mobile Lighthouse re-validation (confirm 90+ mobile)
+- [x] 14-03-PLAN.md — Self-host Google Fonts (eliminate external DNS/TCP round-trips)
+- [x] 14-04-PLAN.md — Replace framer-motion with CSS animations in shared components
+- [x] 14-05-PLAN.md — Replace framer-motion in page components + uninstall package
+- [x] 14-06-PLAN.md — Final mobile Lighthouse re-validation (confirm 90+ mobile)
+- [ ] 14-07-PLAN.md — Font preloads + AVIF hero images (gap closure: LCP reduction)
+- [ ] 14-08-PLAN.md — Route-level code splitting + final Lighthouse re-measurement (gap closure: TBT reduction)
 
 ### Phase 15: Tech Debt Cleanup
 
@@ -89,4 +91,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-21*
-*Updated: 2026-03-03 — Phase 14 gap closure planned (4 new plans in 3 waves)*
+*Updated: 2026-03-04 — Phase 14 gap closure round 2: plans 14-07 + 14-08 (font preloads, AVIF, code splitting)*
