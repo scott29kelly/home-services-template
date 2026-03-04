@@ -16,7 +16,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 **Phase:** 15-tech-debt-cleanup
-**Current Plan:** 01 (complete)
+**Current Plan:** Not started
 **Progress:** [██████████] 100%
 
 ---
