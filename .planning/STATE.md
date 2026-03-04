@@ -1,6 +1,6 @@
 # STATE -- Premium Home Services Template
 
-**Last Updated:** 2026-03-04T16:29Z
+**Last Updated:** 2026-03-04T17:27Z
 
 ---
 
@@ -9,15 +9,15 @@
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Config-driven customizability — rebrand by editing config files only
-**Current focus:** Phase 14 — Performance Validation & Optimization (Gap closure in progress — plan 07 complete: font preloads + AVIF hero variants; plan 08 pending Lighthouse re-validation)
+**Current focus:** Phase 14 — Performance Validation & Optimization (COMPLETE — all 8 plans executed; final mobile Performance 76-84, mobile LCP 3.74-4.87s)
 
 ---
 
 ## Current Position
 
 **Phase:** 14-performance-validation-optimization
-**Current Plan:** 07 of 8 (Complete) — Next: 08 (Lighthouse re-validation)
-**Progress:** [██████████] 97%
+**Current Plan:** 08 of 8 (Complete) — Phase 14 COMPLETE
+**Progress:** [██████████] 100%
 
 ---
 
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 **Open blockers:** None
 
 **Tech debt carried forward:**
-- Mobile Lighthouse Performance 70-74 (below 90 target) — woff2 preloads + AVIF hero variants now applied (plan 14-07); re-validation pending (plan 14-08)
+- Mobile Lighthouse Performance 76-84 (below 90 target) — all Phase 14 optimizations exhausted; architectural bottleneck is React hydration on throttled CPU; accepted as production-ready
 - Orphan API files: `api/contact.js`, `api/banner.js`
 - Unused export: `getTestimonialsByService()`
 - `vitals.ts` production handler is no-op placeholder
@@ -71,6 +71,9 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 - [Phase 14-07]: Font imports resolve via Vite deduplication: all Inter weights share same binary hash — 2 unique physical files preloaded correctly
 - [Phase 14-07]: crossOrigin='' required on font preloads even for same-origin fonts to prevent double-fetch
 - [Phase 14-07]: picture element pattern established: AVIF source primary, WebP source fallback, fetchPriority=high on inner img
+- [Phase 14-08]: React.lazy() + Suspense with fallback=null for route wrappers — pre-rendered HTML visible immediately, null fallback prevents flash during hydration, correct for SSR apps
+- [Phase 14-08]: Mobile Performance 76-84 accepted as final state for this React SPA — React hydration on 4x-throttled CPU is architectural bottleneck, not resolvable with further asset optimization; SSR required for further gains
+- [Phase 14-08]: Feature-flag routes retain synchronous Navigate guard with only page component lazy-loaded — React.lazy requires default export, Navigate check must be synchronous outside Suspense
 
 ## Performance Metrics
 
@@ -86,11 +89,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 | 14-performance-validation-optimization | 05 | 566 | 2 | 16 |
 | 14-performance-validation-optimization | 06 | 1680 | 1 | 1 |
 | 14-performance-validation-optimization | 07 | 301 | 2 | 3 |
+| 14-performance-validation-optimization | 08 | 3300 | 2 | 13 |
 
 ## Session Continuity
 
-Last session: 2026-03-04T16:29Z
-Stopped at: Completed 14-07-PLAN.md (font preloads + AVIF hero variants; picture element in Hero.tsx — ready for Lighthouse re-validation plan 14-08)
+Last session: 2026-03-04T17:27Z
+Stopped at: Completed 14-08-PLAN.md (React.lazy code splitting + final Lighthouse re-measurement; Phase 14 complete)
 Resume file: N/A
 
 ---
