@@ -42,7 +42,7 @@
 | 11. Final Gap Closure | v1.0 | 1/1 | Complete | 2026-02-28 |
 | 12. StickyMobileCTA Fix | v1.0 | 1/1 | Complete | 2026-03-01 |
 | 13. RR7 Framework Mode Migration | 3/3 | Complete    | 2026-03-03 | — |
-| 14. Performance Validation | 6/8 | Gap Closure | — | — |
+| 14. Performance Validation | 7/8 | In Progress|  | — |
 | 15. Tech Debt Cleanup | v1.1 | 0/? | Pending | — |
 
 ### v1.1 Performance & Cleanup
@@ -70,7 +70,7 @@ Plans:
 
 **Requirements:** [PERF-05]
 
-**Plans:** 8 plans (6 complete, 2 gap closure pending)
+**Plans:** 7/8 plans executed
 
 Plans:
 - [x] 14-01-PLAN.md — Baseline Lighthouse measurement + responsive hero image srcset optimization
