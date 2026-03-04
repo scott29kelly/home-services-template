@@ -1,6 +1,6 @@
 # STATE -- Premium Home Services Template
 
-**Last Updated:** 2026-03-04T17:27Z
+**Last Updated:** 2026-03-04T17:41Z
 
 ---
 
@@ -9,14 +9,14 @@
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Config-driven customizability — rebrand by editing config files only
-**Current focus:** Phase 14 — Performance Validation & Optimization (COMPLETE — all 8 plans executed; final mobile Performance 76-84, mobile LCP 3.74-4.87s)
+**Current focus:** Phase 15 — Tech Debt Cleanup (Plan 01 of 1 complete)
 
 ---
 
 ## Current Position
 
-**Phase:** 14-performance-validation-optimization
-**Current Plan:** Not started
+**Phase:** 15-tech-debt-cleanup
+**Current Plan:** 01 (complete)
 **Progress:** [██████████] 100%
 
 ---
@@ -25,6 +25,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 
 - ✅ **v1.0 Premium Template Launch** — shipped 2026-03-01 (12 phases, 20 plans, 112 commits)
 - ✅ **v2.0 Performance & Framework Mode** — Phase 13 complete (RR7 framework mode), Phase 14 complete (performance validation)
+- ✅ **Phase 15 Tech Debt Cleanup** — 2026-03-04 (dead code eliminated: getTestimonialsByService, vitals.ts, web-vitals package)
 
 ---
 
@@ -34,9 +35,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Tech debt carried forward:**
 - Mobile Lighthouse Performance 76-84 (below 90 target) — all Phase 14 optimizations exhausted; architectural bottleneck is React hydration on throttled CPU; accepted as production-ready
-- Orphan API files: `api/contact.js`, `api/banner.js`
-- Unused export: `getTestimonialsByService()`
-- `vitals.ts` production handler is no-op placeholder
+
+**Tech debt resolved (Phase 15):**
+- Orphan API files: `api/contact.js`, `api/banner.js` — confirmed never existed; api/ directory contains only Cloudflare Worker files
+- Unused export: `getTestimonialsByService()` — removed from testimonials.ts and index.ts
+- `vitals.ts` no-op handler — deleted; web-vitals package uninstalled
 
 ---
 
@@ -75,6 +78,9 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 - [Phase 14-08]: Mobile Performance 76-84 accepted as final state for this React SPA — React hydration on 4x-throttled CPU is architectural bottleneck, not resolvable with further asset optimization; SSR required for further gains
 - [Phase 14-08]: Feature-flag routes retain synchronous Navigate guard with only page component lazy-loaded — React.lazy requires default export, Navigate check must be synchronous outside Suspense
 
+- [Phase 15-01]: api/contact.js and api/banner.js confirmed never existed in this repo — api/ directory contains only Cloudflare Worker and dev server files; no action needed beyond documentation
+- [Phase 15-01]: vitals.ts had DEV-mode console logging but production path was no-op (void metric); zero consumers found; safe to delete along with web-vitals package
+
 ## Performance Metrics
 
 | Phase | Plan | Duration (s) | Tasks | Files |
@@ -90,11 +96,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 | 14-performance-validation-optimization | 06 | 1680 | 1 | 1 |
 | 14-performance-validation-optimization | 07 | 301 | 2 | 3 |
 | 14-performance-validation-optimization | 08 | 3300 | 2 | 13 |
+| 15-tech-debt-cleanup | 01 | 507 | 2 | 5 |
 
 ## Session Continuity
 
-Last session: 2026-03-04T17:27Z
-Stopped at: Completed 14-08-PLAN.md (React.lazy code splitting + final Lighthouse re-measurement; Phase 14 complete)
+Last session: 2026-03-04T17:41Z
+Stopped at: Completed 15-01-PLAN.md (dead code removal — getTestimonialsByService, vitals.ts, web-vitals package; Phase 15 complete)
 Resume file: N/A
 
 ---
