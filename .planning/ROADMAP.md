@@ -79,8 +79,8 @@ Plans:
 - [x] 14-04-PLAN.md — Replace framer-motion with CSS animations in shared components
 - [x] 14-05-PLAN.md — Replace framer-motion in page components + uninstall package
 - [x] 14-06-PLAN.md — Final mobile Lighthouse re-validation (confirm 90+ mobile)
-- [ ] 14-07-PLAN.md — Font preloads + AVIF hero images (gap closure: LCP reduction)
-- [ ] 14-08-PLAN.md — Route-level code splitting + final Lighthouse re-measurement (gap closure: TBT reduction)
+- [x] 14-07-PLAN.md — Font preloads + AVIF hero images (gap closure: LCP reduction)
+- [x] 14-08-PLAN.md — Route-level code splitting + final Lighthouse re-measurement (gap closure: TBT reduction)
 
 ### Phase 15: Tech Debt Cleanup
 
