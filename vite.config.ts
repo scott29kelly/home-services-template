@@ -127,6 +127,30 @@ function copyAndOptimizeImages(): Plugin {
                   `  ${path.join(path.dirname(relPath), variantName)}: ${(variant.byteLength / 1024).toFixed(0)}kB (${w}w variant)`
                 )
               }
+
+              // Generate AVIF variants (primary format — 30-50% smaller than WebP)
+              const avifWidths = [768, 1280]
+              for (const w of avifWidths) {
+                const baseName = path.basename(relPath, ext)
+                const avifVariantName = `${baseName}-${w}w.avif`
+                const avifVariantPath = path.join(path.dirname(destPath), avifVariantName)
+                const avifVariant = await sharp(srcBuffer)
+                  .resize(w, undefined, { withoutEnlargement: true })
+                  .avif({ quality: 65 })
+                  .toBuffer()
+                await fs.writeFile(avifVariantPath, avifVariant)
+                results.push(
+                  `  ${path.join(path.dirname(relPath), avifVariantName)}: ${(avifVariant.byteLength / 1024).toFixed(0)}kB (${w}w AVIF variant)`
+                )
+              }
+              // Full-size AVIF
+              const fullAvifName = path.basename(relPath, ext) + '.avif'
+              const fullAvifPath = path.join(path.dirname(destPath), fullAvifName)
+              const fullAvif = await sharp(srcBuffer).avif({ quality: 65 }).toBuffer()
+              await fs.writeFile(fullAvifPath, fullAvif)
+              results.push(
+                `  ${path.join(path.dirname(relPath), fullAvifName)}: ${(fullAvif.byteLength / 1024).toFixed(0)}kB (full AVIF)`
+              )
             }
           } catch {
             // Fallback: copy without optimization

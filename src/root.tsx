@@ -6,6 +6,9 @@ import {
   ScrollRestoration,
 } from 'react-router'
 import './index.css'
+import interRegularFont from './fonts/inter-v18-latin-regular.woff2?url'
+import interSemiboldFont from './fonts/inter-v18-latin-600.woff2?url'
+import jakartaExtraboldFont from './fonts/plus-jakarta-sans-v8-latin-800.woff2?url'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -24,8 +27,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
 
         {/* Fonts served from same origin via @font-face in index.css — no Google Fonts external requests */}
+        {/* Preload critical woff2 fonts — eliminates CSS-parse-then-discover delay (~200ms LCP improvement) */}
+        <link rel="preload" as="font" type="font/woff2" href={interRegularFont} crossOrigin="" />
+        <link rel="preload" as="font" type="font/woff2" href={interSemiboldFont} crossOrigin="" />
+        <link rel="preload" as="font" type="font/woff2" href={jakartaExtraboldFont} crossOrigin="" />
 
-        {/* Preload LCP hero image — responsive variants matched to Hero srcSet */}
+        {/* Preload LCP hero image — AVIF primary, WebP fallback */}
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          imageSrcSet="/images/hero-roofing-768w.avif 768w, /images/hero-roofing-1280w.avif 1280w, /images/hero-roofing.avif 1920w"
+          imageSizes="100vw"
+        />
         <link
           rel="preload"
           as="image"
