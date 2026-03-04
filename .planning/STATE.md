@@ -1,6 +1,6 @@
 # STATE -- Premium Home Services Template
 
-**Last Updated:** 2026-03-04T15:08Z
+**Last Updated:** 2026-03-04T15:22Z
 
 ---
 
@@ -9,15 +9,15 @@
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Config-driven customizability — rebrand by editing config files only
-**Current focus:** Phase 14 — Performance Validation & Optimization (In Progress — CSS animation migration complete, page components remaining)
+**Current focus:** Phase 14 — Performance Validation & Optimization (In Progress — framer-motion fully eliminated, final Lighthouse validation remaining in 14-06)
 
 ---
 
 ## Current Position
 
 **Phase:** 14-performance-validation-optimization
-**Current Plan:** 04 of 6
-**Progress:** [█████████░] 93%
+**Current Plan:** 05 of 6
+**Progress:** [██████████] 97%
 
 ---
 
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 **Open blockers:** None
 
 **Tech debt carried forward:**
-- Mobile Lighthouse Performance 68-74 (below 90 target) — font self-hosting (14-03) and shared component CSS animation migration (14-04) complete; page component JS bundle reduction needed in 14-05 for full 90+ score
+- Mobile Lighthouse Performance 68-74 (below 90 target) — font self-hosting (14-03), shared component CSS animation migration (14-04), and page/route framer-motion elimination (14-05) complete; final Lighthouse validation in 14-06
 - Orphan API files: `api/contact.js`, `api/banner.js`
 - Unused export: `getTestimonialsByService()`
 - `vitals.ts` production handler is no-op placeholder
@@ -65,6 +65,8 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 - [Phase 14-04]: AnimatedTestimonials word-by-word blur reveal replaced with simple fade — CSS per-word stagger requires JS loops, fade is functionally equivalent
 - [Phase 14-04]: FAQ accordion uses CSS grid-template-rows: 0fr/1fr pattern — smooth height animation without JS measurement
 - [Phase 14-04]: ProcessTimeline scroll-driven line uses passive scroll event listener — replaces framer useScroll/useTransform at zero JS animation cost
+- [Phase 14-05]: AnimatePresence filter replaced with in-view immediate CSS — filtered cards already on screen, instant removal acceptable for filter UX
+- [Phase 14-05]: framer-motion uninstalled after zero-import verification — 3 packages removed, ~67KB JS bundle reduction confirmed in build output
 
 ## Performance Metrics
 
@@ -77,11 +79,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 | 14-performance-validation-optimization | 02 | 933 | 2 | 2 |
 | 14-performance-validation-optimization | 03 | 262 | 2 | 9 |
 | 14-performance-validation-optimization | 04 | 422 | 2 | 16 |
+| 14-performance-validation-optimization | 05 | 566 | 2 | 16 |
 
 ## Session Continuity
 
 Last session: 2026-03-04
-Stopped at: Completed 14-04-PLAN.md (framer-motion to CSS animation migration in shared components)
+Stopped at: Completed 14-05-PLAN.md (framer-motion removal from all page/route files + package uninstall)
 Resume file: N/A
 
 ---
