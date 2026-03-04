@@ -1,6 +1,5 @@
 import type { Route } from './+types/service-page'
 import { redirect } from 'react-router'
-import { m } from 'framer-motion'
 import { Shield, CheckCircle } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
@@ -85,12 +84,10 @@ function CardGrid({ section }: { section: CardGridSection }) {
 
         <div className={`grid grid-cols-1 ${cols} gap-6`}>
           {section.cards.map((card, i) => (
-            <m.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
-              className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300"
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} bg-white rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300`}
+              style={{ transitionDelay: `${0.2 + i * 0.1}s` }}
             >
               <img
                 src={card.image}
@@ -113,7 +110,7 @@ function CardGrid({ section }: { section: CardGridSection }) {
                   ))}
                 </ul>
               </div>
-            </m.div>
+            </div>
           ))}
         </div>
       </div>
@@ -147,12 +144,10 @@ function IconGrid({ section }: { section: IconGridSection }) {
           {section.cards.map((card, i) => {
             const Icon = getIcon(card.icon)
             return (
-              <m.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
-                className="text-center bg-white rounded-2xl border border-border p-6"
+                className={`scroll-reveal ${isInView ? 'in-view' : ''} text-center bg-white rounded-2xl border border-border p-6`}
+                style={{ transitionDelay: `${0.2 + i * 0.1}s` }}
               >
                 <div
                   className={`w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center ${
@@ -165,7 +160,7 @@ function IconGrid({ section }: { section: IconGridSection }) {
                 </div>
                 <h4 className="font-bold text-navy mb-1">{card.title}</h4>
                 <p className="text-sm text-text-secondary">{card.description}</p>
-              </m.div>
+              </div>
             )
           })}
         </div>
@@ -191,12 +186,10 @@ function MaterialGrid({ section }: { section: MaterialGridSection }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {section.cards.map((mat, i) => (
-            <m.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 + i * 0.1 }}
-              className="bg-white rounded-2xl border border-border p-6"
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} bg-white rounded-2xl border border-border p-6`}
+              style={{ transitionDelay: `${0.2 + i * 0.1}s` }}
             >
               <h3 className="text-lg font-bold text-navy mb-2">{mat.title}</h3>
               <p className="text-text-secondary text-sm mb-4">{mat.description}</p>
@@ -207,7 +200,7 @@ function MaterialGrid({ section }: { section: MaterialGridSection }) {
                   </li>
                 ))}
               </ul>
-            </m.div>
+            </div>
           ))}
         </div>
       </div>
@@ -232,19 +225,17 @@ function StyleGallery({ section }: { section: StyleGallerySection }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {section.cards.map((style, i) => (
-            <m.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 + i * 0.05 }}
-              className="bg-white rounded-2xl border border-border overflow-hidden text-center hover:shadow-lg transition-shadow duration-300"
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} bg-white rounded-2xl border border-border overflow-hidden text-center hover:shadow-lg transition-shadow duration-300`}
+              style={{ transitionDelay: `${0.2 + i * 0.05}s` }}
             >
               <img src={style.image} alt={style.title} width={800} height={384} loading="lazy" decoding="async" className="w-full h-48 object-cover" />
               <div className="p-5">
                 <h4 className="font-bold text-navy mb-1">{style.title}</h4>
                 <p className="text-sm text-text-secondary">{style.description}</p>
               </div>
-            </m.div>
+            </div>
           ))}
         </div>
       </div>
@@ -261,10 +252,8 @@ function TrustSectionRenderer({ section }: { section: TrustSection }) {
     <section className={`py-20 lg:py-28 ${bg}`} ref={ref}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-          <m.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6 }}
+          <div
+            className={`scroll-reveal ${isInView ? 'in-view' : ''}`}
           >
             <h2 className="text-3xl sm:text-4xl font-extrabold text-navy mb-4">
               {section.title}
@@ -286,13 +275,11 @@ function TrustSectionRenderer({ section }: { section: TrustSection }) {
             <Button variant="primary" href={section.ctaHref}>
               {section.ctaText}
             </Button>
-          </m.div>
+          </div>
 
-          <m.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-surface rounded-2xl border border-border p-6 lg:p-8"
+          <div
+            className={`scroll-reveal ${isInView ? 'in-view' : ''} bg-surface rounded-2xl border border-border p-6 lg:p-8`}
+            style={{ transitionDelay: '0.2s' }}
           >
             <div className="flex items-center gap-3 mb-4">
               <SidebarIcon className="w-6 h-6 text-safety-orange" />
@@ -313,7 +300,7 @@ function TrustSectionRenderer({ section }: { section: TrustSection }) {
                 <strong>Important:</strong> {section.sidebar.footnote}
               </p>
             )}
-          </m.div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,7 +1,6 @@
 import type { Route } from './+types/service-areas.$slug'
 import { redirect, Link } from 'react-router'
 import { useState } from 'react'
-import { m } from 'framer-motion'
 import { MapPin, Phone, ArrowRight, Star, ChevronDown, ChevronUp } from 'lucide-react'
 import PageMeta from '../components/ui/PageMeta'
 import JsonLd from '../components/seo/JsonLd'
@@ -32,11 +31,9 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
   const [open, setOpen] = useState(false)
 
   return (
-    <m.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 + index * 0.05 }}
-      className="border border-border rounded-xl overflow-hidden"
+    <div
+      className="scroll-reveal in-view border border-border rounded-xl overflow-hidden"
+      style={{ transitionDelay: `${0.1 + index * 0.05}s` }}
     >
       <button
         onClick={() => setOpen(!open)}
@@ -55,7 +52,7 @@ function FaqItem({ question, answer, index }: { question: string; answer: string
           <p className="text-text-secondary text-sm leading-relaxed">{answer}</p>
         </div>
       )}
-    </m.div>
+    </div>
   )
 }
 
@@ -113,11 +110,10 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
             {services.map((service, i) => {
               const Icon = getIcon(service.icon)
               return (
-                <m.div
+                <div
                   key={service.slug}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={servicesInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
+                  className={`scroll-reveal ${servicesInView ? 'in-view' : ''}`}
+                  style={{ transitionDelay: `${0.1 + i * 0.08}s` }}
                 >
                   <Link
                     to={`/${service.slug}`}
@@ -137,7 +133,7 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </Link>
-                </m.div>
+                </div>
               )
             })}
           </div>
@@ -156,12 +152,10 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {cityTestimonials.map((t, i) => (
-                <m.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
-                  className="bg-white rounded-2xl border border-border p-6"
+                  className={`scroll-reveal ${testimonialsInView ? 'in-view' : ''} bg-white rounded-2xl border border-border p-6`}
+                  style={{ transitionDelay: `${0.1 + i * 0.1}s` }}
                 >
                   {/* Stars */}
                   <div className="flex gap-0.5 mb-3">
@@ -193,7 +187,7 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
                       </p>
                     </div>
                   </div>
-                </m.div>
+                </div>
               ))}
             </div>
           </div>
@@ -210,11 +204,8 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
               className="mb-10"
             />
 
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={faqInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.4 }}
-              className="space-y-3"
+            <div
+              className={`scroll-reveal ${faqInView ? 'in-view' : ''} space-y-3`}
             >
               {city.faqs.map((faq, i) => (
                 <FaqItem
@@ -224,7 +215,7 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
                   index={i}
                 />
               ))}
-            </m.div>
+            </div>
           </div>
         </section>
       )}
@@ -239,11 +230,8 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
               className="mb-8"
             />
 
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={nearbyInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5 }}
-              className="flex flex-wrap gap-2 justify-center"
+            <div
+              className={`scroll-reveal ${nearbyInView ? 'in-view' : ''} flex flex-wrap gap-2 justify-center`}
             >
               {city.nearby.map((nearbySlug) => {
                 const nearbyCity = cityPages.find(c => c.slug === nearbySlug)
@@ -262,14 +250,12 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
                   </Link>
                 )
               })}
-            </m.div>
+            </div>
 
             {/* Phone CTA */}
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={nearbyInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-8 text-center"
+            <div
+              className={`scroll-reveal ${nearbyInView ? 'in-view' : ''} mt-8 text-center`}
+              style={{ transitionDelay: '0.2s' }}
             >
               <p className="text-text-secondary text-sm mb-3">
                 Don&apos;t see your city? We likely serve your area — give us a call.
@@ -281,7 +267,7 @@ export default function CityPageRoute({ loaderData }: Route.ComponentProps) {
                 <Phone className="w-4 h-4" />
                 {company.phone}
               </a>
-            </m.div>
+            </div>
           </div>
         </section>
       )}
