@@ -1,6 +1,6 @@
 # STATE -- Premium Home Services Template
 
-**Last Updated:** 2026-03-03T23:53Z
+**Last Updated:** 2026-03-04T10:05Z
 
 ---
 
@@ -9,15 +9,15 @@
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Config-driven customizability — rebrand by editing config files only
-**Current focus:** Phase 14 — Performance Validation & Optimization (COMPLETE)
+**Current focus:** Phase 14 — Performance Validation & Optimization (In Progress — font self-hosting complete)
 
 ---
 
 ## Current Position
 
 **Phase:** 14-performance-validation-optimization
-**Current Plan:** Complete (2/2 plans done)
-**Progress:** [██████████] 100%
+**Current Plan:** 03 of 6
+**Progress:** [█████████░] 90%
 
 ---
 
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 **Open blockers:** None
 
 **Tech debt carried forward:**
-- Mobile Lighthouse Performance 68-74 (below 90 target) — architectural blocker: requires font self-hosting + JS bundle reduction (deferred from Phase 14)
+- Mobile Lighthouse Performance 68-74 (below 90 target) — font self-hosting now complete (14-03); JS bundle reduction still needed for full 90+ score
 - Orphan API files: `api/contact.js`, `api/banner.js`
 - Unused export: `getTestimonialsByService()`
 - `vitals.ts` production handler is no-op placeholder
@@ -60,6 +60,8 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 - **14-02:** Hero preload updated with imageSrcSet/imageSizes matching Hero.tsx srcset variants (768w, 1280w, 1920w)
 
 ---
+- [Phase 14-03]: Vite deduplicates identical woff2 binaries — all Inter weights share same file hash, same for Plus Jakarta Sans; all 7 @font-face declarations still correct in CSS
+- [Phase 14-03]: Self-hosted fonts pattern: download woff2 to src/fonts/, @font-face in index.css with font-display:swap and latin unicode-range — eliminates 2 external origin round-trips
 
 ## Performance Metrics
 
@@ -70,11 +72,12 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 | 13-rr7-framework-mode-migration | 03 | 253 | 2 | 8 |
 | 14-performance-validation-optimization | 01 | 1620 | 2 | 3 |
 | 14-performance-validation-optimization | 02 | 933 | 2 | 2 |
+| 14-performance-validation-optimization | 03 | 262 | 2 | 9 |
 
 ## Session Continuity
 
-Last session: 2026-03-03
-Stopped at: Completed 14-02-PLAN.md (async fonts + final Lighthouse validation)
+Last session: 2026-03-04
+Stopped at: Completed 14-03-PLAN.md (self-hosted fonts — Inter + Plus Jakarta Sans woff2)
 Resume file: N/A
 
 ---
