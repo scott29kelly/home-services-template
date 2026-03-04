@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { m } from 'framer-motion'
 import { Phone, Mail, MapPin, Clock } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
@@ -89,11 +88,8 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
             {/* Form area with optional tab UI */}
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-3"
+            <div
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} lg:col-span-3`}
             >
               {showTabs ? (
                 <>
@@ -146,14 +142,12 @@ export default function Contact() {
               ) : (
                 <ContactForm />
               )}
-            </m.div>
+            </div>
 
             {/* Contact Info Sidebar */}
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="lg:col-span-2 space-y-6"
+            <div
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} lg:col-span-2 space-y-6`}
+              style={{ transitionDelay: '0.2s' }}
             >
               <div className="bg-surface rounded-2xl border border-border p-6">
                 <h3 className="font-bold text-navy mb-4">Contact Information</h3>
@@ -208,7 +202,7 @@ export default function Contact() {
                   </li>
                 </ul>
               </div>
-            </m.div>
+            </div>
           </div>
         </div>
       </section>

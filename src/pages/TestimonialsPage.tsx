@@ -1,4 +1,3 @@
-import { m } from 'framer-motion'
 import { Star } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
@@ -31,17 +30,15 @@ export default function TestimonialsPage() {
             {testimonials.ratingBadges.map((badge, i) => {
               const Icon = getIcon(badge.icon)
               return (
-                <m.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={badgeInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="text-center"
+                  className={`scroll-reveal ${badgeInView ? 'in-view' : ''} text-center`}
+                  style={{ transitionDelay: `${i * 0.1}s` }}
                 >
                   <Icon className="w-8 h-8 text-brand-blue mx-auto mb-2" />
                   <p className="font-bold text-navy text-sm">{badge.label}</p>
                   <p className="text-xs text-text-secondary">{badge.sublabel}</p>
-                </m.div>
+                </div>
               )
             })}
           </div>
@@ -53,12 +50,10 @@ export default function TestimonialsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {testimonials.all.map((t, i) => (
-              <m.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={gridInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.1 + i * 0.05 }}
-                className="bg-white rounded-2xl border border-border p-6"
+                className={`scroll-reveal ${gridInView ? 'in-view' : ''} bg-white rounded-2xl border border-border p-6`}
+                style={{ transitionDelay: `${0.1 + i * 0.05}s` }}
               >
                 <div className="flex items-center gap-4 mb-4">
                   <img
@@ -83,7 +78,7 @@ export default function TestimonialsPage() {
                   ))}
                 </div>
                 <p className="text-text-secondary text-sm leading-relaxed">"{t.quote}"</p>
-              </m.div>
+              </div>
             ))}
           </div>
         </div>
@@ -119,12 +114,10 @@ export default function TestimonialsPage() {
                 text: 'Fast, reliable, and honest pricing. We are so happy with our new siding. Will use again.',
               },
             ].map((review, i) => (
-              <m.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 16 }}
-                animate={googleInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
-                className="bg-white rounded-2xl border border-border p-5 flex gap-4"
+                className={`scroll-reveal ${googleInView ? 'in-view' : ''} bg-white rounded-2xl border border-border p-5 flex gap-4`}
+                style={{ transitionDelay: `${0.1 + i * 0.1}s` }}
               >
                 {/* Avatar placeholder */}
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center">
@@ -144,7 +137,7 @@ export default function TestimonialsPage() {
                   {/* Google G badge */}
                   <p className="mt-2 text-xs text-text-secondary/60 font-medium">Google Review</p>
                 </div>
-              </m.div>
+              </div>
             ))}
           </div>
 

@@ -1,4 +1,3 @@
-import { m } from 'framer-motion'
 import { Shield, Trophy, Award } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Hero from '../components/sections/Hero'
@@ -43,11 +42,10 @@ export default function Services() {
             {services.map((service, i) => {
               const Icon = getIcon(service.icon)
               return (
-                <m.div
+                <div
                   key={service.slug}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: 0.1 + i * 0.1 }}
+                  className={`scroll-reveal ${isInView ? 'in-view' : ''}`}
+                  style={{ transitionDelay: `${0.1 + i * 0.1}s` }}
                 >
                   <Link
                     to={`/${service.slug}`}
@@ -78,7 +76,7 @@ export default function Services() {
                       </span>
                     </div>
                   </Link>
-                </m.div>
+                </div>
               )
             })}
           </div>
@@ -89,10 +87,8 @@ export default function Services() {
       <section className="py-20 lg:py-28 bg-surface" ref={whyRef}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <m.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={whyInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.6 }}
+            <div
+              className={`scroll-reveal ${whyInView ? 'in-view' : ''}`}
             >
               <h2 className="text-3xl sm:text-4xl font-extrabold text-navy mb-6">
                 Why Choose Us?
@@ -105,13 +101,11 @@ export default function Services() {
                   </li>
                 ))}
               </ul>
-            </m.div>
+            </div>
 
-            <m.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={whyInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="grid grid-cols-1 gap-4"
+            <div
+              className={`scroll-reveal ${whyInView ? 'in-view' : ''} grid grid-cols-1 gap-4`}
+              style={{ transitionDelay: '0.2s' }}
             >
               {certs.map((cert, i) => (
                 <div
@@ -122,7 +116,7 @@ export default function Services() {
                   <p className="font-semibold text-navy text-sm">{cert.title}</p>
                 </div>
               ))}
-            </m.div>
+            </div>
           </div>
         </div>
       </section>

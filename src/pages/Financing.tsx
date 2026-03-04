@@ -1,4 +1,3 @@
-import { m } from 'framer-motion'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
 import SectionHeading from '../components/ui/SectionHeading'
@@ -48,11 +47,9 @@ export default function Financing() {
             theme="dark"
             className="mb-8"
           />
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={ctaInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+          <div
+            className={`scroll-reveal ${ctaInView ? 'in-view' : ''} flex flex-col sm:flex-row gap-4 justify-center`}
+            style={{ transitionDelay: '0.2s' }}
           >
             <Button variant="primary" size="lg" href="/contact">
               Get a Free Quote
@@ -65,7 +62,7 @@ export default function Financing() {
             >
               Call {SITE.phone}
             </Button>
-          </m.div>
+          </div>
         </div>
       </section>
     </>

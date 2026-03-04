@@ -1,4 +1,3 @@
-import { m } from 'framer-motion'
 import { Building, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Hero from '../components/sections/Hero'
@@ -31,11 +30,8 @@ export default function ServiceAreas() {
       {/* Office */}
       <section className="py-10 border-b border-border" ref={ref}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="flex items-start gap-4 bg-surface rounded-xl border border-border p-5 max-w-md mx-auto"
+          <div
+            className={`scroll-reveal ${isInView ? 'in-view' : ''} flex items-start gap-4 bg-surface rounded-xl border border-border p-5 max-w-md mx-auto`}
           >
             <Building className="w-6 h-6 text-brand-blue shrink-0 mt-0.5" />
             <div>
@@ -46,7 +42,7 @@ export default function ServiceAreas() {
                 {SITE.hours.weekday}, {SITE.hours.saturday}
               </div>
             </div>
-          </m.div>
+          </div>
         </div>
       </section>
 
@@ -57,12 +53,10 @@ export default function ServiceAreas() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {SITE.serviceArea.states.map((state, i) => (
-              <m.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={statesInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.05 }}
-                className="bg-white rounded-2xl border border-border p-6"
+                className={`scroll-reveal ${statesInView ? 'in-view' : ''} bg-white rounded-2xl border border-border p-6`}
+                style={{ transitionDelay: `${0.1 + i * 0.05}s` }}
               >
                 <div className="flex items-center gap-2 mb-4">
                   <h3 className="text-lg font-bold text-navy">{state.name}</h3>
@@ -95,7 +89,7 @@ export default function ServiceAreas() {
                     )
                   })}
                 </div>
-              </m.div>
+              </div>
             ))}
           </div>
         </div>
@@ -112,10 +106,9 @@ export default function ServiceAreas() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Texas */}
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={allCitiesInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.1 }}
+            <div
+              className={`scroll-reveal ${allCitiesInView ? 'in-view' : ''}`}
+              style={{ transitionDelay: '0.1s' }}
             >
               <h3 className="text-lg font-bold text-navy mb-4 flex items-center gap-2">
                 Texas
@@ -123,11 +116,10 @@ export default function ServiceAreas() {
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {texasCities.map((city, i) => (
-                  <m.div
+                  <div
                     key={city.slug}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={allCitiesInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.4, delay: 0.15 + i * 0.04 }}
+                    className={`scroll-reveal ${allCitiesInView ? 'in-view' : ''}`}
+                    style={{ transitionDelay: `${0.15 + i * 0.04}s` }}
                   >
                     <Link
                       to={`/service-areas/${city.slug}`}
@@ -145,25 +137,23 @@ export default function ServiceAreas() {
                         </p>
                       </div>
                     </Link>
-                  </m.div>
+                  </div>
                 ))}
               </div>
-            </m.div>
+            </div>
 
             {/* Oklahoma */}
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={allCitiesInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.2 }}
+            <div
+              className={`scroll-reveal ${allCitiesInView ? 'in-view' : ''}`}
+              style={{ transitionDelay: '0.2s' }}
             >
               <h3 className="text-lg font-bold text-navy mb-4">Oklahoma</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {oklahomaCities.map((city, i) => (
-                  <m.div
+                  <div
                     key={city.slug}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={allCitiesInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.4, delay: 0.15 + i * 0.04 }}
+                    className={`scroll-reveal ${allCitiesInView ? 'in-view' : ''}`}
+                    style={{ transitionDelay: `${0.15 + i * 0.04}s` }}
                   >
                     <Link
                       to={`/service-areas/${city.slug}`}
@@ -178,10 +168,10 @@ export default function ServiceAreas() {
                         </p>
                       </div>
                     </Link>
-                  </m.div>
+                  </div>
                 ))}
               </div>
-            </m.div>
+            </div>
           </div>
         </div>
       </section>

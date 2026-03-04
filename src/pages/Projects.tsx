@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { m, AnimatePresence } from 'framer-motion'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
 import SectionHeading from '../components/ui/SectionHeading'
@@ -14,7 +13,7 @@ type Category = 'all' | 'roofing' | 'siding' | 'storm'
 
 export default function Projects() {
   const [activeFilter, setActiveFilter] = useState<Category>('all')
-  const { ref, isInView } = useScrollReveal()
+  const { ref, isInView: _isInView } = useScrollReveal()
   const { ref: baRef, isInView: baInView } = useScrollReveal()
 
   const filtered = activeFilter === 'all' ? projects.items : projects.items.filter((p) => p.category === activeFilter)
@@ -52,42 +51,38 @@ export default function Projects() {
 
           {/* Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((project) => (
-                <m.div
-                  key={project.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
+            {filtered.map((project, i) => (
+              <div
+                key={project.id}
+                className="scroll-reveal in-view"
+                style={{ transitionDelay: `${i * 0.05}s` }}
+              >
+                <Link
+                  to={`/portfolio/${project.slug}`}
+                  className="group block bg-white rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
                 >
-                  <Link
-                    to={`/portfolio/${project.slug}`}
-                    className="group block bg-white rounded-2xl border border-border overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-                  >
-                    <div className="relative overflow-hidden">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        width={800}
-                        height={600}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <span className="absolute top-3 right-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-navy capitalize">
-                        {project.category}
-                      </span>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="font-bold text-navy mb-1 group-hover:text-brand-blue transition-colors">{project.title}</h3>
-                      <p className="text-sm text-text-secondary">{project.location}</p>
-                      <p className="text-xs text-brand-blue font-medium mt-1">{project.detail}</p>
-                    </div>
-                  </Link>
-                </m.div>
-              ))}
-            </AnimatePresence>
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      width={800}
+                      height={600}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span className="absolute top-3 right-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-navy capitalize">
+                      {project.category}
+                    </span>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="font-bold text-navy mb-1 group-hover:text-brand-blue transition-colors">{project.title}</h3>
+                    <p className="text-sm text-text-secondary">{project.location}</p>
+                    <p className="text-xs text-brand-blue font-medium mt-1">{project.detail}</p>
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -104,12 +99,10 @@ export default function Projects() {
 
             <div className="space-y-10">
               {projects.beforeAfter.map((item, i) => (
-                <m.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={baInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: 0.1 + i * 0.15 }}
-                  className="bg-white rounded-2xl border border-border overflow-hidden"
+                  className={`scroll-reveal ${baInView ? 'in-view' : ''} bg-white rounded-2xl border border-border overflow-hidden`}
+                  style={{ transitionDelay: `${0.1 + i * 0.15}s` }}
                 >
                   <BeforeAfterSlider
                     beforeImage={item.before}
@@ -122,7 +115,7 @@ export default function Projects() {
                       {item.location} &mdash; {item.description}
                     </p>
                   </div>
-                </m.div>
+                </div>
               ))}
             </div>
           </div>

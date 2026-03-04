@@ -1,6 +1,5 @@
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
-import { m } from 'framer-motion'
 import { ArrowLeft, MapPin, Tag } from 'lucide-react'
 import PageMeta from '../components/ui/PageMeta'
 import Hero from '../components/sections/Hero'
@@ -56,11 +55,7 @@ export default function ProjectDetail() {
       {/* Project Details */}
       <section className="py-20 lg:py-28" ref={ref}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-          >
+          <div className={`scroll-reveal ${isInView ? 'in-view' : ''}`}>
             {/* Back link */}
             <Link
               to="/projects"
@@ -98,14 +93,12 @@ export default function ProjectDetail() {
                 </p>
               )}
             </div>
-          </m.div>
+          </div>
 
           {/* Main image */}
-          <m.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            className="rounded-2xl overflow-hidden border border-border mb-12"
+          <div
+            className={`scroll-reveal ${isInView ? 'in-view' : ''} rounded-2xl overflow-hidden border border-border mb-12`}
+            style={{ transitionDelay: '0.15s' }}
           >
             <img
               src={project.image}
@@ -116,15 +109,13 @@ export default function ProjectDetail() {
               decoding="async"
               className="w-full h-64 sm:h-80 lg:h-[500px] object-cover"
             />
-          </m.div>
+          </div>
 
           {/* Before & After */}
           {project.beforeImage && project.afterImage && (
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="mb-12"
+            <div
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} mb-12`}
+              style={{ transitionDelay: '0.3s' }}
             >
               <SectionHeading
                 title="Before & After"
@@ -139,7 +130,7 @@ export default function ProjectDetail() {
                   className="h-64 sm:h-80 lg:h-[450px] rounded-none"
                 />
               </div>
-            </m.div>
+            </div>
           )}
         </div>
       </section>
@@ -155,11 +146,10 @@ export default function ProjectDetail() {
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedProjects.map((related, i) => (
-                <m.div
+                <div
                   key={related.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={relInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className={`scroll-reveal ${relInView ? 'in-view' : ''}`}
+                  style={{ transitionDelay: `${i * 0.1}s` }}
                 >
                   <Link
                     to={`/portfolio/${related.slug}`}
@@ -187,7 +177,7 @@ export default function ProjectDetail() {
                       <p className="text-xs text-brand-blue font-medium mt-1">{related.detail}</p>
                     </div>
                   </Link>
-                </m.div>
+                </div>
               ))}
             </div>
           </div>

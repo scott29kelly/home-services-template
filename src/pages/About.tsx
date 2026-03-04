@@ -1,4 +1,3 @@
-import { m } from 'framer-motion'
 import { Shield } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import CTA from '../components/sections/CTA'
@@ -33,19 +32,17 @@ export default function About() {
             {team.values.map((v, i) => {
               const Icon = getIcon(v.icon)
               return (
-                <m.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={valuesInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: 0.1 + i * 0.05 }}
-                  className="bg-white rounded-2xl border border-border p-6 text-center"
+                  className={`scroll-reveal ${valuesInView ? 'in-view' : ''} bg-white rounded-2xl border border-border p-6 text-center`}
+                  style={{ transitionDelay: `${0.1 + i * 0.05}s` }}
                 >
                   <div className="w-14 h-14 mx-auto mb-4 bg-brand-blue/10 rounded-xl flex items-center justify-center">
                     <Icon className="w-7 h-7 text-brand-blue" />
                   </div>
                   <h3 className="text-lg font-bold text-navy mb-1">{v.title}</h3>
                   <p className="text-sm text-text-secondary">{v.description}</p>
-                </m.div>
+                </div>
               )
             })}
           </div>
@@ -63,12 +60,10 @@ export default function About() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
             {team.members.map((member, i) => (
-              <m.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={teamInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.2 + i * 0.05 }}
-                className="text-center"
+                className={`scroll-reveal ${teamInView ? 'in-view' : ''} text-center`}
+                style={{ transitionDelay: `${0.2 + i * 0.05}s` }}
               >
                 <img
                   src={member.image}
@@ -81,7 +76,7 @@ export default function About() {
                 />
                 <h4 className="font-bold text-navy text-sm">{member.name}</h4>
                 <p className="text-xs text-text-secondary">{member.title}</p>
-              </m.div>
+              </div>
             ))}
           </div>
         </div>
@@ -94,16 +89,14 @@ export default function About() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {team.certifications.map((cert, i) => (
-              <m.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={certsInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: 0.1 + i * 0.05 }}
-                className="bg-surface rounded-xl border border-border p-4 text-center"
+                className={`scroll-reveal ${certsInView ? 'in-view' : ''} bg-surface rounded-xl border border-border p-4 text-center`}
+                style={{ transitionDelay: `${0.1 + i * 0.05}s` }}
               >
                 <Shield className="w-6 h-6 text-brand-blue mx-auto mb-2" />
                 <p className="text-sm font-medium text-navy">{cert}</p>
-              </m.div>
+              </div>
             ))}
           </div>
         </div>
