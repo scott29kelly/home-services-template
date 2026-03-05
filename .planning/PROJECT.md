@@ -61,7 +61,15 @@ This template fills the gap: premium, pre-built, purpose-built for home services
 
 ### Active
 
-(None — define next milestone with `/gsd:new-milestone`)
+#### Current Milestone: v1.2 — Feature Expansion
+
+**Goal:** Add high-value lead generation and user experience features — multi-step quote wizard, project cost estimator, Google Maps on city pages, and photo upload.
+
+**Target features:**
+- Multi-step quote wizard (`/get-quote`) — Service → Details → Photos → Contact
+- Project cost estimator — service-based cost ranges merged with financing calculator
+- Google Maps embed — interactive map on city pages, API key in config
+- Photo upload — integrated into quote wizard (step 3)
 
 ### Out of Scope
 
@@ -127,7 +135,8 @@ Shipped v1.1 with 11,965 LOC TypeScript/TSX. 56+ pre-rendered HTML routes.
 
 - ✅ **v1.0 Premium Template Launch** — shipped 2026-03-01
 - ✅ **v1.1 Performance & Cleanup** — shipped 2026-03-05
+- 🔨 **v1.2 Feature Expansion** — in progress
 
 ---
 
-*Last updated: 2026-03-05 after v1.1 milestone*
+*Last updated: 2026-03-05 after v1.2 milestone start*

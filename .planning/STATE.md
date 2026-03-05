@@ -9,15 +9,16 @@
 See: .planning/PROJECT.md (updated 2026-03-05)
 
 **Core value:** Config-driven customizability — rebrand by editing config files only
-**Current focus:** Planning next milestone
+**Current focus:** Milestone v1.2 — Feature Expansion
 
 ---
 
 ## Current Position
 
-**Phase:** None — between milestones
-**Current Plan:** N/A
-**Progress:** N/A
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-05 — Milestone v1.2 started
 
 ---
 
@@ -41,7 +42,7 @@ See: .planning/PROJECT.md (updated 2026-03-05)
 
 ## Decisions
 
-(Archived to `.planning/milestones/v1.1-ROADMAP.md` — see phase summaries for full decision log)
+(New milestone — decisions will be logged as phases execute)
 
 ---
 
