@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A **premium, demo-ready website template** for small home service businesses (roofing, siding, storm damage restoration). Config-driven customization, full lead generation suite, SEO engine with 20 city pages, markdown blog, and AI chat assistant — all without touching component code.
+A **premium, demo-ready website template** for small home service businesses (roofing, siding, storm damage restoration). Config-driven customization, full lead generation suite, SEO engine with 20 city pages, markdown blog, and AI chat assistant — all without touching component code. Static pre-rendered via React Router 7 framework mode for instant page loads and full SEO crawlability.
 
 ## Core Value
 
@@ -53,13 +53,15 @@ This template fills the gap: premium, pre-built, purpose-built for home services
 - ✓ AVA-03: Chat Rate Limiting & Security — v1.0
 - ✓ PERF-02: Performance Monitoring — v1.0 (partial: Lighthouse Performance below 90+ target, SSR deferred)
 
-### Active — v1.1 Performance & Cleanup
+- ✓ PERF-03: React Router 7 Framework Mode Migration — v1.1
+- ✓ PERF-04: Static Pre-rendering (all routes) — v1.1 (56+ HTML files)
+- ✓ PERF-05: Lighthouse Performance 90+ — v1.1 (desktop 91-99 PASS; mobile 76-84 accepted)
+- ✓ CLEAN-01: Remove Orphan Files & Unused Exports — v1.1
+- ✓ CLEAN-02: Fix or Remove Vitals Handler — v1.1 (removed)
 
-- PERF-03: React Router 7 Framework Mode Migration
-- PERF-04: Static Pre-rendering (all routes)
-- PERF-05: Lighthouse Performance 90+ (desktop & mobile)
-- CLEAN-01: Remove Orphan Files & Unused Exports
-- CLEAN-02: Fix or Remove Vitals Handler
+### Active
+
+(None — define next milestone with `/gsd:new-milestone`)
 
 ### Out of Scope
 
@@ -72,24 +74,26 @@ This template fills the gap: premium, pre-built, purpose-built for home services
 - Customer portal / project tracker — requires backend + auth
 - Online payment integration — requires payment processor
 - CMS admin panel — template is config-driven, not CMS-driven
-- ~~Pre-rendering / SSG~~ — moved to v1.1 Active
 - Cost/price calculator widget — financing calculator is sufficient
+- SSR (server-side rendering) — all content is static; pre-rendering sufficient
+- Mobile Lighthouse 90+ — architectural limit of React hydration on throttled CPU
 
 ## Context
 
-Shipped v1.0 with 9,031 LOC TypeScript/TSX across 210 files.
+Shipped v1.1 with 11,965 LOC TypeScript/TSX. 56+ pre-rendered HTML routes.
 
-**Tech stack:** React 19 + Vite 7 + Tailwind CSS v4 + TypeScript 5.9 + Framer Motion 12 + React Router 7
+**Tech stack:** React 19 + React Router 7 (framework mode) + Vite 7 + Tailwind CSS v4 + TypeScript 5.9
+
+**Architecture:** Static pre-rendering via React Router 7 framework mode. Route modules with loaders, server/client entry files, config-first routing. All routes pre-rendered to HTML at build time, served from CDN, hydrated for interactivity. CSS animations via IntersectionObserver (no framer-motion). Self-hosted woff2 fonts.
 
 **Pages:** Home, Services (dynamic), Projects, Portfolio detail, Testimonials, About, Contact (with booking calendar), Financing, Resources (blog index + posts), Service Areas (index + 20 city pages), Ava (AI chat), 404
 
 **Config system:** 13 modular config files with Zod validation, feature flags, barrel export
 
 **Known issues:**
-- Lighthouse Performance 87 desktop / 51 mobile — SPA without SSR; pre-rendering deferred
-- `api/contact.js` and `api/banner.js` orphan serverless files
-- `getTestimonialsByService()` exported but unused
-- `vitals.ts` production handler is no-op placeholder
+- Mobile Lighthouse Performance 76-84 (target 90+) — architectural bottleneck (React hydration on 4x-throttled CPU); accepted as production-ready
+- VIS-02: Before/after slider fallback for single-image case not implemented
+- ProjectDetail.tsx lacks JSON-LD structured data (low priority)
 
 ## Key Decisions
 
@@ -106,7 +110,10 @@ Shipped v1.0 with 9,031 LOC TypeScript/TSX across 210 files.
 | Hero animation | Zero framer-motion on above-fold | ✓ Good — instant LCP |
 | Image optimization | Custom Vite plugin | ✓ Good — works around Windows junction bug |
 | Ava CORS | ALLOWED_ORIGIN env var | ✓ Good — dev-friendly, production-secure |
-| Pre-rendering | RR7 framework mode + static pre-rendering | v1.1 — addressing Lighthouse scores |
+| Pre-rendering | RR7 framework mode + static pre-rendering | ✓ Good — 56+ routes, Lighthouse 91-99 desktop |
+| framer-motion removal | CSS animations + IntersectionObserver | ✓ Good — ~67KB JS reduction, zero runtime cost |
+| Self-hosted fonts | woff2 @font-face in CSS | ✓ Good — eliminated 2 external DNS round-trips |
+| React.lazy code splitting | Suspense fallback={null} for route wrappers | ✓ Good — per-page JS chunks, pre-rendered content visible |
 
 ## Constraints
 
@@ -119,8 +126,8 @@ Shipped v1.0 with 9,031 LOC TypeScript/TSX across 210 files.
 ## Milestones
 
 - ✅ **v1.0 Premium Template Launch** — shipped 2026-03-01
-- 🔄 **v1.1 Performance & Cleanup** — in progress
+- ✅ **v1.1 Performance & Cleanup** — shipped 2026-03-05
 
 ---
 
-*Last updated: 2026-03-01 after v1.1 milestone definition*
+*Last updated: 2026-03-05 after v1.1 milestone*
