@@ -1,312 +1,288 @@
-# Feature Landscape: Premium Home Services Website Template
+# Feature Research — v1.2 Feature Expansion
 
-**Domain:** Premium website template for roofing, siding, and storm damage contractors (1-20 employees)
-**Target Price:** $200-500 premium template tier
-**Researched:** 2026-02-21
-**Overall Confidence:** HIGH (based on multiple industry sources, competitor analysis, conversion research)
-
----
-
-## Current Template Inventory
-
-Before mapping the feature landscape, here is what the template already ships:
-
-| Feature | Status | Quality |
-|---------|--------|---------|
-| 11 pages (Home, Roofing, Siding, Storm Damage, Services, Projects, Testimonials, About, Contact, Service Areas, Ava AI) | Built | Good |
-| Config-driven branding (site.ts) | Built | Good - single file controls name, phone, email, address, hours, service areas, certifications, stats |
-| Hero sections with parallax/gradient overlays | Built | Good |
-| Contact form with service selector | Built | Basic - no backend integration, no form validation library |
-| Project gallery with category filters | Built | Good - animated grid with filter tabs |
-| Before/after comparisons | Built | Basic - side-by-side only, no slider |
-| Testimonial cards with star ratings | Built | Good |
-| Social proof trust bar | Built | Good - scrolling badge/cert ribbon |
-| Insurance claims process timeline | Built | Good - animated scroll-driven timeline |
-| Animated scroll reveals (Framer Motion) | Built | Good |
-| AI chat widget (Ava) with demo fallback | Built | Good - floating widget + dedicated page |
-| Per-page SEO meta tags (title, description, OG) | Built | Basic - missing structured data, Twitter cards |
-| Lazy-loaded route splitting | Built | Good |
-| Responsive design | Built | Good |
-| Certifications section | Built | Basic - static badges |
-| FAQ accordion sections | Built | Good - per-page FAQs |
-| Stats counter section | Built | Good - animated counting |
-| CTA sections | Built | Good |
-| Bento grid service cards | Built | Good |
+**Domain:** Premium home services website template — roofing, siding, storm damage
+**Milestone:** v1.2 — adding multi-step quote wizard, project cost estimator, Google Maps embed, photo upload
+**Researched:** 2026-03-05
+**Confidence:** HIGH (multiple sources verified, existing codebase reviewed)
 
 ---
 
-## Table Stakes
+## Scope Note
 
-Features users expect in ANY home services website template. Missing any of these means the product feels incomplete and buyers will pass. These are non-negotiable for the premium price point.
-
-### Lead Generation (Critical)
-
-| Feature | Why Expected | Complexity | Current Status | Notes |
-|---------|--------------|------------|----------------|-------|
-| Contact form with backend integration | Every competitor has this working out of box | Medium | Partial - form exists but only sets `submitted=true`, no actual submission | Must integrate with at least email notification. Support Formspree, Netlify Forms, or serverless endpoint |
-| Click-to-call phone links | 60%+ of home service searches happen on mobile | Low | Built | Already in hero CTAs and header |
-| Sticky header with phone + CTA | Keeps conversion path visible during scroll. Studies show sticky CTAs increase conversions 25%+ | Low | Partial - header exists but not sticky with visible phone | Must persist phone number and "Free Quote" button on scroll |
-| Multiple CTA placements per page | Pages with single CTAs convert up to 3x less. CTAs needed above fold, mid-page, and bottom | Low | Built | CTA sections exist on most pages |
-| Lead form above the fold on key pages | Forms visible without scrolling get significantly more submissions | Medium | Not built | Contact page has form below hero. Consider inline hero form variant |
-| Thank-you / confirmation state | Users need confirmation their submission was received | Low | Built | Basic green success message exists |
-
-### SEO Fundamentals (Critical)
-
-| Feature | Why Expected | Complexity | Current Status | Notes |
-|---------|--------------|------------|----------------|-------|
-| Page-level meta tags (title, description) | Basic SEO requirement | Low | Built | PageMeta component handles this |
-| Open Graph tags | Required for social sharing | Low | Partial | OG title/desc/url exist, missing og:image |
-| Semantic HTML structure | Screen readers + SEO bots need proper heading hierarchy | Low | Mostly done | Review h1-h6 hierarchy across pages |
-| Sitemap.xml generation | Search engines need this for crawling | Low | Not built | Must generate at build time |
-| robots.txt | Controls crawler behavior | Low | Not built | Simple static file needed |
-| Mobile-first responsive design | Google mobile-first indexing, 60%+ traffic is mobile | Low | Built | Responsive grid layouts throughout |
-| Fast load times (< 2 seconds) | Page speed directly impacts rankings and bounces. Sites loading > 3s lose 53% of visitors | Medium | Good foundation | Vite + code splitting + lazy loading. Needs image optimization audit |
-| Image optimization (WebP, lazy loading, sizing) | Core Web Vital (LCP) directly affected | Medium | Partial | WebP mentioned, lazy loading on most images, but no srcset/responsive images, no width/height attrs |
-
-### Trust & Social Proof (Critical)
-
-| Feature | Why Expected | Complexity | Current Status | Notes |
-|---------|--------------|------------|----------------|-------|
-| Customer testimonials with photos | 92% of consumers read reviews before buying. Testimonials with photos convert 35% better | Low | Built | Cards with name, location, quote, photo, star rating |
-| Trust badges (BBB, certifications, licenses) | Trust badges near CTAs increase conversions 42%. Every competitor displays these | Low | Built | Social proof bar + certifications section |
-| Star ratings display | Visual shorthand for quality. Users scan for stars first | Low | Built | 5-star display on testimonial cards |
-| Project portfolio with categories | Visual proof of workmanship. Contractors without portfolios seem unestablished | Low | Built | Filtered grid with 10 projects |
-| Before/after project photos | Most compelling conversion element for home services. Shows transformation value | Medium | Partial | Side-by-side exists but no interactive slider |
-| Company story / About page | Humanizes the business. "Family owned" resonates with homeowners | Low | Built | About page with team section |
-
-### Content Pages (Expected)
-
-| Feature | Why Expected | Complexity | Current Status | Notes |
-|---------|--------------|------------|----------------|-------|
-| Service-specific landing pages | Each service needs its own optimized page for SEO and conversions | Low | Built | Roofing, Siding, Storm Damage pages |
-| Service area / locations page | Critical for local SEO. Homeowners search "[service] near me" or "[service] [city]" | Low | Built | Lists cities by state |
-| FAQ sections | Reduces support burden, builds trust, targets long-tail search queries | Low | Built | Per-page FAQ accordions |
-| Insurance claims process explanation | Storm damage contractors MUST explain this. Top homeowner concern | Low | Built | Process timeline on home page + storm damage page |
-| Contact page with map/directions | Legitimacy signal - proves physical business location | Low | Partial | Contact info sidebar but no embedded map |
-
-### Design Quality (Expected at Premium Tier)
-
-| Feature | Why Expected | Complexity | Current Status | Notes |
-|---------|--------------|------------|----------------|-------|
-| Professional animations | Premium feel. Differentiates from free templates | Low | Built | Framer Motion scroll reveals, staggered animations |
-| Consistent design system | Colors, typography, spacing feel cohesive | Low | Built | Tailwind theme tokens, consistent component patterns |
-| Config-driven customization | Buyers want "edit one file, change everything" | Low | Built | site.ts config controls branding |
-| Dark/light hero overlays | Professional photography treatment | Low | Built | Gradient overlays on hero images |
-| Loading states | Polish indicator. Skeleton/spinner during lazy loads | Low | Built | Spin loader for lazy routes |
+This document covers ONLY the four new features being added in v1.2. The v1.0/v1.1 feature
+inventory (contact form, booking calendar, financing calculator, AI chat, city pages, etc.)
+is documented in commit history. Items marked "Already Built" below refer to components in
+the v1.1 codebase that the new features must integrate with.
 
 ---
 
-## Premium Differentiators
+## Feature Landscape
 
-Features that set this template apart from the $50 basic templates. These justify the $200-500 price point. Not all buyers expect these, but they are valued by premium buyers and generate "wow" moments during the purchase decision.
+### Table Stakes (Users Expect These)
 
-### Tier 1 Differentiators (Build for v1 - highest ROI)
+Features that home services website visitors and template buyers expect from quote/estimation flows.
+Missing any of these makes the new feature feel incomplete or unpolished.
 
-| Feature | Value Proposition | Complexity | Priority | Notes |
-|---------|-------------------|------------|----------|-------|
-| **JSON-LD structured data (LocalBusiness, Service, FAQPage, Review)** | 20-30% CTR improvement in search results. Rich snippets show stars, hours, address directly in Google. AI search engines (AI Overviews, ChatGPT, Perplexity) rely on structured data to cite businesses | Medium | MUST HAVE | Use react-schemaorg or manual script tags. Include LocalBusiness on homepage, Service on service pages, FAQPage on FAQ sections, AggregateRating on testimonials. Config-driven from site.ts |
-| **Interactive before/after slider** | "Wow factor" feature that every premium template showcases. Before/after sliders get 3-5x more engagement than static side-by-side. Highly shareable | Medium | MUST HAVE | Replace current side-by-side with draggable slider component. Touch-friendly for mobile |
-| **Google Reviews widget integration** | Displaying real Google reviews increases conversions by 200%+. 75% of customers decide based on ratings. Feels more authentic than manually entered testimonials | Medium | MUST HAVE | Provide placeholder/integration point for Google review widgets (Elfsight, EmbedSocial, or native embed). Even without live API, show the visual pattern with config for review data |
-| **Sticky mobile CTA bar** | Mobile users need persistent conversion path. Sticky bottom bar with phone + "Get Quote" shown on scroll increases mobile conversions significantly | Low | MUST HAVE | Fixed bottom bar on mobile with click-to-call and quote CTA. Hide on scroll up, show on scroll down |
-| **City-specific service area pages (template system)** | Each city page is a local SEO landing page. Businesses with city pages see 23% average revenue increase. "Roofing in [City]" is the #1 search pattern for contractors | High | MUST HAVE | Template/generator system that creates unique pages per city from site.ts config. Each page needs: city in title/URL/H1, local testimonial slot, city-specific content area, embedded map, local CTA |
-| **Financing page template** | Removes barrier to purchase. Every competitive roofing/siding website prominently features financing. Homeowners searching "roof replacement financing" are high-intent leads | Low | SHOULD HAVE | Template page with financing partner logos, payment calculator placeholder, application CTA, FAQ about financing options |
-| **Blog/content section (template)** | Content marketing drives organic traffic. Blogs with service-area + educational content generate 3x more leads than sites without. "How to file storm damage claim" etc. | Medium | SHOULD HAVE | Blog listing page + article template. Config-driven or markdown-based content. Essential for SEO long-term |
-| **Emergency/storm response banner** | Storm chasers target areas after severe weather. Having an activatable emergency banner ("Recent Storm? Get Free Inspection") captures high-intent traffic immediately | Low | SHOULD HAVE | Config toggle in site.ts for emergency mode. Adds top banner + modifies hero messaging + shows emergency phone number |
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Step progress indicator | Multi-step forms without progress feel broken. Reduces abandonment by 20-30%. Industry standard for 3+ step flows. | LOW | Numbered steps or progress bar. "Step 2 of 4" minimum. |
+| Back/forward navigation between steps | Users correct mistakes. Forms with no back button are frustrating. Expected at any price point. | LOW | State must persist across steps — don't reset on back. |
+| Per-step validation (not all-at-once) | Users should not see errors for fields not yet reached. Validate on step exit. | LOW | React Hook Form with `trigger()` per step. Already using RHF. |
+| Mobile-friendly touch inputs | 60%+ of home service searches are mobile. Tap targets, readable labels, no horizontal scroll. | LOW | Already a site-wide constraint. Apply consistently to new forms. |
+| Thank-you / confirmation state | After final submit, users need confirmation their request was received. | LOW | Reuse existing `/thank-you` route. Already built. |
+| Approximate cost range output | Users asking "how much will this cost?" expect a number, even a rough range. Refusing to show any number is unhelpful and loses the lead. | MEDIUM | Show range (e.g., "$8,000–$15,000") not a false-precision number. Include disclaimer. |
+| Service area map on city pages | Maps on local business pages are a trust signal and usability aid. Homeowners scan for "are you near me?" | MEDIUM | Embedded map showing service area is expected on city pages at premium tier. |
+| Photo attachment in damage quote flows | Storm damage and insurance claim contexts: homeowners expect to be able to submit photos. "Show us what's broken" is intuitive. | MEDIUM | Photos contextualize the job. Particularly expected in storm damage flow. |
 
-### Tier 2 Differentiators (Build for v1 if time allows, otherwise v2)
+### Differentiators (Competitive Advantage)
 
-| Feature | Value Proposition | Complexity | Priority | Notes |
-|---------|-------------------|------------|----------|-------|
-| **AI chat with lead capture** | AI chatbots generate 3x more conversions than static forms. Lead qualification happens conversationally. Current Ava widget chats but does not capture lead info | Medium | SHOULD HAVE | Extend Ava to collect name/phone/email during conversation and send lead notification. Conversation-to-lead pipeline |
-| **Video embed sections** | Video on service pages increases dwell time and SEO rankings. 85% of businesses use video as marketing tool | Low | SHOULD HAVE | Responsive YouTube/Vimeo embed component with lazy loading. Slots on service pages and testimonials page for video testimonials |
-| **Animated statistics/counters** | Premium visual polish. Counting up numbers as they scroll into view is expected at premium tier | Low | Already built | Stats section with animated counters exists |
-| **Multi-step quote wizard** | Guided quote forms convert 86% better than long single-page forms. Collects service type, property info, timeline, contact info in steps | High | NICE TO HAVE | Multi-step form with progress indicator. Captures richer lead data than basic contact form. Complex but high-converting |
-| **Dark mode / theme toggle** | Premium polish feature. Increasingly expected by users. Demonstrates template quality | Medium | NICE TO HAVE | CSS variable system is already in place via Tailwind tokens. Toggle requires alternate color scheme definition and localStorage persistence |
-| **Warranty/guarantee page** | Trust signal. 76% of homeowners say warranty info influences their contractor choice | Low | SHOULD HAVE | Template page showing manufacturer warranties, workmanship guarantee, satisfaction promise. Trust-building content |
-| **Twitter/X card meta tags** | Social sharing completeness. Missing these means ugly link previews when shared | Low | SHOULD HAVE | Add twitter:card, twitter:image meta tags to PageMeta component |
-| **Canonical URLs** | SEO fundamental that prevents duplicate content issues | Low | SHOULD HAVE | Add canonical link tag to PageMeta component |
+Features that distinguish this template from both generic templates and the existing v1.1 feature set.
 
----
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| 4-step quote wizard (`/get-quote`) | Guided lead capture collects richer data than the basic contact form. Industry research shows multi-step forms convert 86% better than single-page equivalents and deliver 300% higher conversion vs. single-page alternatives. Template buyers who want premium lead gen will demo this first. | HIGH | Step flow: Service Type → Project Details → Photos (optional) → Contact Info. Integrates with existing Formspree submission pipeline and `forms.ts` config. |
+| Service-based cost range estimator | "How much does a new roof cost?" is the #1 home services search query. Config-driven cost ranges per service type (roofing, siding, storm damage) surfaced alongside the financing calculator gives users immediate value without requiring contact. | HIGH | Inputs: service type, rough sq footage or home size (small/medium/large), material tier. Output: cost range + monthly payment estimate (tap into existing financing calculator config). |
+| Merged cost estimator + financing calculator | Existing financing calculator (`/financing`) is standalone. Surfacing estimated cost ranges alongside payment options on the same page or within the quote wizard creates a decision-support tool that competitors rarely offer. | MEDIUM | Pull `financing.ts` config (rates, terms). Apply to estimated project cost. No new data — new presentation. |
+| Config-driven Google Maps embed on city pages | Interactive map on each city page proves local presence. Currently city pages list nearby areas as text links only. A map makes the service area concrete. Maps Embed API is free (unlimited usage) — no per-load billing. | MEDIUM | One API key in `site.ts` or new config entry. Renders iframe per city page. Lazy-load to avoid performance impact on pre-rendered pages. Feature-flagged. |
+| Client-side photo upload with preview in quote wizard | Photo upload step (Step 3) with drag-and-drop, file type/size validation, thumbnail previews, and submission via Formspree multipart. Differentiates from basic contact forms. Storm damage context makes photos especially valuable. | HIGH | react-dropzone for DnD interface. FileReader API for client-side preview. Formspree supports up to 10 files, 25 MB each, 100 MB total per submission with `enctype="multipart/form-data"`. No external storage service needed. |
+| Wizard pre-fills from service page context | If user clicks "Get Quote" on the Roofing service page, Step 1 of the wizard should pre-select "Roofing." Reduces friction, increases completion rate. | MEDIUM | URL query param (`/get-quote?service=roofing`) or React Router state. Step 1 reads param and pre-selects service. |
+| Wizard tied into feature flag system | `quoteWizard` flag in `features.ts` controls whether `/get-quote` route exists. Consistent with existing pattern for `financingCalculator`, `onlineBooking`, etc. | LOW | Add to `features.ts`. Route guard returns `<Navigate to="/contact" />` when disabled. |
 
-## Nice-to-Have Features
+### Anti-Features (Commonly Requested, Often Problematic)
 
-Features that would be impressive but are not expected at launch. Best candidates for v2 updates that keep the product fresh and justify ongoing sales.
-
-| Feature | Value Proposition | Complexity | Defer Reason | Target |
-|---------|-------------------|------------|--------------|--------|
-| **Google Maps embed with service area overlay** | Visual proof of coverage area. More engaging than city list | Medium | Requires Google Maps API key setup, adds complexity for buyers | v2 |
-| **Appointment scheduling integration** | Reduces friction vs. form submission. Calendly/Cal.com embed | Low | Most small contractors still prefer phone/form. Integration adds external dependency | v2 |
-| **Cost/price calculator widget** | Interactive pricing tool increases engagement. "How much does a new roof cost?" is top search query | High | Complex to make generic/configurable. Pricing varies wildly by region/material | v2 |
-| **Customer portal / project tracker** | Existing customer communication tool | Very High | Requires backend, auth, database. Out of scope for template product | v3+ |
-| **Online payment integration** | Accept deposits or final payments online | High | Requires payment processor setup, liability considerations | v3+ |
-| **Multi-language support (i18n)** | Serves Spanish-speaking markets in TX, FL, etc. | High | Significant content duplication effort. Config system would need overhaul | v2 |
-| **Accessibility audit badge/page** | ADA compliance differentiator. Only 4% of websites are ADA compliant | Medium | Accessibility should be baked in, but dedicated audit/page is bonus | v2 |
-| **Photo upload in lead form** | Homeowners can show storm damage when requesting quote | Medium | File upload requires backend handling, storage | v2 |
-| **SMS/text notification for leads** | Contractors respond faster to text than email. Faster response = higher close rate | Medium | Requires Twilio or similar integration | v2 |
-| **Google Business Profile integration** | Pull hours, reviews, photos from GBP automatically | High | Requires Google API, OAuth, ongoing maintenance | v3+ |
-| **A/B testing framework** | Test different hero messages, CTA text, form layouts | High | Too complex for template buyers. Marketing agencies add this | v3+ |
-| **Referral program page** | Incentivizes word-of-mouth. "Refer a neighbor, earn $X" | Low | Nice content page but not core to template purchase decision | v2 |
-| **Job openings / careers page** | Growing companies need this. Shows stability | Low | Low priority for template purchase. Easy add-on later | v2 |
-
----
-
-## Anti-Features
-
-Features to explicitly NOT build. These would waste development time, add complexity, or hurt the product.
-
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| **Full CMS / admin panel** | Massive scope creep. Template buyers edit code or config files, not admin panels. Building a CMS competes with WordPress, which is a losing battle | Keep config-driven approach via site.ts. Provide clear documentation for customization. Template buyers are developers or agencies, not end users |
-| **E-commerce / online store** | Home services are not e-commerce. Adding cart/checkout is scope creep with zero ROI for this audience | Link to financing partners. Focus on lead forms as the conversion path |
-| **User authentication / login** | Requires backend infrastructure, security considerations, session management. Massive complexity for zero template-buyer value | If needed later (customer portal), treat as a separate product/add-on |
-| **Real-time chat with human operators** | Requires live operator staffing. AI chat (Ava) is the right abstraction for a template | Keep AI chat with demo fallback. Provide integration docs for third-party live chat (Intercom, Drift) if buyer wants it |
-| **Automated email marketing** | Mailchimp/ConvertKit integration adds complexity and external dependencies. Template should generate leads, not nurture them | Provide form action configuration that works with any email service. Document how to connect to popular providers |
-| **Social media feed embeds** | Slow loading, inconsistent styling, breaks when APIs change, adds external JS. Instagram/Facebook embeds are notoriously fragile | Social media links in footer (already built). Encourage buyers to post content on their site instead |
-| **Overly complex animation system** | Framer Motion is already in place. Adding GSAP, Three.js, or WebGL would be overkill, slow performance, and alienate buyers who need to customize | Keep Framer Motion. Ensure animations are tasteful and not excessive. Performance over flashiness |
-| **Backend database** | Template is a frontend product. Adding database concerns (hosting, migrations, security) fundamentally changes the product category | Serverless functions for form submission and AI chat only. All data lives in config files |
-| **Accessibility overlay widget** | These are widely criticized as ineffective and can create legal liability. 96% of websites are non-compliant, but overlays are not the solution | Build accessibility INTO the template: proper semantic HTML, ARIA labels, color contrast, keyboard navigation, focus management |
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| Real-time cost calculation (live as user types) | Feels interactive and impressive. | Home services pricing is highly variable. Live calculation implies false precision. Users take numbers literally and argue with estimates. Creates liability. | Show range on completion of inputs. Include mandatory disclaimer. Make ranges configurable in `services.ts` so buyers can set their own. |
+| Photo storage / gallery in admin | "See what customers uploaded" | Requires a backend, auth, database, file storage — fundamentally changes the product from static template to SaaS. | Formspree dashboard shows submitted files. That's sufficient for a template. |
+| Google Maps with service area polygon overlay | Visually impressive. Shows exact coverage area. | Requires Maps JavaScript API (not Embed API). JavaScript API has per-load cost ($7/1,000 loads) and needs domain restriction setup. Adds 200+ KB of runtime JS. Much higher implementation complexity. | Maps Embed API (free, iframe, no JS bundle cost) showing a pin or place search is sufficient for the use case. Buyers can upgrade independently if they need polygons. |
+| Mandatory photo upload (required field) | Ensures richer lead data. | Creates abandonment. Users on mobile may not have photos ready. Storm damage requires inspection anyway — photo is helpful context, not a replacement. | Make photo upload optional (Step 3 explicitly says "optional"). Wizard proceeds without photos. |
+| Cloudinary / Uploadthing cloud storage for photos | Persistent photo URLs, CDN delivery. | Adds external service dependency with its own API key, account setup, billing. Overkill for a template where the business owner just needs to see the photos in their email. | Formspree receives photos as attachments and stores them per-submission. Template buyer gets photos in their Formspree dashboard. Zero additional service. |
+| ZIP code validation against service area list | Filter out-of-area leads early. | Service areas change. Config-driven list would be stale. Creates friction for users on the boundary. False rejects lose real leads. | Let any zip submit. Business owner filters manually. Note in config that service area list is for SEO city pages, not wizard gate. |
+| Saving wizard progress to localStorage | "Resume later" for long forms. | Quote wizard is 4 steps and takes under 2 minutes. Save/resume complexity is disproportionate to task length. LocalStorage state can leak between sessions. | Keep wizard stateless within session. If user navigates away, the form resets. This is fine for a 4-step form. |
 
 ---
 
 ## Feature Dependencies
 
-Understanding build order. Features that depend on other features being in place.
-
 ```
-Core Config System (site.ts) [BUILT]
-  |-- JSON-LD Structured Data (reads business info from config)
-  |-- City Service Area Pages (reads cities from config)
-  |-- Emergency Banner (reads toggle + emergency phone from config)
-  |-- Financing Page (reads company info from config)
+Existing: React Hook Form + Zod (ContactForm.tsx) [BUILT]
+    └──reuse──> Multi-Step Quote Wizard
+                    └──extends──> Photo Upload Step (react-dropzone)
+                    └──submits via──> Formspree multipart (existing submitForm handler)
+                    └──redirects to──> /thank-you (existing route)
+                    └──reads from──> forms.ts config (existing)
+                    └──reads from──> services.ts (service list for Step 1 dropdown)
 
-Contact Form [BUILT - needs backend]
-  |-- AI Chat Lead Capture (extends existing Ava to capture contact info)
-  |-- Multi-step Quote Wizard (replacement/upgrade of basic form)
+Existing: financing.ts config (rates, terms, loan amounts) [BUILT]
+    └──consumed by──> Project Cost Estimator
+                          └──merged with──> service cost ranges (new: services.ts addition)
+                          └──displayed on──> /get-quote Step 2 OR standalone /estimate page
 
-PageMeta Component [BUILT]
-  |-- Twitter Card Tags (extends PageMeta)
-  |-- Canonical URLs (extends PageMeta)
-  |-- JSON-LD Structured Data (companion to PageMeta, injected alongside)
+Existing: cityPages array in service-areas.ts [BUILT]
+    └──extended by──> Google Maps Embed
+                          └──reads from──> new maps config (site.ts addition: mapsApiKey, hqCoordinates)
+                          └──renders in──> service-areas.$slug.tsx (city page route)
+                          └──gated by──> features.ts: googleMaps flag (new)
 
-Before/After Section [BUILT - basic]
-  |-- Interactive Before/After Slider (upgrade of existing component)
-
-Image System [PARTIAL]
-  |-- Responsive Images with srcset (new image component)
-  |-- OG Image generation (requires og:image path in config)
-
-Service Pages [BUILT]
-  |-- Video Embed Sections (add video slots to existing pages)
-  |-- Blog Template (new page type, similar patterns to service pages)
-
-Testimonials [BUILT]
-  |-- Google Reviews Widget (integration point on testimonials page)
-  |-- AggregateRating Schema (structured data for review scores)
+Existing: features.ts feature flags [BUILT]
+    └──extended by──> quoteWizard flag (new)
+    └──extended by──> googleMaps flag (new)
+    └──extended by──> costEstimator flag (new)
 ```
 
----
+### Dependency Notes
 
-## MVP Recommendation for v1 Premium Launch
-
-Based on competitive analysis, conversion research, and build complexity, here is the prioritized v1 feature set that justifies the $200-500 premium price point:
-
-### Must Ship (v1.0) - These close the sale
-
-1. **JSON-LD structured data** - Biggest SEO differentiator vs. basic templates. Every premium buyer's agency or SEO consultant will look for this. Reads directly from existing site.ts config. Relatively low effort, massive perceived value.
-
-2. **Interactive before/after slider** - The single most visually impressive feature for home services templates. Replaces current static side-by-side. Touch-friendly. This is the "demo moment" that sells the template.
-
-3. **Sticky mobile CTA bar** - Directly impacts conversion rates. Simple to build. Every competitor at the premium tier has this.
-
-4. **Working form submission** - The contact form MUST actually work. Integrate with Formspree (simplest), Netlify Forms, or provide a serverless endpoint. A form that does nothing is a dealbreaker.
-
-5. **City service area page system** - Config-driven city pages from site.ts data. This is the feature agencies pay for. Each city becomes an SEO-optimized landing page. Template generates pages from config.
-
-6. **Sitemap.xml + robots.txt** - Basic SEO hygiene. Embarrassing to ship a "premium" template without these.
-
-7. **Complete meta tag system** - Add og:image, Twitter cards, canonical URLs to PageMeta component. Small lift, expected at premium tier.
-
-8. **Emergency storm banner** - Unique differentiator specific to storm damage niche. Toggle in config activates across site. No competitor template has this.
-
-9. **Financing page** - Template page that removes a purchase barrier. Expected by roofing/siding businesses.
-
-### Should Ship (v1.0 stretch goals)
-
-10. **AI chat with lead capture** - Upgrade Ava from informational chat to lead-qualifying chat. Collect name/email/phone during conversation flow.
-
-11. **Blog/article template** - Even if ships with just 1-2 placeholder articles, having the system in place demonstrates content marketing capability.
-
-12. **Video embed component** - Lazy-loaded YouTube/Vimeo component with responsive aspect ratio. Slot on service pages.
-
-13. **Warranty/guarantee page** - Simple content page template. Low effort, high trust impact.
-
-14. **Google Reviews integration point** - Placeholder section styled for Google reviews widget embed. Instructions for connecting real reviews.
-
-### Defer to v2
-
-- Dark mode toggle
-- Multi-step quote wizard
-- Google Maps service area overlay
-- Appointment scheduling (Calendly/Cal.com)
-- Multi-language support
-- Photo upload in lead form
-- Cost calculator widget
-- Referral program page
+- **Quote wizard requires existing RHF + Zod setup:** The existing `ContactForm.tsx` uses React Hook Form and Zod. The wizard should reuse the same validation patterns and the existing `submitForm()` handler from `lib/form-handler.ts`. No new submission infrastructure needed.
+- **Photo upload requires Formspree multipart support:** Formspree natively supports file uploads up to 25 MB each / 100 MB total via `enctype="multipart/form-data"`. No new backend. The existing `forms.ts` `formspreeId` is reused.
+- **Cost estimator consumes financing.ts:** The existing financing calculator config (rates, terms, min/max amounts) feeds directly into the cost estimator's monthly payment output. New config needed: cost ranges per service per home size tier.
+- **Google Maps depends on new config key:** The existing `site.ts` or a new `maps.ts` config will hold the API key and HQ coordinates. City pages already receive the city `slug` and `name` — they need coordinates or a place query added to `CityConfig`.
+- **Wizard pre-fill depends on URL params:** Service pages (roofing, siding, storm-damage) link to `/get-quote?service=roofing`. The wizard reads the query param on mount to pre-select Step 1. This is a one-way dependency — service pages don't change, just their CTA `href` updates.
 
 ---
 
-## What Premium Template Buyers Specifically Look For
+## MVP Definition
 
-Based on research into template marketplace behavior and premium template sales patterns:
+### Launch With (v1.2)
 
-| Buyer Signal | What They Check | How We Satisfy It |
-|-------------|----------------|-------------------|
-| **Live demo quality** | First 10 seconds of the demo site. Does it look like a real business? | Professional hero images, realistic content, working animations |
-| **Mobile experience** | Pull up demo on phone immediately | Responsive design + sticky mobile CTA bar |
-| **Customization ease** | "How hard is this to make mine?" | Single config file (site.ts) + clear documentation |
-| **SEO readiness** | Schema markup, meta tags, sitemap, clean URLs | JSON-LD structured data, complete meta system, sitemap generation |
-| **Performance** | Lighthouse score in demo. Fast page loads | Vite + code splitting + lazy loading. Target 90+ Lighthouse |
-| **Page count** | More pages = more perceived value | 11+ pages is strong. City pages multiply this significantly |
-| **Lead generation** | "Will this actually get me customers?" | Working form, AI chat, sticky CTAs, multiple conversion paths |
-| **Industry specificity** | Generic vs. niche. Niche commands higher prices | Storm damage content, insurance claims process, roofing/siding terminology |
-| **Modern tech stack** | React 19, Tailwind v4, TypeScript signal "current" | Already strong. Mention in marketing materials |
-| **Support/documentation** | README quality, inline comments, setup guide | Comprehensive README already exists. Expand with customization guide |
+This is the full v1.2 scope — all four features are the milestone.
+
+- [ ] **Multi-step quote wizard** (`/get-quote`) — 4 steps: Service → Project Details → Photos (optional) → Contact. Progress indicator. Per-step validation. Submits via existing Formspree pipeline. Feature-flagged. Pre-fills from `?service=` param.
+- [ ] **Project cost estimator** — Config-driven cost ranges per service. Inputs: service type + home size tier. Output: cost range + monthly payment (using existing financing rates). Embedded in wizard Step 2 or shown on `/get-quote` results panel. Disclaimer required.
+- [ ] **Google Maps embed on city pages** — Maps Embed API iframe on each `/service-areas/:slug` page. API key in config. Feature-flagged. Lazy-loaded. Shows city location pin.
+- [ ] **Photo upload in wizard Step 3** — react-dropzone. Accept: JPG, PNG, HEIC, WebP. Max 5 files, 10 MB each. Client-side preview thumbnails. Optional step (skip allowed). Submits via Formspree multipart.
+
+### Add After Validation (v1.x)
+
+- [ ] **Cost estimator as standalone page** — If buyers want to link to `/estimate` directly from nav. Trigger: user feedback that estimator deserves its own page outside the wizard flow.
+- [ ] **Wizard analytics events** — Custom events per step completion (Google Analytics / GTM). Trigger: buyers ask for conversion tracking on wizard. Low implementation cost but low priority for template launch.
+- [ ] **Maps embed on Contact page** — Show HQ location map on `/contact`. Currently contact page has address in sidebar. Trigger: user request or if Maps embed on city pages tests well.
+
+### Future Consideration (v2+)
+
+- [ ] **Google Maps JavaScript API with service area polygon** — Full interactive map with drawn service area boundary. Deferred: Maps JS API billing complexity, bundle weight, implementation overhead. Not needed for the use case.
+- [ ] **Photo gallery from submissions** — View uploaded photos in a customer-facing gallery. Requires backend + auth. Out of scope for template product.
+- [ ] **AI-powered cost estimation** — Use property data / address lookup to auto-fill size. Requires third-party API. Disproportionate complexity for v1.2 scope.
 
 ---
 
-## Competitive Pricing Context
+## Feature Prioritization Matrix
 
-| Price Tier | Typical Features | Our Position |
-|-----------|------------------|--------------|
-| $0-50 (Basic) | 3-5 pages, generic design, no SEO, no integrations, minimal customization | Far above this |
-| $50-100 (Standard) | 5-8 pages, responsive, basic SEO meta, contact form, stock design | Above this |
-| $100-200 (Premium) | 8-12 pages, animations, portfolio, testimonials, config customization, some SEO | Current template sits here |
-| $200-500 (Professional) | Everything above PLUS: structured data, city pages, working integrations, AI features, blog system, conversion optimization, niche-specific content | Target tier with v1 additions |
-| $500+ (Agency/Custom) | Full CMS, custom backend, multi-site, white-label | Not our market |
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| Multi-step quote wizard | HIGH — 86% better conversion vs. single form | HIGH — new route, multi-state management, step validation | P1 |
+| Photo upload (step 3 of wizard) | HIGH — especially storm damage context | MEDIUM — react-dropzone + Formspree multipart | P1 |
+| Google Maps on city pages | MEDIUM — trust signal, local SEO | MEDIUM — new config key, iframe integration, lazy load | P2 |
+| Project cost estimator | HIGH — #1 homeowner question | HIGH — new config schema, calculator logic, presentation | P1 |
+| Estimator + financing merger | MEDIUM — decision support, differentiator | LOW — reuse existing financing.ts, new display component | P2 |
+| Wizard pre-fill from service pages | MEDIUM — reduces friction | LOW — URL param read on mount | P2 |
+| Feature flags for new features | LOW — infrastructure | LOW — add 3 keys to features.ts | P1 (do first) |
 
-The gap between $100-200 and $200-500 is primarily: **working integrations** (forms that submit, AI that qualifies leads), **SEO infrastructure** (structured data, city pages, sitemap), and **conversion optimization** (sticky CTAs, multi-touch lead capture, emergency banners).
+**Priority key:**
+- P1: Must have for v1.2 launch
+- P2: Should have, include if schedule allows
+- P3: Nice to have, defer
+
+---
+
+## Implementation Behavior Reference
+
+### Multi-Step Quote Wizard — Expected Behavior
+
+Based on industry research and competitor analysis:
+
+**Step 1 — Service Type**
+- Radio cards or large tap targets, one per service: Roofing, Siding, Storm Damage, Other
+- Pre-selected if `?service=` param present in URL
+- CTA: "Next: Project Details →"
+
+**Step 2 — Project Details**
+- Inputs vary by service selection (conditional fields):
+  - All services: approximate home size (Small < 1,500 sqft / Medium 1,500–2,500 / Large 2,500+), project timeline (Urgent / Within 3 months / Just exploring)
+  - Roofing + Siding: material preference dropdown (populated from services.ts)
+  - Storm Damage: insurance claim? (Yes / No / Not sure)
+- **Cost range display**: After service + size selected, show estimated cost range and monthly payment. Config-driven ranges from new cost config.
+- CTA: "Next: Add Photos →" or "Skip to Contact →"
+
+**Step 3 — Photos (Optional)**
+- Drag-and-drop zone + "or click to browse"
+- Accept: image/jpeg, image/png, image/webp, image/heic
+- Max 5 files, 10 MB each
+- Client-side thumbnail previews with remove button per file
+- Validation: file type and size errors shown inline
+- Explicit "Skip this step" link — photos are optional
+- CTA: "Next: Your Information →"
+
+**Step 4 — Contact Information**
+- Fields: First Name, Last Name, Phone, Email, Address (optional), Additional Notes
+- Reuse existing `contactSchema` Zod validation where fields overlap
+- Honeypot field (consistent with existing ContactForm anti-spam)
+- CTA: "Submit Request" → calls existing `submitForm()` → redirects to `/thank-you`
+
+**Progress indicator:** "Step X of 4" text + visual step dots or numbered tabs. No percentage bars (overkill for 4 steps).
+
+**State management:** `useState` with a step index and accumulated form data object. No external state library. Data accumulates across steps; full payload submitted at Step 4.
+
+### Project Cost Estimator — Expected Behavior
+
+**Inputs:**
+- Service (from Step 1, already selected in wizard context)
+- Home size tier: Small / Medium / Large (radio or segmented control)
+- Optional: material tier (Standard / Premium) for roofing/siding
+
+**Outputs:**
+- Cost range: e.g., "$8,500 – $14,000" displayed prominently
+- Monthly payment range: calculated using existing `financing.ts` option rates applied to low and high end of range
+- Disclaimer: "Estimates vary by location, materials, and site conditions. Schedule a free inspection for an accurate quote."
+
+**Config shape (new in services.ts or separate estimate.ts):**
+```typescript
+export const costRanges = {
+  roofing: {
+    small:  { low: 7000,  high: 12000 },
+    medium: { low: 10000, high: 18000 },
+    large:  { low: 15000, high: 30000 },
+  },
+  siding: {
+    small:  { low: 6000,  high: 10000 },
+    medium: { low: 9000,  high: 16000 },
+    large:  { low: 13000, high: 25000 },
+  },
+  'storm-damage': {
+    small:  { low: 3000,  high: 8000  },
+    medium: { low: 5000,  high: 14000 },
+    large:  { low: 8000,  high: 22000 },
+  },
+}
+```
+
+### Google Maps Embed — Expected Behavior
+
+**Implementation:** Maps Embed API iframe (not JavaScript API). Free, unlimited, no per-load billing.
+
+**On city pages:** Show map centered on the city with a search query or place lookup. Because city pages are pre-rendered, the iframe must be client-only rendered (no SSR) to avoid hydration mismatch. Use `ClientOnly` wrapper or `useEffect` guard.
+
+**URL format:**
+```
+https://www.google.com/maps/embed/v1/place
+  ?key={API_KEY}
+  &q={cityName}+{state}+roofing
+  &zoom=12
+```
+
+**Config additions:**
+- `site.ts`: `googleMapsApiKey: ''` (empty = Maps disabled even if feature flag on)
+- `service-areas.ts` `CityConfig`: optional `lat` and `lng` for precision, falls back to city name query
+
+**Performance:** iframe lazy-load attribute (`loading="lazy"`). Wrap in `features.googleMaps` guard. Do not load if API key is empty.
+
+**Fallback:** If `googleMapsApiKey` is empty or `features.googleMaps` is false, render the existing city area description section unchanged. No broken UI.
+
+### Photo Upload — Expected Behavior
+
+**Library:** `react-dropzone` (well-maintained, 10M+ weekly downloads, hooks-based, tree-shakeable)
+
+**Behavior:**
+- Drag files onto drop zone OR click to open file picker
+- Immediate client-side thumbnail preview using `URL.createObjectURL()`
+- Per-file remove button (X)
+- Validation on drop: reject files exceeding size limit or wrong type, show inline error
+- State: `files: File[]` in wizard step state
+- On form submit (Step 4): include files in FormData — Formspree multipart handles storage
+
+**Formspree multipart requirement:** The existing `submitForm()` handler must be updated to use `FormData` with `enctype="multipart/form-data"` when files are present. Currently it likely sends JSON. This is a targeted modification to `lib/form-handler.ts`.
+
+---
+
+## Competitor Feature Analysis
+
+| Feature | Modernize.com | Jobber Free Tools | Our Approach |
+|---------|---------------|-------------------|--------------|
+| Cost estimator | Multi-step wizard with ZIP + material inputs, shows local range | Single-page calculator, sq footage + material | Config-driven ranges, integrated into quote wizard flow, no ZIP lookup required |
+| Quote flow | 4–6 step lead gen wizard (service, ZIP, contact) | N/A (estimator only) | 4 steps with photos; richer data collection; integrates with existing Formspree pipeline |
+| Maps on local pages | Not applicable (aggregator) | Not applicable (SaaS tool) | Maps Embed API iframe on city pages; free; lazy loaded |
+| Photo upload | Not offered in quote flow | Not offered | react-dropzone in Step 3; optional; Formspree storage |
 
 ---
 
 ## Sources
 
-- [CyberOptik: 15 Converting Elements Every Roofing Contractor Needs](https://www.cyberoptik.net/blog/roofing-website-design-15-converting-elements-every-contractor-needs-in-2025/)
-- [Robben Media: Top Strategies for Roofing Website Conversion Optimization](https://robbenmedia.com/top-10-tips-for-roofing-contractor-website-conversion-optimization/)
-- [PHOS Creative: 5 Must-Have Elements for High-Converting Roofing Website](https://phoscreative.com/articles/high-converting-roofing-website/)
-- [WebFX: 4 Roofing Lead Generation Strategies](https://www.webfx.com/blog/home-services/roofing-lead-generation-guide/)
-- [Roofing Web Masters: 23 Best Roofing Websites 2025](https://www.roofingwebmasters.com/roofing-websites/)
-- [Hook Agency: Best Roofing Website Design Examples](https://hookagency.com/blog/best-roofing-websites/)
-- [Search Engine Land: Service Area Pages Guide](https://searchengineland.com/guide/service-area-pages)
-- [BrightLocal: Service Area Page SEO](https://www.brightlocal.com/learn/service-area-pages/)
-- [ALM Corp: Schema Markup Critical for SERP Visibility 2026](https://almcorp.com/blog/schema-markup-detailed-guide-2026-serp-visibility/)
-- [HigherVisibility: Schema Markup for Local Businesses](https://www.highervisibility.com/seo/learn/schema-markup-for-local-businesses/)
-- [Podium: Conversion Rate Optimization for Roofing](https://www.podium.com/article/conversion-rate-optimization-roofing/)
-- [Saenz Global: How Roofing Contractors Can Leverage Social Proof](https://www.saenzglobal.com/blog/how-roofing-contractors-can-leverage-social-proof-to-grow-their-business)
-- [Your Local Site Design: How Reviews + Badges Double Calls](https://www.yourlocalsitedesign.com/post/roofing-reviews-and-badges-double-calls)
-- [Digital Bolt: Roofing Portfolio That Converts](https://digitalboltwebdesign.com/portfolio-design-tips-that-convert/)
-- [Agentive AIQ: Lead Generation Chatbots for General Contractors](https://agentiveaiq.com/listicles/best-5-lead-generation-chatbots-for-general-contractors)
-- [Superhero Design: How to Price Your Website Templates](https://superherodesign.co/how-to-price-your-website-templates-without-undervaluing-yourself/)
-- [Bryn Taylor: Selling Templates on Framer vs Webflow](https://www.bryntaylor.co.uk/writing/framer-or-webflow-templates)
-- [Temlis: Webflow Template Comparison Free vs Premium](https://www.temlis.com/blogs/webflow-template-comparison-free-vs-premium-which-is-right-for-you)
-- [Accessibility.Works: 2025 ADA Web Accessibility Standards](https://www.accessibility.works/blog/wcag-ada-website-compliance-standards-requirements)
-- [Vercel: How Core Web Vitals Affect SEO](https://vercel.com/blog/how-core-web-vitals-affect-seo)
+- [Lollypop Design: Wizard UI Best Practices 2026](https://lollypop.design/blog/2026/january/wizard-ui-design/) — MEDIUM confidence (industry blog)
+- [LeadCapture.io: Multi-Step Form Examples](https://leadcapture.io/blog/multi-step-form-example/) — MEDIUM confidence
+- [Hook Agency: Best Home Service Websites](https://hookagency.com/blog/home-service-website-examples/) — MEDIUM confidence
+- [Growform: Must-Follow UX Best Practices for Multi-Step Forms](https://www.growform.co/must-follow-ux-best-practices-when-designing-a-multi-step-form/) — MEDIUM confidence
+- [Zuko: Single Page vs Multi-Step Form Conversion](https://www.zuko.io/blog/single-page-or-multi-step-form-for-conversion) — MEDIUM confidence
+- [Modernize: 2026 Home Siding Cost Calculator](https://modernize.com/siding/cost-calculator) — HIGH confidence (live product reference)
+- [Style Exteriors: Roofing Siding Project Cost Calculator](https://styleexteriorsbc.com/roofing-siding-project-cost-calculator/) — HIGH confidence (live product reference)
+- [HomeAdvisor: 2026 Siding Cost Estimator](https://www.homeadvisor.com/cost/siding/) — HIGH confidence (live product reference)
+- [Google Maps Platform: Maps Embed API Overview](https://developers.google.com/maps/documentation/embed/get-started) — HIGH confidence (official docs)
+- [Google Maps Platform: Maps Embed API Get API Key](https://developers.google.com/maps/documentation/embed/get-api-key) — HIGH confidence (official docs)
+- [KiwiSprout: Google Maps Embedded vs Static vs JS](https://kiwisprout.nz/blog/google-maps--embedded-static-or-js--whats-better) — MEDIUM confidence (verified against official docs)
+- [Formspree: File Uploads Documentation](https://help.formspree.io/hc/en-us/articles/115008380088-File-uploads) — HIGH confidence (official docs)
+- [Formspree: How to Create a File Upload Form](https://formspree.io/blog/file-upload-form/) — HIGH confidence (official docs)
+- [LogRocket: Create Drag-and-Drop with react-dropzone](https://blog.logrocket.com/create-drag-and-drop-component-react-dropzone/) — HIGH confidence (technical implementation guide)
+- [react.wiki: File Upload Hook with Preview 2026](https://react.wiki/hooks/file-upload-hook/) — MEDIUM confidence
+
+---
+
+*Feature research for: home-services-template v1.2 Feature Expansion*
+*Researched: 2026-03-05*

@@ -1,1370 +1,793 @@
 # Architecture Patterns
 
 **Domain:** Config-driven premium home services website template
-**Researched:** 2026-02-21
-**Stack:** React 19 + Vite 7 + Tailwind CSS v4 + TypeScript + Framer Motion + React Router v7
+**Researched:** 2026-03-05
+**Milestone:** v1.2 — Feature Expansion (multi-step quote wizard, cost estimator, Google Maps embed, photo upload)
+**Confidence:** HIGH
 
 ---
 
 ## Table of Contents
 
-1. [Current State Analysis](#current-state-analysis)
-2. [Recommended Architecture](#recommended-architecture)
-3. [Config System Architecture](#config-system-architecture)
-4. [Config-Driven Routing](#config-driven-routing)
-5. [Config-Driven Navigation](#config-driven-navigation)
-6. [Content Config vs Feature Config vs Theme Config](#content-config-vs-feature-config-vs-theme-config)
-7. [Markdown Blog Architecture](#markdown-blog-architecture)
-8. [Auto-Generated City/Service Pages](#auto-generated-cityservice-pages)
-9. [Form Submission Architecture](#form-submission-architecture)
-10. [SEO and Prerendering Strategy](#seo-and-prerendering-strategy)
-11. [Component Boundaries](#component-boundaries)
-12. [Data Flow](#data-flow)
-13. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
-14. [Sources](#sources)
+1. [Current Architecture Summary](#current-architecture-summary)
+2. [New Feature Integration Map](#new-feature-integration-map)
+3. [Feature 1: Multi-Step Quote Wizard](#feature-1-multi-step-quote-wizard)
+4. [Feature 2: Project Cost Estimator](#feature-2-project-cost-estimator)
+5. [Feature 3: Google Maps Embed](#feature-3-google-maps-embed)
+6. [Feature 4: Photo Upload](#feature-4-photo-upload)
+7. [System Overview After v1.2](#system-overview-after-v12)
+8. [Component Boundaries](#component-boundaries)
+9. [Data Flow](#data-flow)
+10. [Build Order](#build-order)
+11. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+12. [Sources](#sources)
 
 ---
 
-## Current State Analysis
+## Current Architecture Summary
 
-### What exists today
+The existing system (v1.1) is a **static pre-rendered React Router 7 framework mode app** deployed on Vercel. Key constraints that govern all new feature integration:
 
-The template has a single `src/config/site.ts` exporting a `SITE` const with `as const` for literal types. This object mixes company info, contact details, service areas, stats, social links, and AI assistant config into one flat namespace.
+- `ssr: false` in `react-router.config.ts` — no server-side code runs at request time
+- All routes pre-rendered to HTML at build time via the `prerender()` function
+- All interactivity runs client-side after hydration
+- Config-first: non-technical users change behavior by editing `src/config/*.ts` files only
+- Form submission: `submitForm()` in `src/lib/form-handler.ts` routes to Formspree/webhook/none
+- No state management library — local `useState` handles all per-component state
+- React Hook Form + Zod used for all form validation (contact, booking)
+- Code splitting: `React.lazy` + `Suspense fallback={null}` wraps all page components in routes
 
-**Problems identified in the current architecture:**
-
-| Problem | Location | Impact |
-|---------|----------|--------|
-| Navigation hardcoded in components | `Header.tsx` lines 6-23, `Footer.tsx` lines 5-18 | Adding a page requires editing 3+ files (App.tsx route, Header nav, Footer nav) |
-| Content hardcoded in page files | `Projects.tsx` lines 10-38, `TestimonialsPage.tsx` lines 15-80 | Non-technical users must edit React components to change content |
-| Duplicate testimonial data | `Testimonials.tsx` (section) vs `TestimonialsPage.tsx` (page) | Same testimonials defined in two places with different shapes |
-| Service data hardcoded | `Roofing.tsx` lines 9-46, `BentoGrid.tsx` | Service info scattered across multiple component files |
-| No config validation | `site.ts` uses `as const` only | Typos and missing fields produce no error until runtime |
-| Form has no backend | `Contact.tsx` line 57 | `handleSubmit` just sets `submitted = true`, no actual submission |
-| FAQs hardcoded per page | `Roofing.tsx` lines 72-93, `Contact.tsx` lines 29-50 | Same pattern duplicated, data buried in components |
-| Routes hardcoded in App.tsx | `App.tsx` lines 28-48 | Adding pages requires code changes in multiple files |
-
-### What the architecture upgrade must solve
-
-1. A non-technical user edits config files only (never touches React components)
-2. Adding a service, city, blog post, or testimonial requires zero code changes
-3. Navigation generates automatically from the services and pages defined in config
-4. The system validates config at build time and provides clear error messages
-5. SEO metadata generates automatically for every page including auto-generated ones
-
----
-
-## Recommended Architecture
-
-### Directory Structure
+**Existing form pipeline:**
 
 ```
-src/
-  config/
-    index.ts              # Re-exports validated config, single import point
-    schema.ts             # Zod schemas for all config types
-    defaults.ts           # Default values for optional config fields
-    company.ts            # Company name, contact, address, hours, social
-    services.ts           # Service definitions (roofing, siding, etc.)
-    service-areas.ts      # States, cities, per-city content templates
-    navigation.ts         # Nav structure (auto-generated from services + pages)
-    testimonials.ts       # All testimonial data in one place
-    projects.ts           # Portfolio/project gallery data + before/after
-    team.ts               # Team member profiles
-    assistant.ts          # AI assistant config (name, greetings, actions)
-    forms.ts              # Form fields, submission endpoints, webhooks
-    theme.ts              # Colors, fonts, spacing overrides
-    seo.ts                # Default meta, OG image, structured data config
-    features.ts           # Feature flags (blog enabled, chat enabled, etc.)
-  content/
-    blog/                 # Markdown blog posts with frontmatter
-      2026-01-15-storm-season.md
-      2026-02-01-insurance-guide.md
-  components/
-    sections/             # Reusable page sections (read from config)
-    layout/               # Header, Footer, Layout (read from config)
-    ui/                   # Atoms: Button, Card, etc.
-    pages/                # Page-level compositions
-  lib/
-    config-loader.ts      # Merges configs, validates, provides runtime access
-    route-generator.ts    # Generates route config from services + cities + blog
-    seo.ts                # Structured data / meta tag generation
-    form-handler.ts       # Form submission + webhook logic
-    blog.ts               # Blog post loading + frontmatter parsing
-  hooks/
-    useConfig.ts          # React context hook for config access
-    useScrollReveal.ts    # Existing animation hook
-  pages/                  # Page components (consume config, no hardcoded data)
-```
-
-### Why modular config files, not a single mega-file
-
-**Confidence: HIGH** (architectural best practice, verified across multiple template products)
-
-A single `site.ts` works for a 10-field config. This product will have 200+ fields across services, testimonials, projects, cities, blog posts, FAQs, team members, and feature flags. A single file becomes:
-
-- Impossible to navigate (800+ lines)
-- Merge-conflict-prone when multiple sections are edited
-- Intimidating to non-technical users who only need to edit testimonials
-
-The modular approach lets a user open `testimonials.ts`, see only testimonials, edit them, and close the file. Each file is self-documenting, short (50-150 lines), and validates independently.
-
-**Re-export pattern for developer convenience:**
-
-```typescript
-// src/config/index.ts
-export { company } from './company'
-export { services } from './services'
-export { serviceAreas } from './service-areas'
-export { testimonials } from './testimonials'
-export { projects } from './projects'
-export { navigation } from './navigation'
-export { assistant } from './assistant'
-export { forms } from './forms'
-export { theme } from './theme'
-export { seo } from './seo'
-export { features } from './features'
-
-// Validated aggregate for components that need multiple config sections
-export { siteConfig } from './schema'
-```
-
-Components import what they need:
-
-```typescript
-// Clean, explicit imports
-import { company } from '@/config'
-import { services } from '@/config'
+User fills form
+    ↓
+React Hook Form (validates with Zod schema)
+    ↓
+submitForm() in form-handler.ts
+    ↓
+Formspree / webhook / console.log
+    ↓
+navigate('/thank-you')
 ```
 
 ---
 
-## Config System Architecture
+## New Feature Integration Map
 
-### TypeScript Pattern: Zod Schema + Inferred Types
-
-**Confidence: HIGH** (Zod is the industry standard for runtime TypeScript validation)
-
-Use Zod to define schemas that serve triple duty: runtime validation, TypeScript type inference, and documentation via schema structure. Add Zod as a dependency (~52KB, tree-shakes well).
-
-```bash
-npm install zod
-```
-
-**Why Zod, not just TypeScript types:**
-
-| Approach | Compile-time safety | Runtime safety | Error messages | Self-documenting |
-|----------|-------------------|---------------|----------------|-----------------|
-| `as const` (current) | Partial | None | None | No |
-| TypeScript interfaces | Yes | None | None | Somewhat |
-| Zod schemas | Yes (via `z.infer`) | Yes | Detailed, human-readable | Yes |
-
-**Schema definition pattern:**
-
-```typescript
-// src/config/schema.ts
-import { z } from 'zod'
-
-// ── Company ────────────────────────────────────────
-export const CompanySchema = z.object({
-  name: z.string().min(1, 'Company name is required'),
-  tagline: z.string().min(1, 'Tagline is required'),
-  phone: z.string().regex(/^[\d\-\(\)\s\+]+$/, 'Invalid phone format'),
-  email: z.string().email('Invalid email address'),
-  url: z.string().url('Invalid URL'),
-  address: z.object({
-    street: z.string().min(1),
-    city: z.string().min(1),
-    state: z.string().length(2, 'Use 2-letter state code'),
-    zip: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code'),
-  }),
-  hours: z.object({
-    weekday: z.string(),
-    saturday: z.string(),
-    sunday: z.string(),
-    emergency: z.string().optional(),
-  }),
-  social: z.record(z.string().url()).optional(),
-  certifications: z.array(z.string()).default([]),
-})
-
-export type Company = z.infer<typeof CompanySchema>
-
-// ── Service ────────────────────────────────────────
-export const ServiceSchema = z.object({
-  slug: z.string().regex(/^[a-z0-9-]+$/, 'Slug must be lowercase with hyphens'),
-  name: z.string().min(1),
-  shortDescription: z.string().max(160, 'Keep under 160 chars for meta descriptions'),
-  heroImage: z.string(),
-  icon: z.string(), // Lucide icon name
-  features: z.array(z.object({
-    title: z.string(),
-    description: z.string(),
-    image: z.string().optional(),
-    bulletPoints: z.array(z.string()).default([]),
-  })),
-  materials: z.array(z.object({
-    title: z.string(),
-    description: z.string(),
-    items: z.array(z.string()),
-  })).default([]),
-  faqs: z.array(z.object({
-    question: z.string(),
-    answer: z.string(),
-  })).default([]),
-  seo: z.object({
-    title: z.string().optional(),
-    description: z.string().max(160).optional(),
-  }).optional(),
-})
-
-export type Service = z.infer<typeof ServiceSchema>
-
-// ── Testimonial ────────────────────────────────────
-export const TestimonialSchema = z.object({
-  name: z.string(),
-  location: z.string(),
-  service: z.string().optional(),
-  quote: z.string(),
-  shortQuote: z.string().max(200).optional(), // For homepage carousel
-  image: z.string(),
-  rating: z.number().min(1).max(5).default(5),
-  featured: z.boolean().default(false), // Show on homepage
-})
-
-export type Testimonial = z.infer<typeof TestimonialSchema>
-
-// ── Project ────────────────────────────────────────
-export const ProjectSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  location: z.string(),
-  category: z.string(),
-  detail: z.string(),
-  image: z.string(),
-  beforeImage: z.string().optional(),
-  afterImage: z.string().optional(),
-  description: z.string().optional(),
-  featured: z.boolean().default(false),
-})
-
-export type Project = z.infer<typeof ProjectSchema>
-
-// ── City / Service Area ────────────────────────────
-export const CitySchema = z.object({
-  slug: z.string().regex(/^[a-z0-9-]+$/),
-  name: z.string(),
-  state: z.string().length(2),
-  stateFullName: z.string(),
-  isHQ: z.boolean().default(false),
-  description: z.string().optional(),     // Unique content for SEO
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
-  nearbyAreas: z.array(z.string()).default([]),
-})
-
-export type City = z.infer<typeof CitySchema>
-
-export const ServiceAreaSchema = z.object({
-  summary: z.string(),
-  states: z.array(z.object({
-    name: z.string(),
-    abbreviation: z.string().length(2),
-    badge: z.string().optional(),
-    cities: z.array(CitySchema),
-  })),
-})
-
-export type ServiceArea = z.infer<typeof ServiceAreaSchema>
-```
-
-### Config File Pattern (what non-technical users edit)
-
-```typescript
-// src/config/company.ts
-import type { Company } from './schema'
-
-export const company: Company = {
-  name: 'Acme Home Services',
-  tagline: 'Roofing & Siding',
-  phone: '555-123-4567',
-  email: 'info@acmehomeservices.com',
-  url: 'https://acmehomeservices.com',
-  address: {
-    street: '123 Main St',
-    city: 'Anytown',
-    state: 'TX',
-    zip: '78701',
-  },
-  hours: {
-    weekday: 'Mon-Fri: 8am-6pm',
-    saturday: 'Sat: 9am-2pm',
-    sunday: 'Sun: Closed',
-    emergency: 'Emergency services available 24/7',
-  },
-  social: {
-    facebook: 'https://facebook.com/acmehomeservices',
-    instagram: 'https://instagram.com/acmehomeservices',
-  },
-  certifications: ['BBB A+', 'Licensed & Insured', 'Manufacturer Certified'],
-}
-```
-
-### Build-Time Validation
-
-```typescript
-// src/config/index.ts
-import { CompanySchema, ServiceSchema, TestimonialSchema, ProjectSchema, ServiceAreaSchema } from './schema'
-import { company as rawCompany } from './company'
-import { services as rawServices } from './services'
-import { testimonials as rawTestimonials } from './testimonials'
-import { projects as rawProjects } from './projects'
-import { serviceAreas as rawServiceAreas } from './service-areas'
-
-function validate<T>(schema: { parse: (data: unknown) => T }, data: unknown, label: string): T {
-  try {
-    return schema.parse(data)
-  } catch (error) {
-    console.error(`\n\n========================================`)
-    console.error(`CONFIG ERROR in ${label}`)
-    console.error(`========================================`)
-    if (error instanceof Error) console.error(error.message)
-    console.error(`\nFix the error in src/config/${label}.ts\n`)
-    throw error
-  }
-}
-
-export const company = validate(CompanySchema, rawCompany, 'company')
-export const services = rawServices.map((s, i) =>
-  validate(ServiceSchema, s, `services[${i}]`)
-)
-export const testimonials = rawTestimonials.map((t, i) =>
-  validate(TestimonialSchema, t, `testimonials[${i}]`)
-)
-export const projects = rawProjects.map((p, i) =>
-  validate(ProjectSchema, p, `projects[${i}]`)
-)
-export const serviceAreas = validate(ServiceAreaSchema, rawServiceAreas, 'service-areas')
-```
-
-This pattern catches errors at build time AND dev time with clear, actionable messages. When a user misspells a field or uses an invalid email, they get:
-
-```
-CONFIG ERROR in company
-  - email: Invalid email address
-  Fix the error in src/config/company.ts
-```
+| Feature | New Route | New Config | New Components | Touches Existing |
+|---------|-----------|------------|----------------|-----------------|
+| Multi-step quote wizard | `src/routes/get-quote.tsx` (NEW) | `src/config/quote.ts` (NEW) | `QuoteWizard`, step components, `StepIndicator` | `routes.ts`, `react-router.config.ts`, `features.ts`, `forms.ts`, `form-handler.ts`, `schemas.ts`, `navigation.ts` |
+| Cost estimator | Embedded in `/get-quote` step 2 | `src/config/quote.ts` cost ranges | `CostEstimator` | `financing.ts` (read-only link), `FinancingCalculator` (display only, no code change) |
+| Google Maps embed | Embedded in `CityPage.tsx` and optionally `Contact.tsx` | `src/config/maps.ts` (NEW) or field in `company.ts` | `GoogleMapEmbed` | `CityPage.tsx`, `service-areas.ts` (optional embed URL per city), `features.ts` |
+| Photo upload | Step 3 of quote wizard | `src/config/quote.ts` | `PhotoUpload` | `form-handler.ts` (multipart), `schemas.ts` (file validation) |
 
 ---
 
-## Config-Driven Routing
+## Feature 1: Multi-Step Quote Wizard
 
-**Confidence: HIGH** (pattern is well-established, React Router v7 supports it natively)
+### Route and pre-rendering
 
-### Strategy: Generate route arrays from config
+Add `/get-quote` as a new static route. No dynamic segments — it pre-renders as a single HTML file.
 
-The current `App.tsx` has 11 hardcoded routes. The config-driven version generates routes from services, cities, and blog posts.
-
+**`src/routes.ts` change:**
 ```typescript
-// src/lib/route-generator.ts
-import { lazy } from 'react'
-import type { RouteObject } from 'react-router-dom'
-import { services } from '@/config'
-import { serviceAreas } from '@/config'
-import { features } from '@/config'
-
-// Static page imports (always present)
-const Home = lazy(() => import('@/pages/Home'))
-const About = lazy(() => import('@/pages/About'))
-const Contact = lazy(() => import('@/pages/Contact'))
-const ProjectsPage = lazy(() => import('@/pages/Projects'))
-const TestimonialsPage = lazy(() => import('@/pages/Testimonials'))
-const ServiceAreasPage = lazy(() => import('@/pages/ServiceAreas'))
-const ServicesPage = lazy(() => import('@/pages/Services'))
-
-// Template pages (reused for each service/city)
-const ServicePage = lazy(() => import('@/pages/ServicePage'))
-const CityPage = lazy(() => import('@/pages/CityPage'))
-const BlogIndex = lazy(() => import('@/pages/BlogIndex'))
-const BlogPost = lazy(() => import('@/pages/BlogPost'))
-
-// Optional pages
-const AvaPage = lazy(() => import('@/pages/Ava'))
-
-export function generateRoutes(): RouteObject[] {
-  const routes: RouteObject[] = [
-    { index: true, element: <Home /> },
-    { path: 'about', element: <About /> },
-    { path: 'contact', element: <Contact /> },
-    { path: 'projects', element: <ProjectsPage /> },
-    { path: 'testimonials', element: <TestimonialsPage /> },
-    { path: 'service-areas', element: <ServiceAreasPage /> },
-    { path: 'services', element: <ServicesPage /> },
-  ]
-
-  // Generate a route for each service defined in config
-  for (const service of services) {
-    routes.push({
-      path: service.slug,
-      element: <ServicePage />,
-      // Pass service slug via route; component reads config by slug
-    })
-  }
-
-  // Generate a route for each city (for local SEO)
-  for (const state of serviceAreas.states) {
-    for (const city of state.cities) {
-      routes.push({
-        path: `service-areas/${city.slug}`,
-        element: <CityPage />,
-      })
-    }
-  }
-
-  // Blog routes (if blog feature enabled)
-  if (features.blog) {
-    routes.push(
-      { path: 'blog', element: <BlogIndex /> },
-      { path: 'blog/:slug', element: <BlogPost /> },
-    )
-  }
-
-  // AI assistant page (if assistant feature enabled)
-  if (features.assistant) {
-    routes.push({ path: 'ava', element: <AvaPage /> })
-  }
-
-  return routes
-}
+route('get-quote', 'routes/get-quote.tsx'),
 ```
 
-**Updated App.tsx:**
+**`react-router.config.ts`:** No change required. `getStaticPaths()` auto-discovers routes without dynamic segments. `/get-quote` will be included automatically.
 
+**`src/routes/get-quote.tsx`** follows the same lazy-loading pattern as all other routes:
 ```typescript
-// src/App.tsx
-import { Routes, Route, Suspense } from 'react-router-dom'
-import Layout from './components/layout/Layout'
-import { generateRoutes } from './lib/route-generator'
+import { lazy, Suspense } from 'react'
+const QuoteWizard = lazy(() => import('../pages/QuoteWizard'))
 
-const routes = generateRoutes()
-
-export default function App() {
+export default function GetQuoteRoute() {
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        <Route element={<Layout />}>
-          {routes.map((route, i) => (
-            <Route key={route.path ?? i} {...route} />
-          ))}
-        </Route>
-      </Routes>
+    <Suspense fallback={null}>
+      <QuoteWizard />
     </Suspense>
   )
 }
 ```
 
-### Template Page Pattern (ServicePage)
+### State management pattern
 
-Instead of a separate `Roofing.tsx`, `Siding.tsx`, `StormDamage.tsx`, use one `ServicePage.tsx` that reads the current service from config by matching the URL slug:
-
-```typescript
-// src/pages/ServicePage.tsx
-import { useParams, Navigate } from 'react-router-dom'
-import { services } from '@/config'
-import Hero from '@/components/sections/Hero'
-import FAQ from '@/components/sections/FAQ'
-import CTA from '@/components/sections/CTA'
-import ServiceFeatures from '@/components/sections/ServiceFeatures'
-import ServiceMaterials from '@/components/sections/ServiceMaterials'
-import PageMeta from '@/components/ui/PageMeta'
-import { company } from '@/config'
-
-export default function ServicePage() {
-  const { slug } = useParams()  // won't exist - we use path matching
-  // Since the route IS the slug (e.g., /roofing), we extract from pathname
-  const pathname = window.location.pathname.replace(/^\//, '')
-  const service = services.find(s => s.slug === pathname)
-
-  if (!service) return <Navigate to="/" replace />
-
-  return (
-    <>
-      <PageMeta
-        title={service.seo?.title ?? `${service.name} Services`}
-        description={service.seo?.description ?? service.shortDescription}
-        path={`/${service.slug}`}
-      />
-      <Hero
-        backgroundImage={service.heroImage}
-        headline="Professional"
-        highlightText={service.name}
-        subhead={service.shortDescription}
-        compact
-      />
-      <ServiceFeatures features={service.features} />
-      {service.materials.length > 0 && (
-        <ServiceMaterials materials={service.materials} />
-      )}
-      {service.faqs.length > 0 && (
-        <FAQ title={`${service.name} FAQs`} items={service.faqs} />
-      )}
-      <CTA />
-    </>
-  )
-}
-```
-
-This eliminates the need for separate Roofing.tsx, Siding.tsx, StormDamage.tsx. Adding a new service (e.g., "gutters") means adding an entry to `services.ts` -- zero component code changes.
-
----
-
-## Config-Driven Navigation
-
-**Confidence: HIGH** (direct application of observed current code patterns)
-
-### Strategy: Derive navigation from services config + static pages
-
-The header and footer currently have hardcoded nav link arrays. Replace with a system that auto-generates navigation from the services config and a simple page registry.
+Use a single `useReducer` at the `QuoteWizard` page level — not React Context. The wizard is self-contained on one page; Context is overkill for a 4-step form on a single route. React Hook Form manages field-level validation per step.
 
 ```typescript
-// src/config/navigation.ts
-import { services } from './services'
-import { features } from './features'
-
-export interface NavItem {
-  href: string
-  label: string
-  dropdown?: NavItem[]
-  showInHeader?: boolean
-  showInFooter?: boolean
-  footerGroup?: 'services' | 'company'
+type WizardState = {
+  step: 0 | 1 | 2 | 3
+  data: Partial<QuoteFormData>
 }
 
-// Auto-generate from config
-export function generateNavigation(): NavItem[] {
-  const nav: NavItem[] = [
-    { href: '/', label: 'Home', showInHeader: true, showInFooter: false },
-    {
-      href: '/services',
-      label: 'Services',
-      showInHeader: true,
-      showInFooter: false,
-      footerGroup: 'services',
-      dropdown: services.map(s => ({
-        href: `/${s.slug}`,
-        label: s.name,
-        showInHeader: true,
-        showInFooter: true,
-        footerGroup: 'services' as const,
-      })),
-    },
-    { href: '/projects', label: 'Projects', showInHeader: true, showInFooter: true, footerGroup: 'company' },
-    { href: '/testimonials', label: 'Testimonials', showInHeader: true, showInFooter: true, footerGroup: 'company' },
-    { href: '/about', label: 'About', showInHeader: true, showInFooter: true, footerGroup: 'company' },
-    { href: '/service-areas', label: 'Service Areas', showInHeader: true, showInFooter: true, footerGroup: 'company' },
-  ]
-
-  if (features.blog) {
-    nav.push({ href: '/blog', label: 'Blog', showInHeader: true, showInFooter: true, footerGroup: 'company' })
-  }
-
-  if (features.assistant) {
-    nav.push({ href: '/ava', label: 'Ask Ava', showInHeader: true, showInFooter: true, footerGroup: 'company' })
-  }
-
-  nav.push({ href: '/contact', label: 'Contact', showInHeader: true, showInFooter: true, footerGroup: 'company' })
-
-  return nav
-}
-
-export const navigation = generateNavigation()
-```
-
-**Header consumes config:**
-
-```typescript
-// In Header.tsx - replace hardcoded navLinks with:
-import { navigation } from '@/config/navigation'
-
-const navLinks = navigation.filter(n => n.showInHeader)
-```
-
-**Footer consumes config:**
-
-```typescript
-// In Footer.tsx - replace hardcoded arrays with:
-import { navigation } from '@/config/navigation'
-
-const serviceLinks = navigation
-  .flatMap(n => n.dropdown ?? [n])
-  .filter(n => n.showInFooter && n.footerGroup === 'services')
-
-const companyLinks = navigation
-  .filter(n => n.showInFooter && n.footerGroup === 'company')
-```
-
-When someone adds a service to `services.ts`, it automatically appears in the Services dropdown in the header AND in the footer's services column. Zero manual navigation updates.
-
----
-
-## Content Config vs Feature Config vs Theme Config
-
-**Confidence: HIGH** (separation of concerns is fundamental architecture)
-
-### The Three Config Layers
-
-This separation is critical for the non-technical user experience. Each layer has a different audience and change frequency:
-
-| Layer | What it contains | Who edits it | Change frequency | File(s) |
-|-------|-----------------|-------------|------------------|---------|
-| **Content** | Text, images, testimonials, projects, FAQs, blog | Business owner / marketing | Weekly | `company.ts`, `services.ts`, `testimonials.ts`, `projects.ts`, `service-areas.ts`, `team.ts`, `content/blog/*.md` |
-| **Feature** | What capabilities are enabled | Developer during setup | Once at setup, rarely after | `features.ts`, `forms.ts`, `assistant.ts` |
-| **Theme** | Colors, fonts, spacing, brand identity | Designer / developer | Once at setup | `theme.ts` |
-
-### Content Config (user-facing, pure data)
-
-```typescript
-// src/config/testimonials.ts
-import type { Testimonial } from './schema'
-
-export const testimonials: Testimonial[] = [
-  {
-    name: 'Michael R.',
-    location: 'Anytown',
-    service: 'Roofing',
-    quote: 'They made our roof replacement seamless...',
-    shortQuote: 'They made our roof replacement seamless. Couldn\'t be happier!',
-    image: '/images/testimonial-1.webp',
-    rating: 5,
-    featured: true,   // Will appear on homepage
-  },
-  // ... more testimonials
-]
-```
-
-The `featured` flag pattern is how you handle data that needs to appear in multiple places (homepage carousel vs. full testimonials page) without duplicating the data. The homepage testimonials section filters `testimonials.filter(t => t.featured)`. The testimonials page shows all.
-
-### Feature Config (developer-facing, boolean flags + endpoints)
-
-```typescript
-// src/config/features.ts
-export const features = {
-  /** Enable the blog section with markdown posts */
-  blog: true,
-  /** Enable the AI chat assistant */
-  assistant: true,
-  /** Enable individual city landing pages for local SEO */
-  cityPages: true,
-  /** Enable the project gallery before/after feature */
-  beforeAfter: true,
-  /** Contact form submission method */
-  formBackend: 'formspree' as 'formspree' | 'webhook' | 'netlify' | 'none',
-}
-```
-
-### Theme Config (design-facing, CSS custom properties)
-
-```typescript
-// src/config/theme.ts
-export const theme = {
-  colors: {
-    primary: '#1e3a5f',      // navy - main brand color
-    accent: '#f97316',       // safety-orange - CTAs and highlights
-    surface: '#f8fafc',      // light background
-    border: '#e2e8f0',       // border color
-  },
-  fonts: {
-    heading: 'Inter',
-    body: 'Inter',
-  },
-  borderRadius: {
-    card: '1rem',            // rounded-2xl
-    button: '9999px',        // rounded-full (pill)
-    input: '0.75rem',        // rounded-xl
-  },
-}
-```
-
-Theme config maps to CSS custom properties injected at the root level:
-
-```typescript
-// In Layout.tsx or main.tsx
-import { theme } from '@/config/theme'
-
-// Inject as CSS custom properties
-const style = {
-  '--color-primary': theme.colors.primary,
-  '--color-accent': theme.colors.accent,
-  '--color-surface': theme.colors.surface,
-  '--color-border': theme.colors.border,
-} as React.CSSProperties
-```
-
-Tailwind v4 can consume these via `@theme` in the CSS file, mapping custom properties to utility classes.
-
----
-
-## Markdown Blog Architecture
-
-**Confidence: MEDIUM** (vite-plugin-markdown is stable at v2.2.0 but should verify Vite 7 compatibility)
-
-### Strategy: File-based blog posts with frontmatter, loaded via Vite plugin
-
-Use `vite-plugin-markdown` for importing `.md` files with frontmatter parsed and HTML rendered. Blog posts live in `src/content/blog/` as markdown files.
-
-```bash
-npm install vite-plugin-markdown
-```
-
-### Frontmatter Schema
-
-```typescript
-// src/lib/blog.ts
-import { z } from 'zod'
-
-export const BlogFrontmatterSchema = z.object({
-  title: z.string(),
-  slug: z.string().regex(/^[a-z0-9-]+$/),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  excerpt: z.string().max(200),
-  coverImage: z.string().optional(),
-  author: z.string().default('Team'),
-  tags: z.array(z.string()).default([]),
-  published: z.boolean().default(true),
-})
-
-export type BlogFrontmatter = z.infer<typeof BlogFrontmatterSchema>
-```
-
-### Blog Post File Format
-
-```markdown
----
-title: "What to Do After Storm Damage"
-slug: "what-to-do-after-storm-damage"
-date: "2026-01-15"
-excerpt: "A step-by-step guide for homeowners dealing with storm damage to their roof or siding."
-coverImage: "/images/blog/storm-damage-guide.webp"
-author: "Team"
-tags: ["storm damage", "insurance", "roofing"]
-published: true
----
-
-# What to Do After Storm Damage
-
-When a storm hits your area, the first thing to do is...
-```
-
-### Vite Plugin Configuration
-
-```typescript
-// vite.config.ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import markdown from 'vite-plugin-markdown'
-
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    markdown({ mode: ['html', 'meta'] }),  // Parse frontmatter + HTML
-  ],
-})
-```
-
-### Blog Post Loading Pattern
-
-Use Vite's `import.meta.glob` to dynamically load all blog posts at build time:
-
-```typescript
-// src/lib/blog.ts
-import { BlogFrontmatterSchema, type BlogFrontmatter } from './schema'
-
-interface BlogPost {
-  frontmatter: BlogFrontmatter
-  html: string
-  slug: string
-}
-
-// Vite glob import - resolves at build time
-const postModules = import.meta.glob('/src/content/blog/*.md', { eager: true }) as Record<
-  string,
-  { attributes: Record<string, unknown>; html: string }
->
-
-export function getAllPosts(): BlogPost[] {
-  return Object.entries(postModules)
-    .map(([filepath, mod]) => {
-      const frontmatter = BlogFrontmatterSchema.parse(mod.attributes)
-      return {
-        frontmatter,
-        html: mod.html,
-        slug: frontmatter.slug,
-      }
-    })
-    .filter(post => post.frontmatter.published)
-    .sort((a, b) => b.frontmatter.date.localeCompare(a.frontmatter.date))
-}
-
-export function getPostBySlug(slug: string): BlogPost | undefined {
-  return getAllPosts().find(p => p.slug === slug)
-}
-```
-
-### TypeScript Declaration for Markdown Imports
-
-```typescript
-// src/markdown.d.ts
-declare module '*.md' {
-  const attributes: Record<string, unknown>
-  const html: string
-  const toc: { level: string; content: string }[]
-  const ReactComponent: React.FC
-  export { attributes, html, toc, ReactComponent }
-}
-```
-
-### Why file-based, not config-based for blog
-
-Blog posts are long-form content. Putting them in TypeScript config files would be awkward (escaping quotes, no syntax highlighting, no markdown preview). Markdown files give:
-
-- Familiar editing experience for content creators
-- IDE markdown preview support
-- Easy copy/paste from Google Docs or similar
-- Git-friendly diffs for content changes
-- Frontmatter provides structured metadata without mixing it into the content
-
----
-
-## Auto-Generated City/Service Pages
-
-**Confidence: HIGH** (local SEO pattern is well-established, implementation is straightforward)
-
-### The SEO Problem
-
-The current `ServiceAreas.tsx` shows all cities as chips on a single page. This is terrible for local SEO -- Google cannot rank a single page for "roofing in Springfield TX" AND "roofing in Cedar Park TX" simultaneously. Each city needs its own URL with unique content.
-
-### Architecture: Config-driven city pages with template content
-
-```typescript
-// src/config/service-areas.ts
-import type { ServiceArea } from './schema'
-
-export const serviceAreas: ServiceArea = {
-  summary: 'Serving the Greater Metro Area',
-  states: [
-    {
-      name: 'Texas',
-      abbreviation: 'TX',
-      badge: 'HQ',
-      cities: [
-        {
-          slug: 'anytown-tx',
-          name: 'Anytown',
-          state: 'TX',
-          stateFullName: 'Texas',
-          isHQ: true,
-          description: 'As our headquarters city, Anytown homeowners receive priority scheduling and our most experienced crews.',
-          metaTitle: 'Roofing & Siding Services in Anytown, TX',
-          metaDescription: 'Expert roofing, siding, and storm damage repair in Anytown, Texas. BBB A+ rated. Free inspections. Call 555-123-4567.',
-          nearbyAreas: ['Springfield', 'Riverside', 'Fairview'],
-        },
-        {
-          slug: 'springfield-tx',
-          name: 'Springfield',
-          state: 'TX',
-          stateFullName: 'Texas',
-          description: 'Springfield residents trust us for fast, reliable storm damage repair and roof replacements.',
-          nearbyAreas: ['Anytown', 'Riverside'],
-        },
-        // ... more cities
-      ],
-    },
-  ],
-}
-```
-
-### City Page Template
-
-```typescript
-// src/pages/CityPage.tsx
-import { useParams, Navigate } from 'react-router-dom'
-import { serviceAreas, company, services, testimonials } from '@/config'
-import Hero from '@/components/sections/Hero'
-import PageMeta from '@/components/ui/PageMeta'
-import CTA from '@/components/sections/CTA'
-
-export default function CityPage() {
-  const { citySlug } = useParams()
-
-  // Find city across all states
-  const city = serviceAreas.states
-    .flatMap(s => s.cities)
-    .find(c => c.slug === citySlug)
-
-  if (!city) return <Navigate to="/service-areas" replace />
-
-  // Filter testimonials from this city or nearby
-  const localTestimonials = testimonials.filter(t =>
-    t.location === city.name || city.nearbyAreas.includes(t.location)
-  )
-
-  return (
-    <>
-      <PageMeta
-        title={city.metaTitle ?? `${company.name} in ${city.name}, ${city.state}`}
-        description={city.metaDescription ?? `Professional roofing and siding services in ${city.name}, ${city.stateFullName}. Licensed & insured. Free inspections.`}
-        path={`/service-areas/${city.slug}`}
-      />
-      <Hero
-        headline={`${city.name}, ${city.state}`}
-        highlightText="Home Services"
-        subhead={city.description ?? `Trusted roofing, siding, and storm repair services for ${city.name} homeowners.`}
-        compact
-      />
-
-      {/* Services available */}
-      <section className="py-20">
-        <h2>Services in {city.name}</h2>
-        {services.map(service => (
-          <ServiceCard key={service.slug} service={service} city={city} />
-        ))}
-      </section>
-
-      {/* Local testimonials */}
-      {localTestimonials.length > 0 && (
-        <TestimonialsSection testimonials={localTestimonials} />
-      )}
-
-      {/* Nearby areas (internal linking for SEO) */}
-      <NearbyAreas city={city} allCities={serviceAreas.states.flatMap(s => s.cities)} />
-
-      <CTA />
-    </>
-  )
-}
-```
-
-### Critical SEO Requirement: Unique Content Per City
-
-Google explicitly penalizes "doorway pages" -- pages that are identical except for the city name swapped in. Each city page MUST have at least one of:
-
-1. **Unique description** in the config (most important)
-2. **Filtered testimonials** from that city
-3. **Filtered projects** completed in that city
-4. **Nearby areas** section with internal links
-5. **Local details** (specific driving directions, landmarks, local weather patterns)
-
-The config schema supports this with the optional `description`, `metaTitle`, and `metaDescription` fields per city.
-
----
-
-## Form Submission Architecture
-
-**Confidence: HIGH** (pattern well-established for static site deployments)
-
-### Strategy: Configurable backend with Formspree as default, webhook as extension
-
-The current form does nothing (`handleSubmit` just sets a boolean). The architecture needs to support:
-
-1. **Formspree** (default, zero-backend) -- form data goes to Formspree, email notifications sent automatically
-2. **Custom webhook** -- form data POSTed to a configurable URL (for CRMs, Zapier, etc.)
-3. **Netlify Forms** -- native form handling for Netlify-deployed sites
-4. **None** -- demo/development mode (current behavior)
-
-```typescript
-// src/config/forms.ts
-import type { FormConfig } from './schema'
-
-export const forms: FormConfig = {
-  contact: {
-    /** Backend for form submission. Options: 'formspree' | 'webhook' | 'netlify' | 'none' */
-    backend: 'formspree',
-
-    /** Formspree form ID (get from formspree.io dashboard) */
-    formspreeId: 'xpznqkdl',
-
-    /** Optional webhook URL - receives POST with form data as JSON */
-    webhookUrl: undefined,
-
-    /** Fields configuration */
-    fields: {
-      serviceOptions: [
-        'Free Roof Inspection',
-        'Roof Replacement',
-        'Roof Repair',
-        'Siding Installation/Repair',
-        'Storm Damage Assessment',
-        'Insurance Claim Help',
-        'Other',
-      ],
-      referralOptions: [
-        'Google Search',
-        'Facebook',
-        'Friend/Family Referral',
-        'Saw work in neighborhood',
-        'Door knock',
-        'Other',
-      ],
-    },
-
-    /** Success message shown after submission */
-    successMessage: "We've received your message and will get back to you within 24 hours.",
-
-    /** Enable honeypot spam protection */
-    honeypot: true,
-  },
-}
-```
-
-### Form Handler Implementation
-
-```typescript
-// src/lib/form-handler.ts
-import { forms } from '@/config/forms'
-
-interface FormData {
-  [key: string]: string
-}
-
-interface SubmissionResult {
-  success: boolean
-  message: string
-}
-
-export async function submitForm(
-  formName: keyof typeof forms,
-  data: FormData
-): Promise<SubmissionResult> {
-  const config = forms[formName]
-
-  switch (config.backend) {
-    case 'formspree':
-      return submitToFormspree(config.formspreeId!, data)
-
-    case 'webhook':
-      return submitToWebhook(config.webhookUrl!, data)
-
-    case 'netlify':
-      return submitToNetlify(formName, data)
-
-    case 'none':
+type WizardAction =
+  | { type: 'NEXT'; payload: Partial<QuoteFormData> }
+  | { type: 'BACK' }
+  | { type: 'GO_TO'; step: number }
+
+function wizardReducer(state: WizardState, action: WizardAction): WizardState {
+  switch (action.type) {
+    case 'NEXT':
+      return { step: Math.min(3, state.step + 1) as 0|1|2|3, data: { ...state.data, ...action.payload } }
+    case 'BACK':
+      return { ...state, step: Math.max(0, state.step - 1) as 0|1|2|3 }
+    case 'GO_TO':
+      return { ...state, step: action.step as 0|1|2|3 }
     default:
-      // Demo mode - simulate success
-      await new Promise(r => setTimeout(r, 800))
-      return { success: true, message: config.successMessage }
+      return state
   }
-}
-
-async function submitToFormspree(formId: string, data: FormData): Promise<SubmissionResult> {
-  const res = await fetch(`https://formspree.io/f/${formId}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify(data),
-  })
-
-  if (res.ok) {
-    return { success: true, message: 'Thank you! We\'ll be in touch soon.' }
-  }
-
-  const body = await res.json().catch(() => ({}))
-  return { success: false, message: body.error ?? 'Submission failed. Please try again.' }
-}
-
-async function submitToWebhook(url: string, data: FormData): Promise<SubmissionResult> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...data,
-      _submitted_at: new Date().toISOString(),
-      _source: window.location.href,
-    }),
-  })
-
-  if (res.ok) {
-    return { success: true, message: 'Thank you! We\'ll be in touch soon.' }
-  }
-
-  return { success: false, message: 'Submission failed. Please try again or call us directly.' }
-}
-
-async function submitToNetlify(formName: string, data: FormData): Promise<SubmissionResult> {
-  const formData = new URLSearchParams()
-  formData.append('form-name', formName)
-  for (const [key, value] of Object.entries(data)) {
-    formData.append(key, value)
-  }
-
-  const res = await fetch('/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: formData.toString(),
-  })
-
-  if (res.ok) {
-    return { success: true, message: 'Thank you! We\'ll be in touch soon.' }
-  }
-
-  return { success: false, message: 'Submission failed. Please try again.' }
 }
 ```
 
-### Why Formspree as default
+**Why not React Context:** The wizard is a single page component. Context adds indirection without benefit when there is no sibling-to-sibling communication needed across the component tree.
 
-| Option | Pros | Cons | Setup effort |
-|--------|------|------|-------------|
-| **Formspree** | Zero backend, email notifications built-in, spam protection, free tier (50/month), webhook support | Paid above 50 submissions/month ($8/mo) | 2 minutes (create form, copy ID) |
-| **Netlify Forms** | Free (100/month), automatic for Netlify deploys | Only works on Netlify | 1 minute |
-| **Custom webhook** | Maximum flexibility, works with any CRM/Zapier | Requires external service setup | 10-30 minutes |
-| **Resend** | Developer-friendly email API, free tier 3000/month | Requires serverless function, more complex setup | 30-60 minutes |
+**Why not a single React Hook Form instance across all steps:** Per-step Zod schemas with RHF's `trigger()` work correctly when each step mounts its own `useForm` instance using `defaultValues` seeded from `wizardState.data`. This avoids managing a mega-schema with conditional validation for fields not yet visible.
 
-Formspree is the right default because the template buyer wants forms to "just work" without deploying a backend.
+### Step architecture
+
+Each step is a separate component with its own `useForm` instance:
+
+```
+src/
+  components/
+    forms/
+      QuoteWizard/
+        index.tsx          ← QuoteWizard (useReducer, step orchestration)
+        StepIndicator.tsx  ← Visual step progress bar
+        Step1Service.tsx   ← Service selection + service details
+        Step2Details.tsx   ← Property details + cost estimator widget
+        Step3Photos.tsx    ← Photo upload (optional)
+        Step4Contact.tsx   ← Name, email, phone + submit
+```
+
+**Step flow:**
+
+```
+Step 1: Service Selection
+  - Which service? (Roofing / Siding / Storm Damage)
+  - Project type? (Repair / Full replacement / Inspection)
+  - Zod schema: { service, projectType }
+
+        ↓
+
+Step 2: Property Details + Cost Preview
+  - Property address
+  - Approximate square footage (optional)
+  - CostEstimator widget (read-only display, updates on service selection from Step 1)
+  - Zod schema: { address, squareFootage? }
+
+        ↓
+
+Step 3: Photos (Optional)
+  - "Upload photos of your damage" (optional, skip allowed)
+  - File list preview
+  - Up to 5 photos, each ≤ 10MB
+  - Zod schema: { photos?: File[] }
+
+        ↓
+
+Step 4: Contact Information
+  - First/last name, email, phone
+  - Additional notes (optional)
+  - Final submit
+  - Zod schema: contactSchema subset (firstName, lastName, email, phone, notes?)
+```
+
+### Config additions
+
+New file `src/config/quote.ts`:
+
+```typescript
+export const quote = {
+  wizard: {
+    heading: 'Get Your Free Quote',
+    subheading: 'Takes less than 2 minutes. No obligation.',
+    steps: [
+      { label: 'Service', description: 'What do you need?' },
+      { label: 'Details', description: 'About your property' },
+      { label: 'Photos', description: 'Show us the damage (optional)' },
+      { label: 'Contact', description: 'How to reach you' },
+    ],
+  },
+  projectTypes: {
+    roofing: ['Full Replacement', 'Repair', 'Inspection', 'Storm Damage'],
+    siding: ['Full Replacement', 'Repair', 'Storm Damage'],
+    'storm-damage': ['Emergency Inspection', 'Insurance Claim', 'Repair'],
+  },
+  photos: {
+    maxFiles: 5,
+    maxSizeMB: 10,
+    acceptedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/heic'],
+    instructions: 'Upload photos of the damage area. This helps us prepare an accurate estimate.',
+  },
+  costRanges: {
+    roofing: {
+      repair: { min: 300, max: 1500, label: 'Typical repair range' },
+      replacement: { min: 8000, max: 25000, label: 'Typical replacement range' },
+      inspection: { min: 0, max: 0, label: 'Free inspection' },
+    },
+    siding: {
+      repair: { min: 500, max: 3000, label: 'Typical repair range' },
+      replacement: { min: 6000, max: 20000, label: 'Typical replacement range' },
+    },
+    'storm-damage': {
+      repair: { min: 1000, max: 15000, label: 'Depends on damage severity' },
+      inspection: { min: 0, max: 0, label: 'Free inspection' },
+    },
+  },
+}
+```
+
+**Why a new `quote.ts` rather than extending `forms.ts`:** `forms.ts` handles submission config (Formspree ID, webhook URL). `quote.ts` handles wizard UI content and cost ranges — different concerns. `forms.ts` stays backwards-compatible.
+
+### Schema additions to `schemas.ts`
+
+Add a `quoteSchema` that represents the full merged payload at submission:
+
+```typescript
+export const quoteSchema = z.object({
+  service: z.string().min(1),
+  projectType: z.string().min(1),
+  address: z.string().min(1),
+  squareFootage: z.string().optional(),
+  photos: z.array(z.instanceof(File)).max(5).optional(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  email: z.string().email(),
+  phone: z.string().regex(phoneRegex),
+  notes: z.string().optional(),
+  _gotcha: z.string().optional(),
+})
+
+export type QuoteFormData = z.infer<typeof quoteSchema>
+```
+
+Per-step schemas are subsets of `QuoteFormData` used only for `trigger()` validation.
+
+### Submission: `form-handler.ts` changes
+
+Photos require `multipart/form-data` encoding — the existing `submitForm()` uses `application/json`. Two options exist:
+
+**Option A — Separate `submitQuote()` function (recommended):** Add a new export alongside the existing `submitForm()`. This preserves backwards compatibility and handles the multipart case cleanly.
+
+```typescript
+export async function submitQuote(data: QuoteFormData): Promise<SubmissionResult> {
+  const { provider, formspreeId, webhookUrl } = forms.submission
+
+  if (data._gotcha) return { ok: true }
+
+  const formData = new FormData()
+  // Append text fields
+  const { photos, _gotcha, ...textFields } = data
+  for (const [key, value] of Object.entries(textFields)) {
+    if (value !== undefined) formData.append(key, String(value))
+  }
+  // Append files
+  photos?.forEach((file, i) => formData.append(`photo_${i}`, file))
+
+  if (provider === 'formspree' && formspreeId) {
+    const res = await fetch(`https://formspree.io/f/${formspreeId}`, {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+      // No Content-Type — browser sets multipart boundary automatically
+      body: formData,
+    })
+    if (!res.ok) throw new Error('Submission failed')
+    return { ok: true }
+  }
+  // webhook, netlify, console fallback...
+}
+```
+
+**Option B — Extend `submitForm()` with a `multipart` flag:** Works but adds complexity to an already clean function. Not recommended.
+
+### Feature flag
+
+Add to `src/config/features.ts`:
+```typescript
+quoteWizard: true,  // Enables /get-quote route + nav link
+```
+
+### Navigation
+
+The quote wizard should be accessible from primary CTAs. Add a CTA link in navigation config if `features.quoteWizard` is true. Consider making "Get a Quote" the primary CTA in the nav, replacing or supplementing the existing `/contact` link.
 
 ---
 
-## SEO and Prerendering Strategy
+## Feature 2: Project Cost Estimator
 
-**Confidence: MEDIUM** (approach is sound, specific tool compatibility with Vite 7 needs verification)
+### Architecture decision
 
-### The SPA SEO Problem
+The cost estimator is NOT a standalone page — it is a **component embedded in Step 2 of the quote wizard**. It reads the service and project type selected in Step 1 and displays a cost range. No route change needed.
 
-React SPAs serve a blank `<div id="root"></div>` to crawlers. While Google's crawler can execute JavaScript, other search engines and social media scrapers cannot. The auto-generated city pages are especially useless without prerendering -- the whole point is Google indexing `roofing-anytown-tx` as a distinct page.
+**Why not merge with `FinancingCalculator`:** `FinancingCalculator` is a slider that computes monthly payments from a loan amount. The cost estimator provides upfront project cost ranges by service type. They are complementary — the estimator informs what amount to enter into the financing calculator. They remain separate components.
 
-### Recommended Approach: Build-time prerendering with vite-plugin-prerender
+### Component
 
-```bash
-npm install -D vite-plugin-prerender
+```
+src/components/ui/CostEstimator.tsx
 ```
 
 ```typescript
-// vite.config.ts
-import vitePrerender from 'vite-plugin-prerender'
-import { services } from './src/config/services'
-import { serviceAreas } from './src/config/service-areas'
-import { getAllPostSlugs } from './src/lib/blog'
-
-const staticRoutes = [
-  '/', '/about', '/contact', '/projects', '/testimonials',
-  '/service-areas', '/services',
-]
-
-const serviceRoutes = services.map(s => `/${s.slug}`)
-
-const cityRoutes = serviceAreas.states
-  .flatMap(s => s.cities)
-  .map(c => `/service-areas/${c.slug}`)
-
-const blogRoutes = getAllPostSlugs().map(slug => `/blog/${slug}`)
-
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    vitePrerender({
-      staticDir: path.join(__dirname, 'dist'),
-      routes: [
-        ...staticRoutes,
-        ...serviceRoutes,
-        ...cityRoutes,
-        ...blogRoutes,
-      ],
-      renderer: new vitePrerender.PuppeteerRenderer({
-        renderAfterDocumentEvent: 'app-rendered',
-        maxConcurrentRoutes: 4,
-      }),
-    }),
-  ],
-})
-```
-
-The route list for prerendering is generated from the same config that generates the routes, ensuring every page gets prerendered.
-
-### Alternative: React Router v7 Framework Mode
-
-React Router v7 (which this project already uses as react-router-dom v7.13.0) has built-in pre-rendering support, but only in "Framework Mode" which requires a different project structure (using `@react-router/dev` plugin, `routes.ts` file, different entry point). Migrating to Framework Mode would be a larger refactor but would provide native SSG/SSR without a third-party plugin.
-
-**Recommendation:** Start with `vite-plugin-prerender` for the initial upgrade (lower risk, works with existing SPA architecture). Consider migrating to React Router Framework Mode in a future phase if SSR or more advanced rendering strategies are needed.
-
-### JSON-LD Structured Data
-
-Auto-generate structured data from config for rich search results:
-
-```typescript
-// src/lib/seo.ts
-import { company, services, testimonials } from '@/config'
-
-export function generateLocalBusinessSchema() {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'HomeAndConstructionBusiness',
-    name: company.name,
-    telephone: company.phone,
-    email: company.email,
-    url: company.url,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: company.address.street,
-      addressLocality: company.address.city,
-      addressRegion: company.address.state,
-      postalCode: company.address.zip,
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: (testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length).toFixed(1),
-      reviewCount: testimonials.length,
-    },
-  }
+interface CostEstimatorProps {
+  service: string        // 'roofing' | 'siding' | 'storm-damage'
+  projectType: string    // 'replacement' | 'repair' | 'inspection' etc.
 }
+```
+
+The component reads `quote.costRanges[service][projectType]` and renders a visual cost range card. It is purely presentational — no state, no hooks beyond `useScrollReveal`.
+
+**Integration with Financing page:** The estimator stands alone in the wizard. The `Financing` page remains unchanged. A "See financing options" link from the estimator pointing to `/financing` is sufficient cross-linking.
+
+### Config
+
+Cost ranges live in `src/config/quote.ts` (defined above). This keeps all wizard-related configuration in one file. No changes to `financing.ts` needed.
+
+---
+
+## Feature 3: Google Maps Embed
+
+### Two embed strategies
+
+**Strategy A — Maps Embed API (requires API key, free):** Uses `https://www.google.com/maps/embed/v1/place?key=API_KEY&q=ADDRESS`. Fully interactive, supports custom zoom. Unlimited free usage. Requires Google Cloud project + API key in config.
+
+**Strategy B — Share iframe embed (no API key):** Uses the iframe code from Google Maps' "Share > Embed a map" button. Hard-coded URL per location. Simpler but manual — each city would need a manually generated embed URL.
+
+**Recommendation: Strategy A for the headquarters map (Contact page), Strategy B fallback for city pages.**
+
+For city pages, 20 cities × a manually generated embed URL is feasible but tedious. Use the API key approach for all if the user provides one, with a graceful degradation (no map shown) if no key is configured.
+
+### Config
+
+Add `googleMaps` to `src/config/company.ts` (co-located with address data):
+
+```typescript
+export const company = {
+  // ...existing fields...
+  googleMaps: {
+    /** Maps Embed API key — get free key at console.cloud.google.com */
+    apiKey: '',
+    /** Default zoom level for city page maps (1-21, 13 = neighborhood) */
+    defaultZoom: 13,
+    /** Map type: 'roadmap' | 'satellite' | 'terrain' | 'hybrid' */
+    mapType: 'roadmap' as const,
+  },
+}
+```
+
+Feature flag in `features.ts`:
+```typescript
+googleMaps: false,  // Set to true when apiKey is configured
+```
+
+**Why not a separate `maps.ts`:** The Maps API key is infrastructure config related to company identity (address). The `company.ts` file already owns address data. Co-locating the maps API key there is coherent. If maps config grows (custom markers, styles), extract to `maps.ts` then.
+
+### Component
+
+```
+src/components/ui/GoogleMapEmbed.tsx
+```
+
+```typescript
+interface GoogleMapEmbedProps {
+  address: string          // "123 Main St, Anytown, TX 78701"
+  zoom?: number            // defaults to company.googleMaps.defaultZoom
+  height?: string          // Tailwind height class, default 'h-64'
+  title?: string           // iframe title for accessibility
+}
+
+export default function GoogleMapEmbed({ address, zoom, height = 'h-64', title }: GoogleMapEmbedProps) {
+  const { apiKey, defaultZoom, mapType } = company.googleMaps
+  if (!apiKey || !features.googleMaps) return null
+
+  const src = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(address)}&zoom=${zoom ?? defaultZoom}&maptype=${mapType}`
+
+  return (
+    <div className={`w-full ${height} rounded-2xl overflow-hidden border border-border`}>
+      <iframe
+        src={src}
+        width="100%"
+        height="100%"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title={title ?? `Map showing ${address}`}
+        className="border-0"
+      />
+    </div>
+  )
+}
+```
+
+**`loading="lazy"`:** Critical for performance — city pages have 20 instances if maps are enabled on each. Lazy loading prevents 20 simultaneous iframe loads on the service areas index.
+
+### Integration points
+
+**Contact page (`src/pages/Contact.tsx`):** Add `<GoogleMapEmbed address={company.address.full} />` in the sidebar below the address info block. Conditional on `features.googleMaps`.
+
+**City page (`src/pages/CityPage.tsx`):** Add a map section after the "Services We Offer" section. The city address is `${city.name}, ${city.state}` — no street address exists for city pages, so the search is by city+state which maps correctly.
+
+**CityConfig** (`src/config/service-areas.ts`): Optionally add an `embedUrl` field per city for the no-API-key fallback (Strategy B). Only needed if `apiKey` is empty and the operator wants maps on city pages regardless.
+
+### Static pre-rendering: no impact
+
+`GoogleMapEmbed` renders `null` on the server if `apiKey` is empty (which it is in the template default). After hydration the iframe appears. This is correct behavior — the pre-rendered HTML has no iframe, the client hydrates and conditionally renders it. No pre-rendering config changes needed.
+
+---
+
+## Feature 4: Photo Upload
+
+### Architecture: client-side only, submission via multipart
+
+Photos are selected in the browser using `<input type="file">`, previewed using `URL.createObjectURL()`, and submitted as `File` objects in a `FormData` payload. No server-side storage is involved in the template itself — files go to Formspree (which stores them) or to a webhook endpoint.
+
+**Why `URL.createObjectURL()` over `FileReader.readAsDataURL()`:**
+- `createObjectURL()` is synchronous, returns a blob URL immediately
+- No memory overhead from base64 encoding (33% larger than binary)
+- Must call `URL.revokeObjectURL()` on unmount to prevent memory leaks
+- `FileReader` is only needed if storing as base64 (localStorage, JSON payload) — not needed here since we use FormData
+
+### Component
+
+```
+src/components/forms/PhotoUpload.tsx
+```
+
+```typescript
+interface PhotoUploadProps {
+  value: File[]
+  onChange: (files: File[]) => void
+  maxFiles?: number       // from quote.photos.maxFiles
+  maxSizeMB?: number      // from quote.photos.maxSizeMB
+  acceptedTypes?: string  // MIME types joined as comma string
+}
+```
+
+Internal state: array of `{ file: File; previewUrl: string }` objects. Preview URLs are created on file add and revoked on file remove or unmount.
+
+```typescript
+function PhotoUpload({ value, onChange, maxFiles = 5, maxSizeMB = 10 }: PhotoUploadProps) {
+  const [previews, setPreviews] = useState<{ file: File; previewUrl: string }[]>([])
+
+  const addFiles = (newFiles: FileList) => {
+    const valid = Array.from(newFiles).filter(f => f.size <= maxSizeMB * 1024 * 1024)
+    const withPreviews = valid.map(file => ({ file, previewUrl: URL.createObjectURL(file) }))
+    const merged = [...previews, ...withPreviews].slice(0, maxFiles)
+    setPreviews(merged)
+    onChange(merged.map(p => p.file))
+  }
+
+  useEffect(() => {
+    return () => previews.forEach(p => URL.revokeObjectURL(p.previewUrl))
+  }, [previews])
+
+  // drag-and-drop + click-to-select UI
+}
+```
+
+### Integration with the wizard
+
+`Step3Photos.tsx` renders `<PhotoUpload>` as a controlled component. The `QuoteWizard` reducer stores `File[]` in `wizardState.data.photos`. When Step 4 submits, `submitQuote()` serializes files via `FormData`.
+
+**Photos are optional.** Step 3 has a "Skip this step" button that calls `dispatch({ type: 'NEXT', payload: {} })` without adding photos. Zod schema: `photos: z.array(z.instanceof(File)).max(5).optional()`.
+
+### Formspree file upload requirements
+
+- Must use `multipart/form-data` (not `application/json`)
+- Do NOT set `Content-Type` header manually — let the browser set the boundary
+- Each file is a separate form field: `formData.append('photo_0', file)` etc.
+- Formspree stores files and includes download links in the submission dashboard
+- File upload requires a Formspree Gold plan or higher (verify with operator — template defaults to `none` provider anyway, so the console.log fallback works in demo mode)
+
+**Webhook alternative:** If using a webhook, the same `FormData` approach works. The receiving endpoint must handle `multipart/form-data`. For demo/no-backend mode, files appear in `console.log` as File objects (not serializable — document this limitation).
+
+### Schema update
+
+`z.instanceof(File)` requires careful handling in pre-rendered context. Because the route hydrates client-side, `File` is available when the schema runs. No SSR issue since `ssr: false`. But add a guard:
+
+```typescript
+const fileSchema = typeof File !== 'undefined'
+  ? z.instanceof(File)
+  : z.any()  // Server-side fallback (pre-render context)
+```
+
+---
+
+## System Overview After v1.2
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         Config Layer (src/config/)                       │
+│  company.ts   services.ts   quote.ts (NEW)   features.ts   forms.ts     │
+│  financing.ts   service-areas.ts   ...                                   │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          Route Layer (src/routes/)                        │
+│  home   contact   financing   service-areas/:slug   get-quote (NEW)      │
+│  Each: lazy-loaded page component wrapped in Suspense                    │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          Page Layer (src/pages/)                          │
+│  QuoteWizard.tsx (NEW)                                                   │
+│  Contact.tsx (+ GoogleMapEmbed)   CityPage.tsx (+ GoogleMapEmbed)        │
+│  Financing.tsx (unchanged)                                               │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        Component Layer (src/components/)                  │
+│  forms/                                                                  │
+│    QuoteWizard/                                                          │
+│      index.tsx (NEW) — useReducer orchestrator                           │
+│      StepIndicator.tsx (NEW)                                             │
+│      Step1Service.tsx (NEW)                                              │
+│      Step2Details.tsx (NEW) — embeds CostEstimator                       │
+│      Step3Photos.tsx (NEW) — embeds PhotoUpload                          │
+│      Step4Contact.tsx (NEW)                                              │
+│    PhotoUpload.tsx (NEW)                                                 │
+│    ContactForm.tsx (unchanged)   BookingForm.tsx (unchanged)             │
+│  ui/                                                                     │
+│    CostEstimator.tsx (NEW)                                               │
+│    GoogleMapEmbed.tsx (NEW)                                              │
+│    FinancingCalculator.tsx (unchanged)                                   │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          Lib Layer (src/lib/)                             │
+│  form-handler.ts — ADD submitQuote() (multipart FormData)                │
+│  schemas.ts — ADD quoteSchema + per-step schemas                         │
+│  (all other lib files unchanged)                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        External Services                                  │
+│  Formspree (multipart) — quote wizard submissions with photos            │
+│  Google Maps Embed API — free, API key in company.googleMaps.apiKey      │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Component Boundaries
 
-### How components relate to config
-
-| Component | Config Source | Role |
-|-----------|-------------|------|
-| `Header` | `navigation`, `company` | Reads nav items, company name, phone |
-| `Footer` | `navigation`, `company` | Reads nav items grouped by `footerGroup`, contact info |
-| `Hero` | Props from page (which reads `services`, `company`) | Reusable, receives data via props |
-| `ServicePage` | `services` (matched by slug) | Template page, renders any service |
-| `CityPage` | `serviceAreas` (matched by slug), `services`, `testimonials` | Template page, renders any city |
-| `Testimonials` section | `testimonials` (filtered by `featured`) | Homepage section, shows featured only |
-| `TestimonialsPage` | `testimonials` (all) | Full page, shows all |
-| `Projects` | `projects` | Gallery with filter |
-| `FAQ` | Props (from `services[n].faqs` or page-specific) | Reusable, receives items via props |
-| `BlogIndex` | `getAllPosts()` from blog loader | Lists all published posts |
-| `BlogPost` | `getPostBySlug()` from blog loader | Renders single post HTML |
-| `ContactForm` | `forms.contact` | Reads field options, submission config |
-| `Stats` | `company.stats` (moved to company config) | Animated counters |
-
-### Component Design Rules
-
-1. **Components never import content directly** -- they receive data via props or read from config using a slug/filter
-2. **Config files never import components** -- config is pure data, no JSX
-3. **One template page per dynamic entity type** -- `ServicePage`, `CityPage`, `BlogPost` (not `Roofing.tsx`, `Siding.tsx`, `StormDamage.tsx`)
-4. **Sections are reusable** -- `FAQ`, `Hero`, `CTA`, `Testimonials` accept props, work anywhere
-5. **Feature flags gate routes AND nav items** -- if `features.blog` is false, no blog route exists and no "Blog" nav item appears
+| Component | Responsibility | Owns State | Communicates With |
+|-----------|----------------|------------|-------------------|
+| `QuoteWizard` (page) | Step orchestration, accumulated data, final submit | `wizardState` via `useReducer` | All step components (props down), `submitQuote()` |
+| `StepIndicator` | Visual progress display | None | Receives `currentStep`, `totalSteps` as props |
+| `Step1Service` | Service + project type selection | Own `useForm` | Returns data to parent via `onNext(data)` |
+| `Step2Details` | Address, sq footage, cost preview | Own `useForm` | Returns data via `onNext(data)`, reads Step 1 data from props |
+| `Step3Photos` | Photo selection and preview | Own `useState` for previews | Returns `File[]` via `onChange`, skip-capable |
+| `Step4Contact` | Contact fields + final submit | Own `useForm` | Triggers `submitQuote()` via parent |
+| `PhotoUpload` | File input, preview grid, remove | Preview blob URLs in `useState` | Controlled by parent via `value`/`onChange` |
+| `CostEstimator` | Display cost range for service+type | None (pure display) | Reads `quote.costRanges` from config |
+| `GoogleMapEmbed` | Render iframe conditionally | None | Reads `company.googleMaps`, `features.googleMaps` |
 
 ---
 
 ## Data Flow
 
-```
-Config Files (*.ts)
-    |
-    v
-Config Index (validates with Zod)
-    |
-    +---> Route Generator -----> App.tsx (route tree)
-    |
-    +---> Navigation Generator -> Header.tsx, Footer.tsx
-    |
-    +---> Template Pages -------> ServicePage, CityPage
-    |         |
-    |         v
-    |      Section Components (FAQ, Hero, CTA, etc.)
-    |
-    +---> Blog Loader ----------> BlogIndex, BlogPost
-    |       (import.meta.glob)
-    |
-    +---> Form Handler ----------> ContactForm
-    |       (Formspree / webhook)
-    |
-    +---> SEO Generator ---------> PageMeta, JSON-LD
-    |
-    +---> Theme Generator -------> CSS custom properties
+### Quote Wizard Data Flow
 
-Blog Markdown Files (*.md)
-    |
-    v
-vite-plugin-markdown (parse frontmatter + compile HTML)
-    |
-    v
-Blog Loader (import.meta.glob, validate frontmatter)
-    |
-    v
-BlogIndex / BlogPost pages
 ```
+User selects service (Step 1)
+    ↓
+Step1Service.useForm validates { service, projectType }
+    ↓
+onNext(data) → dispatch({ type: 'NEXT', payload: data })
+    ↓
+wizardState.data = { service, projectType }
+    ↓
+Step2Details receives wizardState.data.service as prop
+  → CostEstimator reads quote.costRanges[service][projectType]
+  → Displays price range to user
+    ↓
+Step2Details.useForm validates { address, squareFootage? }
+    ↓
+onNext(data) → dispatch({ type: 'NEXT', payload: data })
+    ↓
+wizardState.data = { service, projectType, address, squareFootage }
+    ↓
+Step3Photos receives onChange callback
+  → User selects files → URL.createObjectURL() previews
+  → onNext(files) → dispatch({ type: 'NEXT', payload: { photos: files } })
+    ↓
+wizardState.data = { ...prev, photos: File[] }
+    ↓
+Step4Contact.useForm validates { firstName, lastName, email, phone, notes? }
+    ↓
+handleSubmit → merge wizardState.data + contact fields
+    ↓
+submitQuote(fullData) → FormData → Formspree (multipart) or webhook
+    ↓
+navigate('/thank-you')
+```
+
+### Google Maps Data Flow
+
+```
+Build time: company.googleMaps.apiKey read from config
+    ↓
+Static HTML pre-rendered (no iframe — apiKey is '' in template)
+    ↓
+Client hydration: GoogleMapEmbed checks features.googleMaps + apiKey
+    ↓
+If enabled: renders <iframe src="maps.googleapis.com/maps/embed/v1/place?key=...">
+    ↓
+Browser loads iframe lazily (loading="lazy")
+    ↓
+Google Maps tile server serves the interactive map
+```
+
+### Cost Estimator Data Flow
+
+```
+Step 1 selection: service = 'roofing', projectType = 'replacement'
+    ↓
+CostEstimator receives { service, projectType } as props
+    ↓
+Reads: quote.costRanges['roofing']['replacement']
+    → { min: 8000, max: 25000, label: 'Typical replacement range' }
+    ↓
+Renders: "$8,000 – $25,000 typical replacement range"
+    ↓
+Link: "See financing options →" pointing to /financing
+    ↓
+No state, no API calls — pure config lookup
+```
+
+---
+
+## Build Order
+
+Dependencies flow downward. Build in this order to avoid blocked work:
+
+### Phase A: Foundation (build first, unblocks everything)
+
+1. **`src/config/quote.ts`** — New config file. No deps. Enables cost estimator data and wizard copy.
+2. **`src/lib/schemas.ts` additions** — Add `quoteSchema` and per-step schemas. Depends on `quote.ts` for type references.
+3. **`src/config/features.ts` additions** — Add `quoteWizard: true` and `googleMaps: false` flags.
+
+### Phase B: Atomic UI components (can build in parallel after Phase A)
+
+4. **`src/components/ui/CostEstimator.tsx`** — Pure display component. Depends on `quote.ts`. No wizard dependency.
+5. **`src/components/ui/GoogleMapEmbed.tsx`** — Pure display component. Depends on `company.ts` and `features.ts`.
+6. **`src/components/forms/PhotoUpload.tsx`** — Controlled file input component. Depends only on React APIs.
+
+### Phase C: Quote Wizard step components (build sequentially, each depends on prior)
+
+7. **`Step1Service.tsx`** — First step. Depends on `services` config and `quote.ts` projectTypes.
+8. **`Step2Details.tsx`** — Depends on Step 1 output shape. Embeds `CostEstimator` (Phase B).
+9. **`Step3Photos.tsx`** — Depends on `PhotoUpload` (Phase B) and `quote.photos` config.
+10. **`StepIndicator.tsx`** — Visual only. Can build any time after `quote.wizard.steps` config exists.
+11. **`Step4Contact.tsx`** — Final step. Depends on `quoteSchema` final fields.
+
+### Phase D: Wizard orchestration (build after Phase C)
+
+12. **`src/components/forms/QuoteWizard/index.tsx`** — Assembles all steps with `useReducer`. Depends on all step components.
+
+### Phase E: Submission pipeline (build after Phase D)
+
+13. **`src/lib/form-handler.ts` — add `submitQuote()`** — Add alongside existing `submitForm()`. Depends on `forms.ts` (reads `provider`, `formspreeId`).
+
+### Phase F: Route and navigation wiring (build last)
+
+14. **`src/pages/QuoteWizard.tsx`** — Page wrapper with `PageMeta`, `Hero` (compact), and the wizard. Depends on the wizard component.
+15. **`src/routes/get-quote.tsx`** — Lazy-loading route wrapper. Depends on page.
+16. **`src/routes.ts` update** — Add `route('get-quote', ...)`. Immediately enables the route.
+17. **Navigation update** — Add "Get a Quote" link to nav config if feature-flagged.
+
+### Phase G: Google Maps integration (independent, can slot after Phase B)
+
+18. **`src/config/company.ts` update** — Add `googleMaps: { apiKey, defaultZoom, mapType }` field.
+19. **`src/config/schema.ts` update** — Extend `companySchema` with `googleMaps` Zod shape.
+20. **`src/pages/Contact.tsx` update** — Add `<GoogleMapEmbed>` in the sidebar.
+21. **`src/pages/CityPage.tsx` update** — Add map section with `<GoogleMapEmbed address={city.name + ', ' + city.state}>`.
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Putting everything in one giant config file
-**What:** Cramming 800+ lines of services, testimonials, projects, cities, and blog config into a single `site.ts`
-**Why bad:** Intimidates non-technical users, merge conflicts, impossible to scan, violates single responsibility
-**Instead:** One file per concern (company, services, testimonials, etc.) with a barrel export index
+### Anti-Pattern 1: Single `useForm` instance spanning all wizard steps
 
-### Anti-Pattern 2: Config objects with display logic
-**What:** Putting React components, JSX, or Lucide icon imports in config files
-**Why bad:** Config files become coupled to the rendering framework, non-technical users see import statements and JSX
-**Instead:** Use string identifiers (icon names like `'Home'`, `'Shield'`) and resolve them to components in the rendering layer
+**What people do:** Create one `useForm` with the full `quoteSchema`, render all fields, hide non-current steps with CSS, validate the whole form on each "Next" click.
 
-```typescript
-// BAD - config file imports React components
-import { Home } from 'lucide-react'
-export const services = [{ icon: Home, ... }]
+**Why it's wrong:** React Hook Form tracks touched/dirty state per field. Hidden fields accumulate errors the user cannot see. Validation on submit fires against all fields including those in hidden steps. CSS-hidden form fields still participate in the DOM which causes accessibility issues (screen readers reach them).
 
-// GOOD - config uses string identifiers
-export const services = [{ icon: 'Home', ... }]
+**Do this instead:** Each step owns its own `useForm` instance with only the fields for that step. The wizard orchestrator collects data from each step via `onNext(data)` callbacks and merges into `wizardState.data`. Final submission assembles the merged object.
 
-// Component resolves the string to a component
-import * as icons from 'lucide-react'
-const Icon = icons[service.icon]
-```
+### Anti-Pattern 2: FileReader.readAsDataURL for photo previews
 
-### Anti-Pattern 3: Config that requires understanding TypeScript
-**What:** Complex generics, utility types, or TypeScript syntax in config files that non-technical users edit
-**Why bad:** The target user (business owner customizing their template) should not need to understand TypeScript
-**Instead:** Config files use simple object literals. All complexity (validation, type inference) lives in `schema.ts` which users never touch
+**What people do:** Use `FileReader.readAsDataURL()` to create base64 preview strings, store them in state, pass them to `<img src={base64}>`.
 
-### Anti-Pattern 4: Deriving slugs from titles at runtime
-**What:** Auto-generating URL slugs from service names (e.g., "Storm Repair" -> "storm-repair")
-**Why bad:** URLs change if someone renames a service, breaking bookmarks and SEO
-**Instead:** Slugs are explicit in config. The service name can change without affecting the URL
+**Why it's wrong:** Base64 encoding inflates file size by 33%. For 5 × 10MB photos, this means 66MB held in memory as strings. `FileReader` is async and requires callback management. The base64 string also cannot be used with `URL.revokeObjectURL()` so memory leaks are common.
 
-### Anti-Pattern 5: Dynamic imports in config
-**What:** Using `import()` or `require()` in config files
-**Why bad:** Makes config files async, complicates validation, breaks tree-shaking
-**Instead:** Config files export plain synchronous objects. Dynamic loading happens in the consuming layer (route-generator.ts with `lazy()`)
+**Do this instead:** `URL.createObjectURL(file)` returns a blob URL synchronously. Revoke it with `URL.revokeObjectURL(url)` on component unmount or file removal.
 
-### Anti-Pattern 6: City pages that are identical except for the city name
-**What:** Template city pages where only `${cityName}` is different
-**Why bad:** Google penalizes these as "doorway pages" and may deindex all of them
-**Instead:** Each city config entry has a `description` field. Provide a content template system that fills in unique local details, and show local testimonials/projects per city
+### Anti-Pattern 3: Sending files via `application/json` with base64 payload
+
+**What people do:** Encode photos as base64, include them in a JSON body, send to Formspree or webhook.
+
+**Why it's wrong:** JSON endpoints (Formspree's JSON handler) reject file payloads. Base64 in JSON bodies blows up payload size. CORS preflight triggers on custom headers. Formspree's file upload feature specifically requires `multipart/form-data`.
+
+**Do this instead:** Use `FormData` with `Content-Type` omitted. The browser auto-sets `multipart/form-data` with the correct boundary string.
+
+### Anti-Pattern 4: Hardcoding Google Maps API key in component
+
+**What people do:** Paste the API key directly in the component: `const API_KEY = 'AIzaSy...'`.
+
+**Why it's wrong:** API key is committed to source control. Cannot be changed without a code deploy. Cannot be feature-flagged.
+
+**Do this instead:** Store in `company.ts` config (as documented above). Read in the component from config. The key is still client-visible (all Maps Embed API keys are, by design), but the config location makes it easy to rotate and is consistent with the project's config-first philosophy.
+
+### Anti-Pattern 5: Using React Context for wizard state
+
+**What people do:** Wrap the wizard in a `QuoteWizardContext.Provider` with all wizard state, so step components can call `useQuoteWizard()` to access and mutate state.
+
+**Why it's wrong:** For a 4-step wizard on a single page, Context adds indirection without benefit. Props + callbacks are explicit and traceable. Context causes all consuming components to re-render on any state change, even if only one field changed. Debugging is harder because data flow is implicit.
+
+**Do this instead:** `useReducer` in the top-level `QuoteWizard` orchestrator component. Pass data down as props, callbacks up as `onNext` / `onBack`. The wizard state is localized to one component.
+
+### Anti-Pattern 6: Adding `/get-quote` to the pre-render path list manually
+
+**What people do:** Add `'/get-quote'` to the `prerender()` function's returned array in `react-router.config.ts`.
+
+**Why it's not needed:** The `getStaticPaths()` helper already auto-discovers all routes defined in `routes.ts` that have no dynamic segments. `/get-quote` has no `:slug` — it will be included automatically. Manual addition causes no harm (RR7 deduplicates) but adds maintenance overhead.
+
+**Do this instead:** Just add the route to `routes.ts`. Pre-rendering picks it up automatically.
 
 ---
 
-## Scalability Considerations
+## Integration Points: New vs Modified
 
-| Concern | At 10 cities | At 50 cities | At 200 cities |
-|---------|-------------|-------------|---------------|
-| Build time (prerender) | ~15 seconds | ~45 seconds | ~3 minutes |
-| Config file size | Single file OK | Split by state | Split by state |
-| Bundle size | Negligible | Negligible (config is tree-shaken) | Negligible |
-| SEO content | Can write unique descriptions | Need template system for descriptions | Definitely need template system |
+### New files (create from scratch)
 
-| Concern | At 5 blog posts | At 50 posts | At 200 posts |
-|---------|----------------|-------------|-------------|
-| Build time | ~10 seconds | ~30 seconds | ~2 minutes |
-| import.meta.glob | Fine | Fine | May need pagination |
-| Bundle size | Small | Moderate (HTML strings) | Consider lazy loading post content |
+| File | Purpose |
+|------|---------|
+| `src/config/quote.ts` | Wizard UI copy, project types, cost ranges, photo constraints |
+| `src/components/forms/QuoteWizard/index.tsx` | Wizard orchestrator with useReducer |
+| `src/components/forms/QuoteWizard/StepIndicator.tsx` | Progress indicator |
+| `src/components/forms/QuoteWizard/Step1Service.tsx` | Service + project type selection step |
+| `src/components/forms/QuoteWizard/Step2Details.tsx` | Property details + cost preview step |
+| `src/components/forms/QuoteWizard/Step3Photos.tsx` | Photo upload step |
+| `src/components/forms/QuoteWizard/Step4Contact.tsx` | Contact info + submit step |
+| `src/components/forms/PhotoUpload.tsx` | Reusable file input + preview component |
+| `src/components/ui/CostEstimator.tsx` | Pure config-driven cost range display |
+| `src/components/ui/GoogleMapEmbed.tsx` | Conditional iframe wrapper |
+| `src/pages/QuoteWizard.tsx` | Page with PageMeta + Hero + QuoteWizard component |
+| `src/routes/get-quote.tsx` | Lazy-loading route wrapper |
+
+### Modified files (targeted additions, no rewrites)
+
+| File | Change | Risk |
+|------|--------|------|
+| `src/routes.ts` | Add one `route('get-quote', ...)` line | Minimal |
+| `src/config/features.ts` | Add `quoteWizard: boolean` and `googleMaps: boolean` | Minimal |
+| `src/config/company.ts` | Add `googleMaps: { apiKey, defaultZoom, mapType }` field | Low — new field, existing code unaffected |
+| `src/config/schema.ts` | Extend `companySchema` with `googleMaps` Zod shape | Low — additive |
+| `src/lib/schemas.ts` | Add `quoteSchema`, per-step schemas, export types | Low — additive |
+| `src/lib/form-handler.ts` | Add `submitQuote()` export alongside `submitForm()` | Low — additive |
+| `src/pages/Contact.tsx` | Add `<GoogleMapEmbed>` in sidebar, conditional on feature flag | Low |
+| `src/pages/CityPage.tsx` | Add map section with `<GoogleMapEmbed>`, conditional on feature flag | Low |
+| `src/config/index.ts` | Export `quote` from barrel (if quote.ts added to validated exports) | Minimal |
 
 ---
 
 ## Sources
 
-- [Zod - TypeScript-first schema validation](https://github.com/colinhacks/zod) - HIGH confidence
-- [vite-plugin-markdown - Markdown imports for Vite](https://github.com/hmsk/vite-plugin-markdown) - MEDIUM confidence (v2.2.0, verify Vite 7 compatibility)
-- [vite-plugin-prerender - Build-time prerendering](https://github.com/Rudeus3Greyrat/vite-plugin-prerender) - MEDIUM confidence (verify Vite 7 compatibility)
-- [React Router v7 Pre-Rendering](https://reactrouter.com/how-to/pre-rendering) - HIGH confidence (Framework Mode only)
-- [React Router v7 Modes](https://reactrouter.com/start/modes) - HIGH confidence
-- [Formspree - Form backend for static sites](https://formspree.io/) - HIGH confidence
-- [Resend - Email API](https://resend.com) - HIGH confidence (alternative for advanced setups)
-- [Service Area Pages SEO](https://searchengineland.com/guide/service-area-pages) - HIGH confidence (SEO best practices)
-- [Vite SSR Guide](https://vite.dev/guide/ssr) - HIGH confidence
-- [vite-react-ssg](https://github.com/Daydreamer-riri/vite-react-ssg) - MEDIUM confidence (for RR v6 only, superseded by RR v7 built-in)
+- [React Router 7 Pre-rendering docs](https://reactrouter.com/how-to/pre-rendering) — HIGH confidence (official)
+- [Maps Embed API overview](https://developers.google.com/maps/documentation/embed/get-started) — HIGH confidence (official)
+- [Maps Embed API usage and billing](https://developers.google.com/maps/documentation/embed/usage-and-billing) — HIGH confidence (official, free + unlimited)
+- [Building reusable multi-step form with RHF and Zod — LogRocket](https://blog.logrocket.com/building-reusable-multi-step-form-react-hook-form-zod/) — MEDIUM confidence (verified against RHF docs)
+- [Formspree file upload](https://formspree.io/blog/file-upload-form/) — MEDIUM confidence (official Formspree blog)
+- [FileReader vs URL.createObjectURL — react.wiki](https://react.wiki/hooks/file-upload-hook/) — MEDIUM confidence (multiple sources agree)
+
+---
+
+*Architecture research for: v1.2 Feature Expansion — multi-step quote wizard, cost estimator, Google Maps embed, photo upload*
+*Researched: 2026-03-05*

@@ -1,582 +1,390 @@
-# Technology Stack
+# Stack Research
 
-**Project:** Home Services Premium Template
-**Researched:** 2026-02-21
-**Overall Confidence:** HIGH (stack decisions verified against official docs and multiple sources)
+**Domain:** Home Services Template — v1.2 Feature Expansion
+**Researched:** 2026-03-05
+**Confidence:** HIGH (all critical claims verified against npm registry, official docs, or GitHub source)
 
----
-
-## Current Stack Assessment
-
-The existing stack is strong and modern. React 19 + Vite 7 + Tailwind v4 + TypeScript is the correct foundation for a premium template in 2026. No framework migration is needed. The core decisions below focus on what to ADD to elevate this from "free template" to "premium product."
-
-### What We Keep (Already Excellent)
-
-| Technology | Version | Verdict |
-|------------|---------|---------|
-| React 19 | ^19.2.4 | Keep. Native metadata hoisting, Suspense, lazy loading all working correctly. |
-| Vite 7 | ^7.3.1 | Keep. Fastest DX in the ecosystem. |
-| Tailwind CSS v4 | ^4.1.18 | Keep. CSS-first `@theme` approach is already in use. |
-| TypeScript | ^5.9.3 | Keep. Strict mode enabled. |
-| React Router | ^7.13.0 | Keep, but upgrade usage (see Pre-rendering below). |
-| Lucide React | ^0.564.0 | Keep. Tree-shakeable, consistent icon set. |
-| Framer Motion | ^12.34.0 | Keep, but optimize bundle (see Motion section below). |
+> **Scope:** This document covers ONLY the four new v1.2 features. The existing stack
+> (React 19, React Router 7, Vite 7, Tailwind v4, RHF, Zod, Zod resolvers, Lucide) is
+> validated and locked. Do not re-research it.
 
 ---
 
-## Recommended Additions
+## Existing Stack (Locked — Do Not Re-research)
 
-### 1. Form Handling: React Hook Form + Zod
-
-**Why:** The current contact form uses raw `useState` with no validation, no error states, and no type safety. This is the single biggest gap between "free template" and "premium product." Lead capture is the entire point of a home services website.
-
-| Package | Purpose | Bundle Impact |
-|---------|---------|---------------|
-| `react-hook-form` | Form state, validation, submission | ~12kb gzipped |
-| `zod` | Schema validation, TypeScript inference | ~14kb gzipped |
-| `@hookform/resolvers` | Bridge between RHF and Zod | ~2kb gzipped |
-
-**What this enables:**
-- Field-level validation with inline error messages
-- Phone number formatting/validation
-- Email validation
-- Required field enforcement with accessible error announcements
-- Type-safe form schemas that match the config system
-- Multi-step forms (future differentiator)
-- Config-driven form fields (service options, referral sources from `site.ts`)
-
-**Implementation pattern:**
-
-```typescript
-// src/lib/schemas.ts
-import { z } from 'zod'
-
-export const contactSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Please enter a valid email'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
-  address: z.string().min(5, 'Please enter your property address'),
-  service: z.string().min(1, 'Please select a service'),
-  referral: z.string().optional(),
-  message: z.string().optional(),
-})
-
-export type ContactFormData = z.infer<typeof contactSchema>
-```
-
-**Confidence:** HIGH -- React Hook Form + Zod is the undisputed standard for React form handling in 2025-2026. Every credible source recommends this combination. Zod v4+ supports automatic TypeScript type inference from schemas.
-
-```bash
-npm install react-hook-form zod @hookform/resolvers
-```
+| Technology | Version | Status |
+|------------|---------|--------|
+| React | ^19.2.4 | Locked |
+| React Router 7 (framework mode) | ^7.13.1 | Locked |
+| Vite | ^7.3.1 | Locked |
+| Tailwind CSS | ^4.1.18 | Locked |
+| TypeScript | ^5.9.3 | Locked |
+| react-hook-form | ^7.71.2 | Already installed |
+| @hookform/resolvers | ^5.2.2 | Already installed |
+| zod | ^4.3.6 | Already installed |
+| lucide-react | ^0.564.0 | Already installed |
 
 ---
 
-### 2. SEO: Structured Data (JSON-LD) + Sitemap Generation
+## New Stack Additions for v1.2
 
-The current `PageMeta` component handles basic `<title>` and OG tags using React 19 native metadata hoisting. This is correct and should be kept -- no need for `react-helmet-async`. But premium templates need structured data for rich search results.
+### Summary: Only One New Package is Required
 
-**React 19 Native Metadata:** The existing approach of rendering `<title>` and `<meta>` tags directly in components (which React 19 hoists to `<head>`) is the officially recommended approach. Do NOT add react-helmet-async -- it is unmaintained as of 2025 and React 19 makes it unnecessary for our use case.
+| Package | Version | Feature | Install |
+|---------|---------|---------|---------|
+| react-dropzone | ^15.0.0 | Photo upload drag-and-drop (quote wizard step 3) | `npm install react-dropzone` |
+| @vis.gl/react-google-maps | ^1.7.1 | Google Maps (only if interactive markers needed — see below) | `npm install @vis.gl/react-google-maps` |
 
-#### JSON-LD Structured Data
+**Multi-step wizard** and **cost estimator** require zero new packages. Both build entirely
+on existing react-hook-form, Zod, Tailwind, and the existing `FinancingCalculator` pattern.
 
-No additional package needed. Implement as a component that renders a `<script type="application/ld+json">` tag.
+---
 
-**Essential schemas for home services:**
+## Feature 1: Multi-Step Quote Wizard (`/get-quote`)
 
-| Schema Type | Purpose | Where |
-|-------------|---------|-------|
-| `LocalBusiness` | Company info, address, hours, phone | Every page (in Layout) |
-| `Service` | Individual service descriptions | Service pages (Roofing, Siding, Storm) |
-| `FAQPage` | FAQ sections for rich snippets | Pages with FAQ components |
-| `Review` / `AggregateRating` | Testimonials for star ratings in search | Testimonials page, Home |
-| `BreadcrumbList` | Navigation path | All pages |
+### Decision: Zero new dependencies. Use native react-hook-form `FormProvider` + `useFormContext`.
 
-**Implementation pattern:**
+The existing `react-hook-form@7.71.2` supports multi-step wizards natively. The official
+documented pattern (`react-hook-form.com/advanced-usage` — Wizard Forms section) wraps all
+steps in a single `<form>`, uses `FormProvider` to share state across step components, and
+calls `trigger(fieldNames)` to validate only the current step's fields before advancing.
 
-```typescript
-// src/components/seo/JsonLd.tsx
-interface JsonLdProps {
-  data: Record<string, unknown>
+The existing `ContactForm.tsx` already uses `useForm` + `zodResolver`. The wizard is the
+same pattern extended with step state.
+
+| Concern | Solution | Rationale |
+|---------|----------|-----------|
+| Step routing | `useState<number>` in parent route component | Zero deps; step state is local to this page |
+| Cross-step form state | `FormProvider` + `useFormContext` | Already in codebase; RHF native |
+| Per-step validation | `trigger(['fieldA', 'fieldB'])` before advancing | RHF built-in; validates current step only |
+| Per-step Zod schemas | Separate Zod schemas per step | Existing `src/lib/schemas.ts` pattern |
+| Progress bar | Pure JSX + Tailwind | No dep; fits existing CSS animation approach |
+| File field (step 3) | `useDropzone` hook wired to `setValue('photos', files)` | react-dropzone integration pattern |
+
+**Implementation note:** The wizard's final step submits to Formspree. When photos are
+attached, the `submitForm()` handler in `src/lib/form-handler.ts` must use `FormData`
+(multipart) instead of `JSON.stringify`. Create a separate `submitQuoteForm()` function
+for the wizard — do not modify the existing `submitForm()` used by the contact form.
+
+**No new install.**
+
+---
+
+## Feature 2: Project Cost Estimator
+
+### Decision: Zero new dependencies. Extend `FinancingCalculator.tsx` pattern.
+
+`FinancingCalculator.tsx` already implements:
+- Native `<input type="range">` styled with Tailwind
+- `useState` for controlled slider value
+- `Intl.NumberFormat` for currency formatting
+- CSS variable-based slider fill (gradient background trick)
+
+The cost estimator follows the identical pattern: service dropdown → lookup cost range
+from config → display formatted range → optionally show "estimated monthly payment" by
+passing the midpoint to the existing financing calculator logic.
+
+| Concern | Solution | Rationale |
+|---------|----------|-----------|
+| Service cost data | New `costRanges` key per service in `src/config/services.ts` | Config-driven; zero component changes for new services |
+| Service selector | Native `<select>` styled with Tailwind | Already used in `ContactForm.tsx`; no new dep |
+| Range display | `Intl.NumberFormat` (already in codebase) | Re-use existing utility |
+| Monthly payment | Import `calculateMonthlyPayment` from `FinancingCalculator.tsx` | Extract to `src/lib/financing.ts`; share between both components |
+| Feature flag | `features.costEstimator` in `src/config/features.ts` | Follows existing feature flag pattern |
+
+**No new install.**
+
+---
+
+## Feature 3: Google Maps Embed (City Pages)
+
+### Decision: Maps Embed API iframe (primary). `@vis.gl/react-google-maps` as opt-in if interactive markers needed.
+
+#### Option A — Maps Embed API iframe (DEFAULT, RECOMMENDED)
+
+The Google Maps Embed API is **free with unlimited usage**. An API key is required but no
+billing charges are ever incurred for embed requests (verified: Google official docs,
+`developers.google.com/maps/documentation/embed/get-started`).
+
+The iframe approach has zero bundle cost, pre-renders cleanly in static HTML (no JS
+hydration required for the map itself), and is sufficient for a "where we serve" use case
+on city pages.
+
+```tsx
+// src/components/maps/CityMap.tsx
+interface CityMapProps {
+  address: string
+  cityName: string
+  apiKey: string
 }
 
-export function JsonLd({ data }: JsonLdProps) {
+export function CityMap({ address, cityName, apiKey }: CityMapProps) {
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    <iframe
+      title={`Map of ${cityName}`}
+      src={`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(address)}`}
+      width="100%"
+      height="400"
+      style={{ border: 0 }}
+      allowFullScreen
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
     />
   )
 }
+```
 
-// Usage in Layout.tsx - pulls from SITE config
-export function LocalBusinessJsonLd() {
+Config integration: add `googleMapsApiKey: ''` to `src/config/site.ts` and gate
+rendering behind `features.googleMaps` (existing feature flag system). When key is empty
+and feature flag is off, city pages render the existing text-based service area list.
+
+**No new install.**
+
+#### Option B — @vis.gl/react-google-maps@1.7.1 (OPTIONAL, only if interactive markers needed)
+
+| Attribute | Value |
+|-----------|-------|
+| npm version (verified live) | 1.7.1 |
+| React 19 compatible | YES — fixed in v1.4.1, Nov 2024 (GitHub issue #596 closed) |
+| Bundle size | ~35 KB gzip |
+| Endorsement | Official Google Maps Platform blog post; Google-endorsed |
+| TypeScript | Full TypeScript support out of the box; no `@types/` needed |
+
+```bash
+npm install @vis.gl/react-google-maps
+```
+
+```tsx
+import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps'
+
+<APIProvider apiKey={apiKey}>
+  <Map defaultCenter={{ lat: 40.7128, lng: -74.006 }} defaultZoom={11}>
+    <AdvancedMarker position={{ lat: 40.7128, lng: -74.006 }} />
+  </Map>
+</APIProvider>
+```
+
+**Use Option B only if**: custom markers per city, user geolocation, or React-controlled
+map state are needed. For a template's city page "service area" map, Option A is
+sufficient and preferred (zero bundle cost).
+
+---
+
+## Feature 4: Photo Upload (Quote Wizard Step 3)
+
+### Decision: `react-dropzone@15.0.0` for DX. Formspree multipart as default delivery. Cloudinary unsigned upload as optional enhancement.
+
+#### 4a — Drag-and-Drop Zone: react-dropzone@15.0.0
+
+react-dropzone is the standard React drag-and-drop file input library (4,473+ downstream
+packages on npm).
+
+| Attribute | Value |
+|-----------|-------|
+| npm version (verified live) | 15.0.0 (published Feb 2026) |
+| React 19 compatible | YES — peer dep is `>= 16.8` which already includes React 19 (PR #1422, closed Feb 2026 — no action needed) |
+| Bundle size | ~8 KB gzip (hook-only, no forced UI) |
+| API | `useDropzone` hook — integrates cleanly with RHF `setValue('photos', files)` |
+
+```bash
+npm install react-dropzone
+```
+
+```tsx
+import { useDropzone } from 'react-dropzone'
+import { useFormContext } from 'react-hook-form'
+
+export function PhotoUploadStep() {
+  const { setValue } = useFormContext()
+
+  const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
+    accept: { 'image/*': ['.jpg', '.jpeg', '.png', '.webp', '.heic'] },
+    maxFiles: 5,
+    maxSize: 10 * 1024 * 1024, // 10 MB per file
+    onDrop: (files) => setValue('photos', files),
+  })
+
   return (
-    <JsonLd data={{
-      '@context': 'https://schema.org',
-      '@type': 'HomeAndConstructionBusiness',
-      name: SITE.name,
-      telephone: SITE.phone,
-      email: SITE.email,
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: SITE.address.street,
-        addressLocality: SITE.address.city,
-        addressRegion: SITE.address.state,
-        postalCode: SITE.address.zip,
-      },
-      // ...etc from SITE config
-    }} />
+    <div {...getRootProps()} className="border-2 border-dashed border-brand-blue/30 rounded-2xl p-8 text-center cursor-pointer hover:border-brand-blue/60 transition-colors">
+      <input {...getInputProps()} />
+      <p>Drag photos here or click to select</p>
+      {acceptedFiles.length > 0 && (
+        <ul>{acceptedFiles.map(f => <li key={f.name}>{f.name}</li>)}</ul>
+      )}
+    </div>
   )
 }
 ```
 
-**Confidence:** HIGH -- Google explicitly recommends JSON-LD for structured data. `HomeAndConstructionBusiness` is a recognized Schema.org subtype of LocalBusiness, perfect for roofing/siding companies.
+#### 4b — File Delivery: Formspree multipart (DEFAULT)
 
-#### Sitemap Generation
+Formspree natively accepts file uploads via `multipart/form-data`. No backend required.
 
-| Package | Purpose |
-|---------|---------|
-| `vite-plugin-sitemap` | Auto-generates sitemap.xml + robots.txt at build time |
+| Attribute | Value |
+|-----------|-------|
+| Files per submission | Up to 10 |
+| Max file size | 25 MB per file |
+| Max request size | 100 MB total |
+| Free plan | Files forwarded in email notification as attachments; no persistent dashboard storage |
+| Paid plan (Business) | Up to 10 GB stored; viewable in Formspree dashboard |
+| enctype required | `multipart/form-data` on the `<form>` element |
 
-```bash
-npm install -D vite-plugin-sitemap
-```
-
-Configuration in `vite.config.ts`:
-
-```typescript
-import sitemap from 'vite-plugin-sitemap'
-
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    sitemap({
-      hostname: 'https://example.com', // pulled from env or config
-      dynamicRoutes: [
-        '/', '/roofing', '/siding', '/storm-damage', '/services',
-        '/projects', '/testimonials', '/about', '/contact',
-        '/service-areas', '/ava',
-      ],
-    }),
-  ],
-})
-```
-
-**Confidence:** HIGH -- vite-plugin-sitemap is the standard Vite sitemap tool, actively maintained, 300k+ weekly npm downloads.
-
----
-
-### 3. Performance: Motion Bundle Optimization
-
-Framer Motion (now "Motion") is ~34kb bundled. For a marketing site template, this is the largest single dependency. Use **LazyMotion** with **domAnimation** to cut this roughly in half.
-
-**Current:** Every page loads the full Motion bundle (~34kb).
-**Optimized:** Initial load gets ~4.6kb core + ~18kb domAnimation features loaded sync/async.
-
-**Implementation:**
+**Critical integration note:** The existing `submitForm()` in `src/lib/form-handler.ts`
+sends `Content-Type: application/json`. File submissions must use `FormData`
+(multipart). Create a separate `submitQuoteForm()` function — do NOT modify the existing
+function. The contact form and booking form must remain JSON.
 
 ```typescript
-// src/main.tsx
-import { LazyMotion, domAnimation } from 'framer-motion'
+// src/lib/form-handler.ts — add new function, do not modify submitForm()
+export async function submitQuoteForm(
+  data: QuoteFormData,
+  files: File[]
+): Promise<SubmissionResult> {
+  const { formspreeId } = forms.submission
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <LazyMotion features={domAnimation} strict>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </LazyMotion>
-  </StrictMode>,
-)
-```
+  const formData = new FormData()
+  formData.append('service', data.service)
+  formData.append('name', `${data.firstName} ${data.lastName}`)
+  formData.append('email', data.email)
+  formData.append('phone', data.phone)
+  formData.append('details', data.details ?? '')
+  files.forEach((file) => formData.append('photos', file))
 
-Then replace `motion.div` imports with `m.div` from `framer-motion`:
-
-```typescript
-// Before
-import { motion } from 'framer-motion'
-<motion.div animate={{ opacity: 1 }}>
-
-// After
-import { m } from 'framer-motion'
-<m.div animate={{ opacity: 1 }}>
-```
-
-**What we keep:** Animations, variants, exit animations, hover/focus/press gestures. These are all in `domAnimation`.
-
-**What we do NOT need:** Pan/drag gestures and layout animations (`domMax`). No component in the current template uses drag or layout animations.
-
-**Confidence:** HIGH -- Official Motion documentation. The `domAnimation` feature set covers every animation pattern used in the current codebase (opacity, y transforms, stagger, AnimatePresence exit animations, hover/press gestures on buttons).
-
----
-
-### 4. Performance: Image Optimization
-
-The current build copies images with `cp -r` and serves unoptimized originals. This is the single biggest LCP bottleneck.
-
-| Package | Purpose |
-|---------|---------|
-| `vite-plugin-image-optimizer` | Compresses images at build time using Sharp.js |
-
-```bash
-npm install -D vite-plugin-image-optimizer
-```
-
-**Configuration:**
-
-```typescript
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
-
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-    ViteImageOptimizer({
-      jpg: { quality: 80 },
-      png: { quality: 80 },
-      webp: { quality: 80 },
-      avif: { quality: 65, speed: 4 },
-    }),
-  ],
-})
-```
-
-**Additional image practices to implement (no packages needed):**
-
-1. **Hero image preloading** -- already using `fetchPriority="high"` on hero `<img>`, good. Add `<link rel="preload">` in `index.html` for the hero image.
-2. **Responsive images** -- add `srcset` and `sizes` attributes to hero and gallery images.
-3. **AVIF with WebP fallback** -- use `<picture>` element for hero images.
-4. **Explicit dimensions** -- add `width` and `height` attributes to ALL images to prevent CLS.
-
-**Confidence:** HIGH -- vite-plugin-image-optimizer uses Sharp.js (the industry standard), actively maintained, well-documented.
-
----
-
-### 5. Performance Monitoring: Web Vitals + Vercel Speed Insights
-
-| Package | Purpose |
-|---------|---------|
-| `web-vitals` | Google's official CWV measurement library (~2kb) |
-| `@vercel/speed-insights` | Real user monitoring on Vercel dashboard |
-
-```bash
-npm install web-vitals @vercel/speed-insights
-```
-
-**Why this matters for a premium template:** Buyers want to know their template scores well on PageSpeed Insights. Including built-in monitoring lets them verify performance and demonstrates our commitment to quality.
-
-**Implementation:**
-
-```typescript
-// src/lib/vitals.ts
-import { onCLS, onINP, onLCP } from 'web-vitals'
-
-export function reportWebVitals() {
-  onCLS(console.log)  // or send to analytics
-  onINP(console.log)
-  onLCP(console.log)
+  // Note: Do NOT set Content-Type header — browser sets multipart boundary automatically
+  const res = await fetch(`https://formspree.io/f/${formspreeId}`, {
+    method: 'POST',
+    headers: { Accept: 'application/json' },
+    body: formData,
+  })
+  if (!res.ok) throw new Error('Submission failed')
+  return { ok: true }
 }
-
-// src/main.tsx
-import { SpeedInsights } from '@vercel/speed-insights/react'
-
-// Add <SpeedInsights /> in the app root
 ```
 
-**Confidence:** HIGH -- web-vitals is Google's own library. @vercel/speed-insights is the official Vercel package.
+#### 4c — Cloudinary Unsigned Upload (OPTIONAL, config-gated)
 
----
+For buyers who want photos stored on a CDN (not just emailed), Cloudinary unsigned upload
+requires zero backend and zero new npm packages (direct fetch REST API).
 
-### 6. Config Architecture: Enhanced Type-Safe Configuration
+| Attribute | Value |
+|-----------|-------|
+| Free plan | 25 monthly credits (1 credit = 1 GB storage OR 1 GB bandwidth OR 1,000 transforms) |
+| Image file size limit (free) | 10 MB per file |
+| Unsigned upload | No backend needed; upload preset enforces rules |
+| Config | `cloudinaryCloudName` + `cloudinaryUploadPreset` in `src/config/site.ts` |
+| Feature flag | `features.cloudinaryUpload: true` |
 
-The current `src/config/site.ts` is a good start but needs expansion for a premium product. No new packages needed -- this is an architecture pattern.
-
-**What to add to the config system:**
+When enabled, the wizard uploads files to Cloudinary first → receives URL array →
+submits URLs as plain text fields to Formspree (JSON, no multipart). This also reduces
+Formspree payload size.
 
 ```typescript
-// src/config/site.ts - expanded structure
-export const SITE = {
-  // ... existing fields ...
-
-  // NEW: Theme configuration
-  theme: {
-    colors: {
-      primary: '#0EA5E9',     // brand-blue
-      accent: '#F97316',      // safety-orange
-      dark: '#0F172A',        // navy
-      surface: '#F8FAFC',
-      border: '#E2E8F0',
-    },
-    fonts: {
-      heading: 'Plus Jakarta Sans',
-      body: 'Inter',
-    },
-    radius: 'rounded-2xl',    // border radius preset
-  },
-
-  // NEW: Feature flags
-  features: {
-    aiChat: true,
-    blog: false,
-    googleReviews: false,
-    beforeAfterGallery: true,
-    videoTestimonials: false,
-    multiStepForm: false,
-    serviceAreaMap: false,
-  },
-
-  // NEW: Services (config-driven, not hardcoded)
-  services: [
-    {
-      slug: 'roofing',
-      name: 'Roofing',
-      icon: 'Home',
-      shortDescription: 'Complete roof replacements...',
-      heroImage: '/images/hero-roofing.webp',
-    },
-    // ...
-  ],
-
-  // NEW: Testimonials data
-  testimonials: [
-    {
-      name: 'John Smith',
-      location: 'Anytown, TX',
-      rating: 5,
-      text: '...',
-      image: '/images/testimonial-1.webp',
-    },
-  ],
-
-  // NEW: SEO defaults
-  seo: {
-    titleTemplate: '%s | Acme Home Services',
-    defaultDescription: '...',
-    ogImage: '/images/og-default.webp',
-  },
-
-  // NEW: Analytics/tracking
-  tracking: {
-    gtmId: '',
-    googleAdsId: '',
-    facebookPixelId: '',
-  },
-} as const
+// No SDK needed — direct REST API
+async function uploadToCloudinary(file: File, cloudName: string, uploadPreset: string): Promise<string> {
+  const form = new FormData()
+  form.append('file', file)
+  form.append('upload_preset', uploadPreset)
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: 'POST',
+    body: form,
+  })
+  const data = await res.json()
+  return data.secure_url as string
+}
 ```
 
-**Why this architecture matters:**
-- Buyers edit ONE file, not dozens of components
-- TypeScript catches config errors at build time
-- Demo mode works by swapping config files
-- Multiple "skins" or industry variants become trivial
-
-**Confidence:** HIGH -- this is a well-established pattern in successful template products (ThemeForest best sellers, shadcn/ui, Tailwind Plus templates all use centralized config).
+**No new install for Cloudinary path.**
 
 ---
 
-### 7. Pre-rendering for SEO (Future Phase)
-
-React Router v7 now supports build-time pre-rendering via `react-router.config.ts`. This is the correct path for SEO-critical marketing sites -- NOT migrating to Next.js.
-
-**NOTE:** This requires migrating from React Router "library mode" (current: `BrowserRouter` in `main.tsx`) to React Router "framework mode" (using `react-router.config.ts` + `routes.ts`). This is a significant refactor and should be a dedicated phase, not mixed with other work.
-
-**What pre-rendering gives us:**
-- Each route generates static HTML at build time
-- Search engines get fully-rendered content (no JS required)
-- Faster First Contentful Paint (FCP) and LCP
-- Still works as an SPA after hydration
-- No server required -- deploy to any static host or CDN
-
-**Configuration (when ready):**
-
-```typescript
-// react-router.config.ts
-import type { Config } from "@react-router/dev/config"
-
-export default {
-  ssr: false,
-  prerender: [
-    "/", "/roofing", "/siding", "/storm-damage",
-    "/services", "/projects", "/testimonials",
-    "/about", "/contact", "/service-areas", "/ava",
-  ],
-} satisfies Config
-```
-
-**Confidence:** MEDIUM -- React Router v7 pre-rendering is well-documented but the migration from library mode to framework mode has rough edges per GitHub issues. This should be researched specifically when that phase begins.
-
----
-
-### 8. Blog / Content (Future Differentiator)
-
-For a future phase, adding a blog elevates SEO significantly for home services sites. The recommended approach:
-
-| Package | Purpose |
-|---------|---------|
-| `@mdx-js/rollup` | MDX compilation in Vite (Rollup plugin) |
-| `@mdx-js/react` | MDX React provider for component mapping |
-
-MDX allows blog posts to include React components (before/after sliders, CTAs, embedded forms) while being authored as markdown. This is the standard approach for Vite + React content sites in 2025-2026.
-
-**Confidence:** MEDIUM -- MDX + Vite is well-documented and works, but blog functionality is a later-phase feature. Research specifics when that phase begins.
-
----
-
-## Alternatives Considered (and Rejected)
-
-| Category | Recommended | Alternative | Why Not |
-|----------|-------------|-------------|---------|
-| Meta tags | React 19 native | react-helmet-async | Unmaintained since 2024. React 19 handles this natively. |
-| Framework | Vite + React Router | Next.js | Migration cost too high. React Router v7 pre-rendering provides SSG without framework switch. |
-| Framework | Vite + React Router | Astro | Astro is great for content sites but we need SPA behavior for the AI chat widget and interactive elements. |
-| CSS | Tailwind v4 | CSS Modules / styled-components | Tailwind v4 is faster, config-driven, and what the market expects for premium templates. |
-| Animation | Framer Motion (LazyMotion) | CSS animations only | Framer Motion's declarative API enables the complex staggered/scroll-reveal animations that make a template feel premium. Worth the ~18kb. |
-| Animation | Framer Motion | GSAP | GSAP licensing is complex for template products. Framer Motion is MIT-licensed and easier for buyers to customize. |
-| Forms | React Hook Form + Zod | Formik + Yup | RHF is smaller, faster, and better maintained. Zod has superior TypeScript integration vs Yup. |
-| State mgmt | React Context + useState | Redux / Zustand | Overkill. A template has no complex global state. Config is static, form state is local. |
-| Icons | Lucide React | Heroicons / React Icons | Lucide is already in use, tree-shakeable, consistent style. No reason to switch. |
-| Component lib | Custom components | shadcn/ui | Adding shadcn/ui would bloat the template with unused components and add a dependency on Radix UI. Our custom components are purpose-built and simpler for buyers to customize. |
-
----
-
-## Full Installation Commands
-
-### New Production Dependencies
+## Installation
 
 ```bash
-npm install react-hook-form zod @hookform/resolvers web-vitals @vercel/speed-insights
-```
+# Required for v1.2
+npm install react-dropzone
 
-### New Dev Dependencies
-
-```bash
-npm install -D vite-plugin-image-optimizer vite-plugin-sitemap
-```
-
-### Already Installed (No Changes)
-
-```
-react, react-dom, react-router-dom, framer-motion, lucide-react
-tailwindcss, @tailwindcss/vite, @vitejs/plugin-react, typescript, vite
+# Optional: only if interactive Google Maps chosen over iframe embed
+npm install @vis.gl/react-google-maps
 ```
 
 ---
 
-## Complete Recommended Stack Table
+## Alternatives Considered
 
-### Core Framework
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| React | ^19.2.4 | UI framework | Current. Native metadata hoisting, Suspense, lazy. |
-| Vite | ^7.3.1 | Build tool | Fastest builds, excellent DX, huge plugin ecosystem. |
-| TypeScript | ^5.9.3 | Type safety | Strict mode. Catches config errors at build time. |
-| React Router | ^7.13.0 | Routing | Pre-rendering capability. Already installed. |
-| Tailwind CSS | ^4.1.18 | Styling | CSS-first @theme tokens. Industry standard for templates. |
-
-### Animation & UX
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| Framer Motion | ^12.34.0 | Animations | Use with LazyMotion + domAnimation to cut bundle ~50%. |
-| Lucide React | ^0.564.0 | Icons | Tree-shakeable. 1500+ icons. Consistent style. |
-
-### Forms & Validation
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| react-hook-form | latest | Form state management | Minimal re-renders, performant, accessible. |
-| zod | latest | Schema validation | Type-safe schemas, TypeScript inference, composable. |
-| @hookform/resolvers | latest | RHF-Zod bridge | Official integration adapter. |
-
-### SEO & Performance
-
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| vite-plugin-sitemap | latest | Sitemap generation | Auto-generates sitemap.xml + robots.txt at build. |
-| vite-plugin-image-optimizer | latest | Image compression | Sharp.js-based, WebP/AVIF optimization at build. |
-| web-vitals | latest | CWV monitoring | Google's official library. ~2kb. |
-| @vercel/speed-insights | latest | Real user monitoring | Free with Vercel. Dashboard metrics for buyers. |
-
-### Infrastructure
-
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| Vercel | Hosting + serverless | Free tier, instant deploys, Edge Functions for AI chat. |
-| Groq API | AI chat backend | Fast inference, free tier, Llama 3.3 70B model. |
+| Recommended | Alternative | Why Not |
+|-------------|-------------|---------|
+| RHF `FormProvider` (native) | rhf-wizard, react-multistep | External libs add 5–15 KB for functionality RHF already provides natively; template ships leaner |
+| Native `<input type="range">` | rc-slider, @radix-ui/react-slider | FinancingCalculator already proves the native pattern works; no additional dep justified |
+| Maps Embed API iframe | @vis.gl/react-google-maps (default) | React library adds ~35 KB to bundle; iframe is zero-cost, pre-renders cleanly, sufficient for "service area" use case |
+| react-dropzone | FilePond, Uppy | react-dropzone is ~8 KB (hook-only, no opinionated UI); FilePond (~50 KB) and Uppy (~130 KB) are far heavier |
+| Formspree multipart (native) | Cloudinary as default | Formspree is the existing provider; multipart avoids new external service dependency for core feature; Cloudinary is an opt-in enhancement |
 
 ---
 
-## Theme Architecture: How Colors Flow from Config
+## What NOT to Add
 
-```
-site.ts (SITE.theme.colors)
-    |
-    v
-index.css (@theme { --color-brand-blue: ... })
-    |
-    v
-Tailwind utilities (bg-brand-blue, text-safety-orange, etc.)
-    |
-    v
-Components (className="bg-brand-blue")
-```
-
-**For premium customization:** Colors in `site.ts` should drive the `@theme` block in `index.css`. This can be achieved with a build-time script that reads `site.ts` and generates the CSS custom properties, OR by documenting that buyers update both files (simpler, more transparent).
-
-Recommendation: **Document the two-file approach** (site.ts for data, index.css for colors). A build-time script adds complexity that makes the template harder for non-technical buyers to understand.
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| little-state-machine | RHF official docs mention it for wizard examples but it's unnecessary — local `useState` is sufficient for a 4-step wizard | `useState` + `FormProvider` |
+| react-select | Overkill for single service dropdown in wizard step 1 | Native `<select>` styled with Tailwind (already used in ContactForm) |
+| google-map-react (old) | Last meaningful update 2022; React 19 peer dep broken | @vis.gl/react-google-maps if interactive map is needed |
+| react-google-maps (tomchentw) | Abandoned, peer dep requires React 15/16 | @vis.gl/react-google-maps |
+| @cloudinary/react SDK | ~180 KB; requires full SDK for upload-only use case; signed uploads require backend | Direct fetch to REST API with unsigned preset |
+| filepond / react-filepond | ~50 KB; imports external CSS that clashes with Tailwind v4 | react-dropzone (hook-only, no CSS) |
+| Zod (new install) | Already installed at ^4.3.6 | Use existing installation; add per-step schemas to `src/lib/schemas.ts` |
 
 ---
 
-## Performance Budget
+## Stack Patterns by Configuration
 
-Target Core Web Vitals for the template:
+**Default config (Formspree free plan, no API keys):**
+- Multi-step wizard works; photos emailed as attachments to business owner
+- Google Maps section hidden (feature flag off)
+- Cost estimator active with config-driven ranges
 
-| Metric | Target | How |
-|--------|--------|-----|
-| LCP | < 2.0s | Preload hero image, optimize images, code-split |
-| INP | < 150ms | Minimal JS on main thread, use `requestIdleCallback` for analytics |
-| CLS | < 0.05 | Explicit image dimensions, font-display: swap, no layout shifts |
-| Total JS (gzipped) | < 120kb | LazyMotion, code-splitting, tree-shaking |
-| First Load | < 200kb total | Critical CSS inline, deferred non-critical JS |
+**Buyer adds Google Maps API key:**
+- Set `googleMapsApiKey` in `src/config/site.ts`
+- Set `features.googleMaps: true`
+- Maps Embed API iframe renders on city pages; zero install
+- Upgrade to `@vis.gl/react-google-maps` if custom markers needed
+
+**Buyer upgrades to Formspree paid plan:**
+- No code change; Formspree handles free vs. paid transparently
+- Photos become accessible in Formspree dashboard with URL links
+
+**Buyer wants Cloudinary CDN photo storage:**
+- Set `cloudinaryCloudName` + `cloudinaryUploadPreset` in `src/config/site.ts`
+- Set `features.cloudinaryUpload: true`
+- Wizard uploads to Cloudinary first, submits URLs to Formspree
+- No new npm package; direct fetch REST API
 
 ---
 
-## What Makes THIS Template "Premium"
+## Version Compatibility
 
-Based on market research of top-selling templates on ThemeForest and competing platforms (Framer marketplace, Webflow templates), premium templates justify their price through:
-
-1. **Config-driven customization** -- single file to rebrand (we have this, expanding it)
-2. **Real form validation** -- not just visual, actually validates and handles errors (adding RHF + Zod)
-3. **SEO out of the box** -- structured data, sitemap, proper meta tags (adding JSON-LD + sitemap)
-4. **Performance scores** -- demonstrable 90+ Lighthouse scores (optimizing images + motion bundle)
-5. **AI-powered feature** -- the chat widget is a genuine differentiator most templates lack (already have)
-6. **Polished animations** -- scroll reveals, staggered entries, micro-interactions (already have, optimizing)
-7. **Multiple page variants** -- service pages, testimonials, projects, contact (already have 11 pages)
-8. **Responsive and accessible** -- mobile-first, WCAG compliance, keyboard navigation (partially done, needs audit)
-9. **Documentation** -- setup guide, customization guide, deployment guide (needs creation)
-10. **Demo-ready** -- works immediately with placeholder content (already works, needs polish)
-
-**What the competition lacks that we have:** AI chat assistant. This is the single biggest differentiator. No competing roofing/siding template offers an AI-powered lead qualification chatbot.
+| Package | Compatible With | Notes |
+|---------|-----------------|-------|
+| react-dropzone@15.0.0 | react@^19.2.4 | Peer dep `>= 16.8` — React 19 included; PR #1422 confirmed (closed Feb 2026) |
+| @vis.gl/react-google-maps@1.7.1 | react@^19.2.4 | React 19 support fixed in v1.4.1 (Nov 2024); v1.7.1 is current stable |
+| react-hook-form@7.71.2 | react@^19.2.4 | Already installed; multi-step via FormProvider is native |
+| zod@4.3.6 | @hookform/resolvers@5.2.2 | Already installed; per-step schemas add zero new deps |
 
 ---
 
 ## Sources
 
-- [React 19 Document Metadata](https://react.dev/blog/2024/12/05/react-19) -- HIGH confidence
-- [Motion Reduce Bundle Size](https://motion.dev/docs/react-reduce-bundle-size) -- HIGH confidence
-- [Motion LazyMotion docs](https://motion.dev/docs/react-lazy-motion) -- HIGH confidence
-- [React Router v7 Pre-Rendering](https://reactrouter.com/how-to/pre-rendering) -- HIGH confidence
-- [vite-plugin-sitemap GitHub](https://github.com/jbaubree/vite-plugin-sitemap) -- HIGH confidence
-- [vite-plugin-image-optimizer GitHub](https://github.com/FatehAK/vite-plugin-image-optimizer) -- HIGH confidence
-- [React Hook Form + Zod integration](https://react-hook-form.com/get-started) -- HIGH confidence
-- [Schema.org LocalBusiness](https://schema.org/LocalBusiness) -- HIGH confidence
-- [Google web-vitals library](https://github.com/GoogleChrome/web-vitals) -- HIGH confidence
-- [Vercel Speed Insights](https://vercel.com/docs/speed-insights) -- HIGH confidence
-- [Core Web Vitals 2026 metrics](https://nitropack.io/blog/most-important-core-web-vitals-metrics/) -- MEDIUM confidence
-- [ThemeForest React Templates](https://themeforest.net/search/react) -- market research
-- [Roofing Website Best Practices](https://hookagency.com/blog/best-roofing-websites/) -- MEDIUM confidence
-- [SPA SEO Strategies 2026](https://www.copebusiness.com/technical-seo/spa-seo-strategies/) -- MEDIUM confidence
+- npm registry (live query): `npm info react-dropzone version` → `15.0.0`
+- npm registry (live query): `npm info @vis.gl/react-google-maps version` → `1.7.1`
+- [react-dropzone PR #1422](https://github.com/react-dropzone/react-dropzone/pull/1422) — React 19 peer dep confirmed included; PR closed Feb 2026 — HIGH confidence
+- [visgl/react-google-maps issue #596](https://github.com/visgl/react-google-maps/issues/596) — React 19 fixed in v1.4.1; issue closed — HIGH confidence
+- [react-hook-form Advanced Usage / Wizard Forms](https://react-hook-form.com/advanced-usage) — FormProvider + useFormContext + trigger() pattern — HIGH confidence
+- [Google Maps Embed API overview](https://developers.google.com/maps/documentation/embed/get-started) — free, unlimited usage, API key required — HIGH confidence
+- [Formspree file uploads blog](https://formspree.io/blog/file-upload-form/) — multipart/form-data, 10 files / 25 MB each / 100 MB total — HIGH confidence
+- [Cloudinary client-side uploading docs](https://cloudinary.com/documentation/client_side_uploading) — unsigned preset, no backend required — HIGH confidence
+- [Cloudinary free plan](https://cloudinary.com/pricing) — 25 credits/month, 10 MB image limit — MEDIUM confidence (pricing pages change; verify before quoting to buyers)
+- [react-google-maps Docs: Get Started](https://visgl.github.io/react-google-maps/docs/get-started) — APIProvider/Map/AdvancedMarker API confirmed — HIGH confidence
+
+---
+
+*Stack research for: Home Services Template v1.2 Feature Expansion*
+*Researched: 2026-03-05*

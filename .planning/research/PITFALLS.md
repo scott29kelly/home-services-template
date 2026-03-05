@@ -1,642 +1,532 @@
-# Domain Pitfalls
+# Pitfalls Research
 
-**Domain:** Premium home services website template product
-**Researched:** 2026-02-21
-**Stack:** React 19 + Vite 7 + Tailwind CSS v4 + TypeScript + Framer Motion 12 + React Router 7
+**Domain:** Premium home services website template — v1.2 Feature Expansion
+**Researched:** 2026-03-05
+**Confidence:** HIGH (verified against official docs, GitHub issues, and multiple community sources)
+**Scope:** Adding multi-step quote wizard, project cost estimator, Google Maps embed, and photo upload to an existing React 19 + RR7 + Vite 7 + Tailwind v4 static pre-rendered template
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites, lost sales, or major customer complaints. Address these first.
+---
+
+### Pitfall 1: Quote Wizard State Lost on Browser Back Navigation
+
+**What goes wrong:**
+The multi-step wizard lives at a single route (`/get-quote`). Step transitions are controlled by React state — no URL changes. When a user on Step 3 (Photos) hits the browser back button, they expect to go to Step 2 (Details). Instead, they navigate away from `/get-quote` entirely and lose all entered data. The Baymard Institute found 59% of sites get back-button expectations wrong in multi-step flows; this is the most common complaint.
+
+**Why it happens:**
+Developers render all wizard steps inside a single component, managing the current step with `useState`. This is the path of least resistance, but the browser history stack has no record of step transitions — only the page navigation to `/get-quote`.
+
+**How to avoid:**
+Two options, pick one:
+
+Option A (URL-based steps, recommended): Use query params to encode the step — `/get-quote?step=1`, `/get-quote?step=2`. React Router's `useSearchParams` reads and updates the step. Browser back works naturally, and users can bookmark or share a specific step.
+
+Option B (intercept back navigation): Use `window.history.pushState` on each step transition so the browser has a history entry per step. On `popstate`, decrement the step counter. More complex and fragile than Option A.
+
+Do NOT use URL path segments (`/get-quote/step-1`) — this requires 4 separate routes, 4 pre-rendered HTML files, and complex state handoff across route boundaries.
+
+**Warning signs:**
+- Step managed with `useState` only, no URL parameter
+- No `useEffect` that syncs step to URL or browser history
+- Testing only via clicking the wizard's own Back button, never testing the browser's Back button
+
+**Phase to address:** Quote Wizard phase (implementation start)
 
 ---
 
-### Pitfall 1: React SPA Serves Empty HTML to Search Engines
+### Pitfall 2: Google Maps API Key Exposed Without HTTP Referrer Restriction
 
-**What goes wrong:** The current app is a pure client-side SPA. When Googlebot visits any page, it receives `<div id="root"></div>` with no content. While Google can execute JavaScript, the Web Rendering Service (WRS) is slow, unreliable, and deprioritized. Pages may take days to weeks to be indexed, or never render correctly. Other search engines (Bing, DuckDuckGo) and social media crawlers (Facebook, Twitter/X, LinkedIn) do not execute JavaScript at all.
+**What goes wrong:**
+The API key for the Maps Embed is placed in the config file (`maps.apiKey`) and rendered into an iframe `src` URL or `<script>` tag. Since this is a static site, the key is visible in the deployed HTML to anyone who views source. An attacker copies the key and uses it to rack up API charges on your billing account. As of 2025, this is even higher risk: if the same Google Cloud project has Gemini enabled, the exposed key can be used for privilege escalation to access AI features and private data.
 
-**Why it matters:** SEO is a core value proposition of this product ("Content & SEO" is Pillar 3). Template buyers specifically want organic search traffic. A template that cannot be indexed will generate immediate refund requests and 1-star reviews. The auto-generated city pages and blog posts -- the primary SEO features -- will be invisible to search engines.
+**Why it happens:**
+The Maps Embed API requires the key in the browser request — there is no way to make it server-only. Developers assume "it's just a maps key, not a secret," which was true before Google added AI services to the same credential system. The 2025 Gemini escalation finding (Truffle Security, March 2025) changed the threat model for any Google API key.
 
-**Consequences:**
-- Blog posts and city pages never appear in Google
-- Open Graph meta tags rendered by React are invisible to social media crawlers (the current `PageMeta` component renders OG tags client-side, which is useless for link previews)
-- Buyers who check Google Search Console will see zero indexed pages and demand refunds
-- Competitors using SSG/SSR will outrank on every query
+**How to avoid:**
+1. **Always restrict the key by HTTP referrer** — in the Google Cloud Console, set Application Restrictions to "HTTP referrers (websites)" and add the production domain (e.g., `*.yourdomain.com/*`) plus any staging domains. This ensures the key only works when requests come from your domain.
+2. **Restrict the key by API** — under API Restrictions, limit the key to only "Maps Embed API" (or only "Maps JavaScript API" if using the JS SDK). A key scoped only to Maps Embed cannot be used for Gemini, Storage, or other APIs even if someone steals it.
+3. **Separate keys per environment** — keep the production key restricted; use a separate unrestricted key for local development (or use the `VITE_` env var pattern so the dev key is never in the repository).
+4. **Store in `VITE_GOOGLE_MAPS_KEY` env var** — never hard-code the key in `config/maps.ts`. The config should reference `import.meta.env.VITE_GOOGLE_MAPS_KEY`. Buyers set this in their Vercel environment variables, not in a config file.
 
-**Prevention:**
-- Implement build-time pre-rendering using either React Router v7 Framework Mode (which supports `prerender: true` in `react-router.config.ts`) or `vite-plugin-prerender` with Puppeteer
-- Pre-render all static routes at build time: home, about, contact, services, service pages, testimonials, projects, service areas
-- Pre-render all blog post pages and city pages at build time using an async function that reads the content directory
-- Ensure the pre-rendered HTML includes all meta tags, OG tags, Schema.org JSON-LD, and visible text content
-- Keep the current SPA navigation for client-side transitions after initial load
+Config pattern:
+```typescript
+// src/config/maps.ts
+export const maps = {
+  // Never hard-code the key here. Buyers set VITE_GOOGLE_MAPS_KEY in Vercel.
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY ?? '',
+  defaultCenter: { lat: 40.7128, lng: -74.006 },
+  zoom: 12,
+}
+```
 
-**Detection:** Run `curl -s https://yoursite.com/ | grep -c "<h1>"` -- if it returns 0, search engines see nothing. Check Google Search Console for "Discovered - currently not indexed" warnings.
+**Warning signs:**
+- API key string appears literally in any `.ts` or `.tsx` file checked into version control
+- Key has no HTTP referrer restriction in Google Cloud Console
+- Key has access to more APIs than just Maps
 
-**Confidence:** HIGH -- This is a well-documented, fundamental limitation of client-side React SPAs. Google's own documentation states server-rendered content is indexed faster and more reliably.
-
----
-
-### Pitfall 2: Contact Form Is a No-Op (Zero Lead Generation)
-
-**What goes wrong:** The current contact form (`Contact.tsx` line 56-59) calls `e.preventDefault()` and sets `submitted = true` without sending any data anywhere. Form data is lost. The buyer deploys the template, a potential customer fills out the form, and the lead vanishes into the void.
-
-**Why it matters:** Lead generation is Pillar 2 of the product. The entire purpose of a home services website is to capture leads. A non-functional form is not a missing feature -- it is a broken promise. Template buyers will discover this quickly (the first time someone submits a form and they receive nothing) and it will be catastrophic for trust.
-
-**Consequences:**
-- Buyer loses real leads and real revenue
-- Immediate support tickets and negative reviews
-- Violates the "no broken features" success criterion
-- Undermines the entire product positioning
-
-**Prevention:**
-- Implement a default email notification backend using a Vercel serverless function (similar to the existing chat API pattern)
-- Use a transactional email service (Resend, SendGrid, or Mailgun) rather than raw SMTP to ensure deliverability
-- Provide a configurable webhook URL in the site config so buyers can connect to their CRM (HubSpot, Salesforce, etc.)
-- Add client-side validation with clear error messages before submission
-- Add a honeypot field and rate limiting to prevent spam
-- Store form submissions in a simple queue/log as a fallback even if email fails
-
-**Detection:** Test the form on the live site. If no email arrives, it is broken.
-
-**Confidence:** HIGH -- This is directly observable in the current codebase.
+**Phase to address:** Google Maps embed phase (before any key is introduced into the codebase)
 
 ---
 
-### Pitfall 3: Auto-Generated City Pages With Duplicate/Thin Content
+### Pitfall 3: Google Maps Embed Iframe Destroys Lighthouse Performance on City Pages
 
-**What goes wrong:** When generating pages for 20-30 cities from config, the natural approach is to use the same template with just the city name swapped in. Google's September 2025 Spam Update specifically targeted this pattern: "businesses with location landing pages that used identical templates across different cities were flagged for lacking originality." The pages get de-indexed or consolidated, providing zero SEO value.
+**What goes wrong:**
+A naively embedded Google Maps iframe (`<iframe src="https://www.google.com/maps/embed?...">`) loads approximately 1.2 MB of third-party resources — 342 KB of JavaScript, 417 KB of images, 219 KB of fonts. It initiates 17+ network requests before DOMContentLoaded. On city pages that already have hero images and section content, this kills LCP by an average of 2.8 seconds on 3G (measured), and causes CLS > 0.25 in 89% of cases when no explicit `width`/`height` is set on the iframe. The current template has hard-won desktop Lighthouse scores of 91-99. A bare iframe embed will drop these to the 60s.
 
-**Why it matters:** City-specific SEO pages are a major selling point. If they trigger duplicate content filtering, the feature actively hurts the site rather than helping it. Buyers who understand SEO will recognize thin content immediately. Buyers who do not understand SEO will wonder why their city pages never rank.
+**Why it happens:**
+The default iframe embed code from Google Maps ("Share > Embed a map") has no `loading`, `width`, or `height` attributes. Copy-paste from the share dialog gives you the naive embed.
 
-**Consequences:**
-- Google de-indexes or consolidates city pages, treating only one as canonical
-- Potential manual spam action for doorway pages (Google classifies auto-generated location pages with no unique content as doorway pages)
-- Sitemap bloat with pages that provide no ranking value
-- Loss of buyer confidence in the SEO capabilities
+**How to avoid:**
+Use lazy loading with a static map placeholder pattern:
 
-**Prevention:**
-- Each city page must have genuinely unique content. Use a template structure but require per-city fields in config: unique intro paragraph, local landmarks/references, specific services offered in that area, local testimonials, and a unique meta description
-- Implement a content quality gate: if a city config entry lacks a minimum set of unique fields, render a simpler listing page rather than a full city page (avoid the thin content pattern)
-- Add `rel="canonical"` tags correctly -- each city page should be self-canonical, not point to a parent
-- Include city-specific Schema.org `LocalBusiness` or `ServiceArea` markup
-- Provide clear documentation and config examples showing buyers how to add unique content per city
-- Consider a "content completeness" indicator in the config that warns when a city page is too thin
+1. Set `loading="lazy"` on the iframe — defers loading until the user scrolls near the map, saving ~1.2 MB on initial page load.
+2. Set explicit `width` and `height` attributes (or equivalent CSS with aspect-ratio) to eliminate CLS.
+3. Optional (maximum performance): Replace the iframe with a static placeholder image on initial load. Show a "Click to load map" overlay. On click, swap in the real iframe. This keeps LCP perfect at the cost of a small UX friction.
 
-**Detection:** Compare any two city pages with a diff tool. If they differ only by city name, they are duplicate content.
+```tsx
+// Minimal viable embed — avoids LCP and CLS regressions
+<iframe
+  src={`https://www.google.com/maps/embed/v1/place?key=${maps.apiKey}&q=${encodeURIComponent(city.address)}`}
+  width="600"
+  height="450"
+  style={{ border: 0 }}
+  loading="lazy"
+  referrerPolicy="no-referrer-when-downgrade"
+  title={`Map of ${city.name} service area`}
+  allowFullScreen
+/>
+```
 
-**Confidence:** HIGH -- Google's documentation on doorway pages and the September 2025 Spam Update explicitly target this pattern.
+**Warning signs:**
+- Lighthouse performance score on city pages drops by 15+ points after adding the map
+- No `loading="lazy"` on the iframe
+- No explicit `width`/`height` on the iframe (CLS will be flagged in PageSpeed)
+- City pages are in the Lighthouse test set — test a city page, not just the home page
 
----
-
-### Pitfall 4: Framer Motion Animations Destroying Core Web Vitals
-
-**What goes wrong:** The current codebase uses Framer Motion extensively: hero content animations (`initial={{ opacity: 0, y: 40 }}`), scroll-reveal animations on every section, staggered card animations, and chat widget entrance/exit animations. These cause three distinct performance problems:
-
-1. **CLS (Cumulative Layout Shift):** Elements that animate from `y: 40` to `y: 0` cause layout shifts as they move into final position. Scroll-triggered animations are particularly bad because they fire after the page appears stable.
-2. **LCP (Largest Contentful Paint):** The hero headline animates from `opacity: 0` to `opacity: 1` over 800ms. If the hero text is the LCP element, Chrome measures LCP after the animation completes, adding 800ms to the LCP score.
-3. **INP (Interaction to Next Paint):** Complex animation calculations on the main thread during scroll can delay responses to user interactions.
-
-**Why it matters:** Core Web Vitals directly affect Google rankings (estimated 25-30% weight for competitive queries). Only 47% of websites currently pass CWV thresholds. A premium template that fails CWV is selling a handicap. Template review sites and savvy buyers test Lighthouse scores before purchasing.
-
-**Consequences:**
-- LCP exceeds 2.5s threshold due to animation delays on hero content
-- CLS exceeds 0.1 threshold from scroll-triggered layout animations
-- Lower Google rankings for buyer's site
-- Bad Lighthouse scores visible in template reviews
-
-**Prevention:**
-- Hero content: Remove the `initial={{ opacity: 0 }}` on above-the-fold elements. The hero headline and subhead should render immediately. Use `animate` only for decorative elements below the fold.
-- Scroll animations: Use only `opacity` and `transform` properties (which Framer Motion's `y` prop does use `transform` under the hood, which is correct). However, reserve CSS `will-change: transform` for elements about to animate. Ensure `once: true` is set (already done in `useScrollReveal`).
-- CLS prevention: Set explicit dimensions on all animated containers. Use `layout` animations cautiously -- they cause reflows. Avoid animating `height`, `width`, `margin`, or `padding`.
-- LCP strategy: The hero `<img>` already has `fetchPriority="high"` (good). But the hero text animation delays the paint. If the text is LCP, remove the animation or make it instant (`duration: 0` for `opacity`, animate only decorative elements).
-- Bundle size: Framer Motion is ~32KB gzipped. Use `import { motion } from "framer-motion"` tree-shaking properly. Consider `LazyMotion` with `domAnimation` features for reduced bundle.
-
-**Detection:** Run Lighthouse on the deployed site. Check CLS in Chrome DevTools Performance tab. Use `web-vitals` library to log real-user metrics.
-
-**Confidence:** HIGH -- CLS from animated elements and LCP delays from opacity animations are well-documented and directly observable in the current code.
+**Phase to address:** Google Maps embed phase, before shipping city page changes
 
 ---
 
-### Pitfall 5: Chat API Key Exposed or Unreliable in Production
+### Pitfall 4: Photo Upload Bypasses Formspree's 4.5 MB Serverless Limit
 
-**What goes wrong:** The current chat system has multiple reliability issues:
+**What goes wrong:**
+Photos are collected in the wizard's Step 3 (Photos). When the form submits, the developer sends the photos as `FormData` to the existing Formspree endpoint. Vercel's serverless function request body limit is 4.5 MB. A single iPhone photo in full resolution is 4-12 MB. The submission silently fails (or returns a 413 error) with no useful message to the user.
 
-1. **CORS wildcard:** `api/chat.js` sets `Access-Control-Allow-Origin: '*'`, meaning anyone can call the endpoint from any domain, burning through the buyer's Groq API credits.
-2. **Groq free tier rate limits:** The free tier allows 14,400 requests/day at the organization level. A moderately trafficked site with an always-visible chat widget could exhaust this in hours during a traffic spike (e.g., after a storm event when home services sites get the most traffic).
-3. **No rate limiting on the endpoint:** No per-IP or per-session throttling. A bot or abusive user can drain the API quota in minutes.
-4. **Hard failure with no API key:** If `GROQ_API_KEY` is not set, the function returns a 500 error. The client-side fallback to demo mode works, but the initial failed fetch adds latency and error noise.
-5. **No conversation length limit:** The client sends the full conversation history on every request. A long conversation sends increasingly large payloads and burns tokens.
+**Why it happens:**
+The existing contact form submits JSON text fields only — no photos — and works fine under the 4.5 MB limit. The developer carries over the same submission pattern to the quote wizard without accounting for binary file payload size.
 
-**Why it matters:** AI chat is a key differentiator. If it breaks under normal usage, buyers will see it as a liability rather than a feature. Unexpected API bills or exhausted quotas during peak traffic (exactly when leads are most valuable) is the worst-case scenario.
+**How to avoid:**
+Formspree natively supports file uploads when submitted as `multipart/form-data`. The key constraints are: each file is capped at 25 MB, total submission is capped at 100 MB. The 4.5 MB Vercel limit only applies to serverless function request bodies — Formspree's own upload endpoint is not proxied through a Vercel function, so submitting directly to Formspree's endpoint (`https://formspree.io/f/{id}`) avoids the Vercel limit entirely.
 
-**Consequences:**
-- API quota exhaustion during traffic spikes (storms, hail events)
-- Unexpected charges if buyer upgrades to paid Groq tier
-- Abuse via open CORS endpoint draining credits
-- Chat widget shows errors at the worst possible time
+Correct implementation:
+```typescript
+// Submit directly to Formspree, not through a /api/* Vercel function
+const formData = new FormData()
+formData.append('email', data.email)
+formData.append('service', data.service)
+// Append each photo file object directly — NOT base64 encoded
+data.photos.forEach((file, i) => {
+  formData.append(`photo_${i + 1}`, file)
+})
 
-**Prevention:**
-- Replace `Access-Control-Allow-Origin: '*'` with the actual site domain from config/environment variable
-- Implement server-side rate limiting per IP (e.g., 20 requests per hour per IP)
-- Add a conversation length cap: only send the last 10 messages to the API, not the full history
-- Implement a graceful degradation path: detect quota exhaustion (429 response) and immediately switch to demo mode rather than showing errors
-- Document the Groq free tier limitations clearly. Recommend buyers start with free tier and provide instructions for upgrading or switching to alternative providers (OpenAI, Anthropic)
-- Add a provider abstraction in config so the backend is not hardcoded to Groq
-- Consider adding a simple token bucket or session-based rate limiter in the serverless function
+await fetch(`https://formspree.io/f/${formspreeId}`, {
+  method: 'POST',
+  body: formData,
+  // Do NOT set Content-Type header — let the browser set multipart/form-data boundary automatically
+})
+```
 
-**Detection:** Monitor API response codes in the serverless function logs. Set up alerts for 429 (rate limit) responses.
+Do NOT convert photos to base64 and send as JSON. Base64 encoding inflates file size by ~33%. A 3 MB photo becomes a 4 MB base64 string — easily hitting limits and creating unnecessary memory pressure.
 
-**Confidence:** HIGH -- The CORS and rate limiting issues are directly visible in the code. Groq free tier limits are documented in their community forums.
+**Warning signs:**
+- Form submission goes through a `/api/contact` Vercel serverless function
+- Photos are converted to base64 strings before submission
+- No client-side file size validation before submit
+- No error handling for HTTP 413 responses
 
----
-
-## Important Pitfalls
-
-Mistakes that cause significant buyer friction, support burden, or product quality issues. Address these in early phases.
-
----
-
-### Pitfall 6: Configuration System That Is Either Too Rigid or Too Complex
-
-**What goes wrong:** Config-driven templates face a fundamental tension:
-
-- **Too rigid:** Buyer cannot change the number of services, add a page, or modify the navigation without editing component code. They bought a "configurable" product but still need a developer for basic changes.
-- **Too complex:** Config file becomes a 500-line nested object with dozens of optional fields, conditional logic, and implicit dependencies. Non-technical buyers (or their hired developers) make typos, miss required fields, or create invalid combinations that produce cryptic runtime errors.
-
-The current `site.ts` config is a single flat file at 97 lines. This works for a simple template but will not scale to the planned features (blog, city pages, booking, forms, navigation, theme, multiple services, testimonials, projects, team members, FAQs per page).
-
-**Why it matters:** "Config-driven customizability" is Pillar 4. The config system is the primary interface between the buyer and the product. If it is frustrating to use, the product fails regardless of how good the design is.
-
-**Consequences:**
-- Buyer edits config, introduces a typo, and the entire site crashes with an unhelpful React error boundary
-- Config grows to hundreds of lines with no validation, making it fragile
-- Buyers need developer help for basic changes, defeating the purpose
-- Support burden increases as buyers file tickets for config-related issues
-
-**Prevention:**
-- Split config into domain-specific files: `config/business.ts`, `config/services.ts`, `config/testimonials.ts`, `config/blog.ts`, `config/theme.ts`, `config/seo.ts`, etc. Each file is smaller and scoped.
-- Use TypeScript's type system as a safety net: define strict interfaces for each config section with required vs. optional fields, literal union types for valid options, and JSDoc comments explaining each field
-- Implement runtime validation at app startup (using Zod or a lightweight validator) that gives clear, actionable error messages: "Config error in services.ts: 'services[2].title' is required" rather than "Cannot read property 'title' of undefined"
-- Provide a `config.example/` directory with annotated example files
-- Keep sensible defaults for optional fields so the minimal config is very short
-- Add a `npm run validate-config` script that checks config without starting the dev server
-
-**Detection:** Have a non-developer try to customize the template using only the config files and documentation. Time how long it takes and note every point of confusion.
-
-**Confidence:** MEDIUM -- This is a design pattern judgment call based on template marketplace feedback patterns. The specific recommendation (split files + TypeScript + Zod validation) is well-established in the ecosystem.
+**Phase to address:** Quote Wizard photo step and final submission phases
 
 ---
 
-### Pitfall 7: No `prefers-reduced-motion` Support Causes Accessibility and Legal Risk
+### Pitfall 5: Multi-Step Wizard State Not Shared With React Hook Form Properly
 
-**What goes wrong:** The current codebase has Framer Motion animations on nearly every visible element: hero content, scroll-reveal on all sections, card stagger animations, chat widget transitions. None of these respect the `prefers-reduced-motion` media query. Users with vestibular disorders (affecting 70+ million people globally) can experience vertigo, nausea, and migraines from these animations.
+**What goes wrong:**
+Each wizard step is a separate component. Each step has its own `useForm()` call. When the user moves from Step 1 to Step 2, the Step 1 form instance is unmounted and its state is lost. On the final step, the submission handler only has access to Step 4's form values, not the accumulated data from Steps 1-3.
 
-**Why it matters:** Beyond the ethical obligation, accessibility failures create legal liability. ADA lawsuits against websites have grown significantly. A premium product sold to businesses should not expose those businesses to accessibility complaints. Additionally, many government and institutional buyers require WCAG 2.1 AA compliance.
+**Why it happens:**
+`useForm()` is scoped to a component. React Hook Form's official multi-step documentation is sparse. The obvious approach — one `useForm` per step — loses data between steps. This is explicitly flagged as a known limitation in React Hook Form issue #3648.
 
-**Consequences:**
-- Users with vestibular disorders cannot use the site comfortably
-- Potential ADA/accessibility lawsuits against the buyer
-- Negative reviews from accessibility-conscious buyers
-- Failure to meet WCAG 2.1 AA (Success Criterion 2.3.3: Animation from Interactions)
+**How to avoid:**
+Use a single `useForm()` instance at the wizard root level, passing `control`, `register`, `errors`, and `trigger` down to each step via props (or React Context). Each step renders its fields using the shared `register` and `control`. The submission on the final step has all fields from all steps.
 
-**Prevention:**
-- Wrap the app with `<MotionConfig reducedMotion="user">` at the root level. This is a single-line change that makes all Framer Motion components automatically disable `transform` and `layout` animations when the user's OS is set to reduce motion, while preserving `opacity` and `backgroundColor` transitions.
-- For custom animations not using Framer Motion, use the CSS media query: `@media (prefers-reduced-motion: reduce) { ... }`
-- Add a visible "Reduce Motion" toggle in the footer or settings, because not all affected users know how to change their OS setting
-- Test with `prefers-reduced-motion: reduce` enabled in Chrome DevTools (Rendering tab)
-- Document in the template README that accessibility is built-in
+```typescript
+// WizardRoot.tsx
+const form = useForm<QuoteWizardData>({
+  resolver: zodResolver(quoteWizardSchema),
+  mode: 'onBlur',
+})
 
-**Detection:** Enable "Reduce motion" in your OS accessibility settings and verify that the site is still fully usable without any transform animations.
+// Step validation: trigger only the fields relevant to the current step
+const stepFields: Record<number, (keyof QuoteWizardData)[]> = {
+  0: ['serviceType', 'projectType'],
+  1: ['squareFootage', 'material', 'additionalDetails'],
+  2: [], // photos — validated separately
+  3: ['firstName', 'lastName', 'email', 'phone', 'address'],
+}
 
-**Confidence:** HIGH -- Framer Motion's `MotionConfig reducedMotion="user"` is documented in their official docs. WCAG 2.1 AA requirements are well-established.
+const handleNext = async () => {
+  const valid = await form.trigger(stepFields[currentStep])
+  if (valid) setCurrentStep(s => s + 1)
+}
+```
 
----
+**Warning signs:**
+- Multiple `useForm()` calls, one per step component
+- Step components import `useForm` directly instead of receiving form props
+- Console errors about unregistered fields on final submit
+- Final submitted data is missing fields from earlier steps
 
-### Pitfall 8: Image Handling Destroys Load Performance
-
-**What goes wrong:** The current template serves images from a flat `/images/` directory with no optimization pipeline:
-
-1. **No responsive images:** The hero image is served at full resolution (1920x1080) regardless of device. A mobile user on 3G downloads a 500KB+ image they display at 375px wide.
-2. **No AVIF/WebP fallback chain:** Only `.webp` images are referenced. Older browsers get broken images, and there is no fallback to JPEG.
-3. **No image dimension attributes on many images:** The hero `<img>` has no explicit `width`/`height` attributes, though it uses `object-cover` with absolute positioning (which mitigates CLS in this specific case). Other images throughout the template likely lack dimensions.
-4. **Images copied via build script:** The build command uses `cp -r images dist/images` -- there is no build-time image optimization, compression, or resizing.
-5. **All images load eagerly:** No `loading="lazy"` on below-the-fold images.
-
-**Why it matters:** Images are typically 50-80% of page weight. For home services sites with project galleries, before/after photos, team headshots, and testimonial photos, unoptimized images will destroy LCP and total page weight. Mobile performance is critical because many home services customers browse on phones.
-
-**Consequences:**
-- LCP > 2.5s on mobile connections due to large hero images
-- Total page weight of 5-10MB+ with gallery pages
-- Poor Lighthouse performance scores
-- Slow experience on mobile, where most home services searches happen
-
-**Prevention:**
-- Implement a build-time image optimization pipeline using `vite-imagetools` or `sharp` to generate multiple sizes and formats (WebP + AVIF + JPEG fallback) at build time
-- Use responsive `<img>` with `srcset` and `sizes` attributes for all content images
-- Set explicit `width` and `height` attributes on all `<img>` elements to prevent CLS
-- Hero image: keep `fetchPriority="high"` (already present) and add `<link rel="preload">` (already present in `index.html`). Do NOT lazy-load the hero image.
-- All below-the-fold images: add `loading="lazy"` and `decoding="async"`
-- Provide clear image size guidelines in documentation (the current README does this, which is good)
-- Consider a reusable `<OptimizedImage>` component that handles srcset, lazy loading, and dimensions automatically
-
-**Detection:** Run Lighthouse. Check the "Properly size images" and "Serve images in next-gen formats" audits. Measure total page weight in Network tab.
-
-**Confidence:** HIGH -- The image handling gaps are directly observable in the codebase and build configuration.
+**Phase to address:** Quote Wizard phase (architecture decision at start)
 
 ---
 
-### Pitfall 9: Email Delivery Failures From Form Submissions
+### Pitfall 6: Zod Schema `isValid` Checks the Whole Schema, Not the Current Step
 
-**What goes wrong:** When implementing form submission email notifications, common pitfalls include:
+**What goes wrong:**
+The wizard disables the "Next" button when `formState.isValid` is false. On Step 1, `isValid` is false because Step 3's required fields (firstName, email, phone) have not been filled yet. The Next button is always disabled. Users cannot proceed.
 
-1. **Using raw SMTP from serverless functions:** Emails sent from Vercel/Cloudflare serverless IPs are frequently flagged as spam because these shared IPs have poor reputation.
-2. **No SPF/DKIM/DMARC authentication:** Starting November 2025, Gmail actively rejects (not just filters) non-compliant messages at the SMTP protocol level. Microsoft requires DMARC for senders exceeding 5,000 emails/day.
-3. **Sending from a generic "noreply@" address:** Hurts deliverability and feels impersonal.
-4. **No confirmation to the submitter:** The person who filled out the form has no proof their submission was received, leading to duplicate submissions and phone calls.
-5. **No spam protection on the form:** Without honeypot fields, rate limiting, or CAPTCHA, spam bots will submit hundreds of junk leads, polluting the buyer's inbox and potentially getting their email domain flagged.
+**Why it happens:**
+`formState.isValid` reflects the validity of the entire schema. When using a single shared `useForm()` (the correct architecture per Pitfall 5 above), all steps' required fields count toward `isValid` — so the form is never valid until the very last step's final field is filled.
 
-**Why it matters:** If form submissions do not reach the buyer's inbox reliably, the lead generation feature is broken even if the code works correctly. Email deliverability is invisible -- submissions silently go to spam, and neither the buyer nor the customer knows.
+**How to avoid:**
+Never use `formState.isValid` to gate step progression. Instead, use `form.trigger(stepFields[currentStep])` to validate only the current step's fields before advancing. This is an async call that resolves to `true` if those specific fields pass validation.
 
-**Consequences:**
-- Leads go to spam folder -- buyer thinks the site generates no leads
-- Spam bot submissions flood buyer's inbox and damage sender reputation
-- Gmail/Microsoft reject emails entirely, creating a silent failure
-- Buyer loses trust and requests a refund
+```typescript
+// Instead of: disabled={!formState.isValid}
+// Use:
+const [canProgress, setCanProgress] = useState(false)
 
-**Prevention:**
-- Use a transactional email API (Resend is simplest -- single API call, no SMTP complexity, free tier of 100 emails/day). Configure with the buyer's domain for proper SPF/DKIM.
-- Implement honeypot field (hidden input that bots fill in, humans don't) and server-side rate limiting per IP
-- Send a confirmation email to the submitter acknowledging receipt
-- Store submissions in a lightweight persistence layer (even just logging to Vercel logs) as a backup
-- Document email setup clearly: buyer must add DNS records (SPF, DKIM) for their domain
-- Provide a "test submission" flow in the setup process so buyers verify delivery before going live
+const validateStep = async () => {
+  const result = await form.trigger(stepFields[currentStep])
+  setCanProgress(result)
+}
+```
 
-**Detection:** Submit the form and check if the email arrives in the inbox (not spam). Test from multiple email providers (Gmail, Outlook, Yahoo).
+Alternatively, use Zod's `.pick()` to create per-step sub-schemas for local validation. But `form.trigger(fields)` is simpler and does not require maintaining parallel schema objects.
 
-**Confidence:** HIGH -- Gmail's November 2025 enforcement changes are documented. Email deliverability from serverless IPs is a widely reported issue.
+**Warning signs:**
+- "Next" button is always disabled on Step 1 during testing
+- `isValid` used directly in JSX to control step progression
+- No `trigger()` calls in the step-advance handler
 
----
-
-### Pitfall 10: Bundle Size Bloat From Feature Creep
-
-**What goes wrong:** As features are added (blog renderer, markdown parser, calendar/date picker, financing calculator, image gallery with lightbox, AI chat, city page generator, form validation library), the JavaScript bundle grows. The planned feature set could easily push the main bundle past 500KB gzipped if not managed carefully. Key contributors:
-
-- Framer Motion: ~32KB gzipped
-- React + React DOM: ~42KB gzipped
-- React Router: ~15KB gzipped
-- Markdown parser (remark/rehype): ~30-50KB gzipped
-- Date/calendar library: ~15-30KB gzipped
-- Form validation (Zod): ~13KB gzipped
-- Syntax highlighting for blog code blocks: ~20-50KB gzipped
-
-Total baseline before any app code: 150-230KB gzipped. With application code and additional libraries, easily 300-500KB+.
-
-**Why it matters:** Large bundles increase Time to Interactive (TTI) and First Input Delay (FID)/INP. On mobile networks, every 100KB adds ~500ms of parse time. A "premium" template should feel fast, not sluggish.
-
-**Consequences:**
-- Slow initial page load, especially on mobile
-- Poor Lighthouse performance scores
-- Bad first impression on the demo site (where buyers evaluate the product)
-- SEO impact from slow TTI
-
-**Prevention:**
-- Current lazy loading of routes via `React.lazy()` is correct -- continue this pattern for ALL routes except Home
-- Use `LazyMotion` with `domAnimation` features instead of importing the full Framer Motion bundle on every page
-- Lazy-load the chat widget and its API client (it should not be in the initial bundle since users don't interact with it immediately)
-- Lazy-load the markdown renderer and syntax highlighter only on blog pages
-- Lazy-load the calendar/date picker only on the booking page
-- Use `vite-bundle-analyzer` (or `rollup-plugin-visualizer`) to monitor bundle composition
-- Set a bundle budget: main chunk should be under 100KB gzipped, total JS under 300KB gzipped
-- Configure manual chunks in `vite.config.ts` for vendor libraries that are used across routes (React, React DOM, React Router in one chunk; Framer Motion in another)
-
-**Detection:** Run `npx vite-bundle-visualizer` after build. Check the sizes of each chunk. Set up CI check that fails if main bundle exceeds budget.
-
-**Confidence:** HIGH -- Bundle sizes are measurable and the library sizes are documented.
+**Phase to address:** Quote Wizard phase (per-step validation logic)
 
 ---
 
-### Pitfall 11: AI Chat That Annoys Rather Than Converts
+### Pitfall 7: Cost Estimator Sets Unrealistic Price Expectations for Buyers' Customers
 
-**What goes wrong:** Research shows 53% of consumers find chatbots annoying, and 80% prefer human support even with the same outcome. Common failure patterns:
+**What goes wrong:**
+The cost estimator shows ranges like "$8,000 - $15,000 for a 2,000 sq ft roof replacement." A homeowner uses this, expects to pay $8,000, and then receives a quote for $18,000 due to their specific materials, pitch, structural complexity, and local labor market. They feel deceived. The business owner (template buyer) receives complaints, loses the lead, and may blame the template.
 
-1. **Auto-opening or attention-grabbing:** A chat widget that pops open automatically, bounces, or shows persistent notifications trains users to dismiss it like an ad.
-2. **Cannot reach a human:** The biggest frustration (documented across multiple studies) is when users feel trapped with a bot. If the AI cannot answer their question and there is no escalation path, the experience is worse than having no chat at all.
-3. **Generic responses:** "I'd be happy to help!" followed by irrelevant information. The current demo mode fallback gives generic responses for unrecognized queries.
-4. **Hallucinated information:** LLMs can fabricate pricing, availability, certifications, or make promises the business cannot keep. The system prompt says "Never provide specific dollar estimates" but this depends on the LLM following instructions reliably.
-5. **Full conversation sent to API:** The current implementation sends the entire message history with each request, leading to increasingly expensive API calls and potential context window overflow.
+**Why it happens:**
+Config-driven cost ranges are defined by the template developer using generic industry averages. They are not calibrated to the specific business's local market, materials, or project mix. The estimator looks functional and authoritative, but the data is a demo placeholder.
 
-**Why it matters:** A bad chatbot experience does not just fail to convert -- it actively drives visitors away. For a home services business where trust is paramount, an AI that makes up information or feels like a barrier is worse than a simple phone number.
+**How to avoid:**
+1. **Ship with conspicuous disclaimer language** — the config schema for each service's cost range should include a required `disclaimer` field. Default text: "These ranges are estimates only. Actual costs depend on your specific project, materials, and local conditions. Request a free on-site estimate for accurate pricing."
+2. **Make the disclaimer un-hideable via feature flag** — unlike other UI elements, the disclaimer must always render when the estimator is shown. Make this a hard constraint in the component, not a config option.
+3. **Label ranges as starting-from, not exact** — "From $8,000" rather than "$8,000 - $15,000" sets a softer floor expectation.
+4. **Document clearly for template buyers** — the README must state that buyers MUST update cost ranges to reflect their actual local pricing before launch. Default values should be obviously wrong (e.g., `minCost: 0, maxCost: 0`) to force buyers to set real values.
 
-**Consequences:**
-- Visitors close the chat and leave the site
-- AI provides incorrect information, creating liability for the business
-- Excessive API costs from long conversations
-- Buyer disables the chat feature entirely, losing a differentiator
+**Warning signs:**
+- Cost ranges in config default to real-looking numbers (e.g., `8000`)
+- No disclaimer text required by config schema (Zod does not enforce it)
+- The disclaimer is toggleable via feature flag
+- Template ships without documentation warning buyers to update pricing
 
-**Prevention:**
-- Default behavior: Widget is visible but closed. No auto-open, no bounce animation, no sound.
-- Always provide an escape hatch: After 2-3 exchanges, show a "Talk to a real person" button that links to the phone number or email.
-- Limit conversation scope: The system prompt should be tight and focused. Include explicit negative instructions ("Do not discuss pricing, availability dates, or make commitments on behalf of the business").
-- Implement response guardrails: Maximum response length, rejection of off-topic queries, and a "I'm not sure about that -- here's how to reach our team directly" fallback.
-- Cap conversation length at ~10 messages client-side and show a "For more detailed help, please call us" message.
-- Make the chat feature optional in config with a simple boolean toggle.
-- Provide clear documentation about AI limitations and recommend the buyer review the system prompt for their specific business.
-
-**Detection:** Have 10 people use the chat with realistic questions. Track how many get a useful answer, how many get frustrated, and how many would have been better served by a phone number.
-
-**Confidence:** MEDIUM -- The user sentiment data is from surveys (multiple sources agree), but the specific UX recommendations are based on established patterns rather than controlled experiments.
+**Phase to address:** Cost Estimator phase (config schema design and component build)
 
 ---
 
-### Pitfall 12: Template Product With Poor Documentation Gets Bad Reviews
+### Pitfall 8: Photo Upload Exposes User Location via EXIF Metadata
 
-**What goes wrong:** The number one complaint on template marketplace reviews (ThemeForest, Creative Market) is not code quality -- it is documentation and support. Premium templates fail when:
+**What goes wrong:**
+A homeowner uploads a photo of their roof taken on an iPhone. The JPEG contains EXIF metadata with GPS coordinates, device model, and timestamp. The photo is attached to the Formspree submission. The business owner receives the email with the photo. The EXIF data is accessible to anyone who can access the email or Formspree dashboard — including any future data breach of those services.
 
-1. **Setup instructions assume developer knowledge:** "Edit `site.ts` and deploy" is not sufficient for a non-technical buyer or a hired freelancer unfamiliar with React/Vite.
-2. **No visual documentation:** Buyers cannot map config fields to visual elements on the page.
-3. **Missing troubleshooting:** Common issues (build failures, image not showing, form not working, chat not connecting) need specific solutions.
-4. **No changelog:** Buyers who update the template have no idea what changed or what might break.
+**Why it happens:**
+Browsers do not strip EXIF data from files selected via `<input type="file">`. File objects are passed directly to FormData. The raw file — GPS data and all — is sent to Formspree.
 
-**Why it matters:** Documentation IS the product for template buyers. They evaluate the product based on how quickly they can customize it and go live. Extensive documentation reduces support burden and improves reviews.
+**How to avoid:**
+Strip EXIF data client-side before upload. The canvas re-encoding approach is the most reliable: draw the image onto a canvas and export as a new JPEG/PNG. The canvas API does not preserve EXIF metadata.
 
-**Consequences:**
-- Negative reviews citing "hard to customize" or "no support"
-- High support ticket volume eating into margins
-- Buyers unable to complete setup, leading to refund requests
-- Template perceived as "for developers only," limiting the market
+```typescript
+async function stripExifAndResize(file: File, maxWidthPx = 1920): Promise<File> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const scale = Math.min(1, maxWidthPx / img.width)
+      canvas.width = img.width * scale
+      canvas.height = img.height * scale
+      canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
+      canvas.toBlob((blob) => {
+        resolve(new File([blob!], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }))
+      }, 'image/jpeg', 0.85)
+    }
+    img.src = URL.createObjectURL(file)
+  })
+}
+```
 
-**Prevention:**
-- Create a comprehensive setup guide with screenshots showing each step
-- Map every config field to a visual annotation on the demo site ("This field controls THIS element")
-- Include a video walkthrough of initial setup (5-10 minutes)
-- Provide a troubleshooting FAQ covering the 10 most common issues
-- Maintain a CHANGELOG.md with every release
-- Include "quick start" vs. "complete guide" documentation paths for different user skill levels
-- Add inline JSDoc comments in config files that explain each field's purpose and valid values
+This also serves as a client-side resize — limiting to 1920px wide reduces upload size from 8-12 MB to ~500 KB for typical iPhone photos, which prevents hitting Formspree's limits.
 
-**Detection:** Have a non-developer (or a developer unfamiliar with React) try to set up the template from scratch using only the documentation. Every question they ask is a documentation gap.
+**Warning signs:**
+- File objects appended directly to FormData without any processing
+- No canvas-based re-encoding in the photo upload handler
+- No maximum file dimensions enforced client-side
 
-**Confidence:** HIGH -- Template marketplace review patterns consistently show documentation as the primary driver of satisfaction.
-
----
-
-## Moderate Pitfalls
-
-Mistakes that cause friction, quality issues, or technical debt. Address during implementation.
-
----
-
-### Pitfall 13: Schema.org Markup Hardcoded in index.html
-
-**What goes wrong:** The current `index.html` has Schema.org JSON-LD hardcoded with demo data ("Acme Home Services", "555-123-4567", etc.). When a buyer customizes the `site.ts` config, the Schema.org markup in `index.html` remains stale with demo data. Google reads the JSON-LD and sees conflicting information.
-
-**Prevention:**
-- Generate Schema.org JSON-LD dynamically from the config, either at build time (injected during pre-rendering) or as a React component that renders into `<head>`
-- For pre-rendered pages, inject correct JSON-LD per page at build time
-- Include page-specific schemas: `LocalBusiness` for the homepage, `FAQPage` for FAQ sections, `Service` for service pages, `BlogPosting` for blog posts
-- Validate output with Google's Rich Results Test tool
-
-**Confidence:** HIGH -- Directly observable in the current codebase.
+**Phase to address:** Quote Wizard photo upload step
 
 ---
 
-### Pitfall 14: Google Fonts Render-Blocking Load
+### Pitfall 9: Google Maps Embed Breaks When Meta Referrer Policy Is No-Referrer
 
-**What goes wrong:** The current `index.html` loads Google Fonts synchronously with a `<link>` tag. This is render-blocking: the browser will not paint text until the fonts download. On slow connections, this causes a Flash of Invisible Text (FOIT) of 1-3 seconds.
+**What goes wrong:**
+The template uses React 19 native metadata hoisting. If any page component renders a `<meta name="referrer" content="no-referrer">` tag — or if Vite/a security plugin adds a `Referrer-Policy: no-referrer` HTTP header — the browser stops sending the `Referer` header to Google's servers. Google's API key restriction (which validates that requests come from your domain) sees no referrer and rejects the request. The map renders with a `RefererNotAllowedMapError` overlay instead of the actual map.
 
-**Prevention:**
-- Add `font-display: swap` to the Google Fonts URL (append `&display=swap`, which is missing from the current URL -- the current URL does have `display=swap` at the end, which is correct)
-- Consider self-hosting the fonts (download Inter and Plus Jakarta Sans, include in the build) to eliminate the third-party DNS lookup and connection time
-- Use `<link rel="preconnect">` for Google Fonts (already present, which is good)
-- For maximum performance, subset the fonts to only the characters used
+**Why it happens:**
+Security-conscious developers (or default security headers in Vercel) set strict referrer policies. This is correct security practice for most resources but breaks the specific mechanism Google uses to validate API key restrictions on Maps Embed.
 
-**Confidence:** HIGH -- Font loading behavior is well-documented. Self-hosting is the established best practice for performance-critical sites.
+**How to avoid:**
+Add `referrerpolicy="no-referrer-when-downgrade"` directly to the iframe element. This attribute overrides the page-level referrer policy for that specific iframe, allowing the browser to send the full URL as the Referer header to Google while maintaining strict referrer policy for all other requests.
 
-**Note:** Upon re-reading the index.html, the `display=swap` parameter IS present. The main remaining issue is the third-party dependency and DNS lookup time. Self-hosting would improve LCP by 100-300ms.
+```tsx
+<iframe
+  src={embedUrl}
+  referrerPolicy="no-referrer-when-downgrade"  // Critical — overrides page-level policy
+  loading="lazy"
+  width="100%"
+  height="400"
+  style={{ border: 0 }}
+  title={`Map of ${city.name}`}
+/>
+```
 
----
+Also verify: Vercel project settings do not include a `Referrer-Policy: no-referrer` response header in `vercel.json`.
 
-### Pitfall 15: Markdown Blog Without Frontmatter Validation
+**Warning signs:**
+- Map renders correctly in dev but shows error overlay in production
+- `RefererNotAllowedMapError` in browser console on city pages
+- `referrerPolicy` attribute absent from the iframe element
+- Vercel `vercel.json` includes strict security headers
 
-**What goes wrong:** File-based blogs with YAML frontmatter are fragile. Common failures:
-- Missing required fields (title, date, description) cause blank or broken pages
-- Invalid date formats cause sorting errors
-- Incorrect image paths cause broken images
-- Special characters in YAML values (colons, quotes) cause parse errors
-- No slug validation leads to URL conflicts or broken routes
-
-**Prevention:**
-- Define a strict TypeScript interface for blog post frontmatter
-- Validate frontmatter at build time using Zod, failing the build with clear error messages if any post has invalid metadata
-- Provide a blog post template file that buyers copy for new posts
-- Implement a `npm run validate-blog` script that checks all posts without building
-- Handle gracefully: if a post has invalid frontmatter, exclude it from the blog listing rather than crashing the entire site
-- Document the exact frontmatter format with examples
-
-**Confidence:** MEDIUM -- Frontmatter validation patterns are established in SSG ecosystems (Astro, Next.js). The specific risk depends on implementation choices.
+**Phase to address:** Google Maps embed phase (testing against production domain, not localhost)
 
 ---
 
-### Pitfall 16: OG Image Tags With Relative Paths
+### Pitfall 10: Tailwind v4 Purges Dynamic Class Names Built From Config Values
 
-**What goes wrong:** The current `index.html` has `<meta property="og:image" content="/images/hero-roofing.webp">`. Social media crawlers require absolute URLs for OG images. A relative path will result in no image preview when the URL is shared on Facebook, Twitter/X, or LinkedIn.
+**What goes wrong:**
+The cost estimator or wizard progress bar builds class names dynamically from config or state — for example, `className={`w-${stepPercent}`}` where `stepPercent` is `"1/4"`, `"2/4"`, etc. In development, Tailwind scans source files and all classes work. In the production build, Tailwind's static scan doesn't see `w-1/4` as a literal string — it sees `w-${stepPercent}` and does not generate the CSS. The progress bar appears unstyled in production.
 
-**Prevention:**
-- Always use absolute URLs for OG image tags: `https://example.com/images/hero-roofing.webp`
-- Generate OG image URLs from `SITE.url` + image path in the PageMeta component
-- Consider generating dedicated OG images (1200x630px) optimized for social sharing rather than reusing hero images
-- Test with Facebook's Sharing Debugger and Twitter's Card Validator
+**Why it happens:**
+Tailwind v4 uses a Rust-based build engine with zero-config content detection. It scans files for complete class name strings at build time. Template literals that construct class names are not statically analyzable. This is a design constraint, not a bug — and it affects v4 just as it affected v3.
 
-**Confidence:** HIGH -- OG image specification requires absolute URLs. This is directly observable in the current code.
+**How to avoid:**
+Never construct Tailwind class names by string interpolation. Use a lookup table mapping values to complete class name strings.
 
----
+```typescript
+// WRONG — purged in production build
+className={`w-${Math.round((currentStep / totalSteps) * 100)}%`}
 
-### Pitfall 17: No 404 Page Causes Soft 404s and Broken UX
+// CORRECT — lookup table with complete class name strings
+const progressWidths: Record<number, string> = {
+  1: 'w-1/4',
+  2: 'w-2/4',
+  3: 'w-3/4',
+  4: 'w-full',
+}
+className={progressWidths[currentStep] ?? 'w-0'}
+```
 
-**What goes wrong:** The current React Router configuration has no catch-all route. If a user navigates to a non-existent URL (via broken link, typo, or old bookmark), they see a blank page inside the Layout shell. Google classifies this as a "soft 404" -- the server returns 200 OK for a page with no content, which harms crawl efficiency and SEO.
+For the cost estimator's service-based color themes, define the full class in config data:
+```typescript
+// src/config/services.ts
+{
+  slug: 'roofing',
+  estimatorColor: 'bg-blue-600',  // Full class name, not 'blue' interpolated later
+}
+```
 
-**Prevention:**
-- Add a catch-all `<Route path="*" element={<NotFound />} />` in the router
-- The 404 page should include: a clear message, a search suggestion, links to popular pages, and a prominent CTA (phone number, contact form)
-- For pre-rendered sites, generate a `404.html` file that hosting providers (Vercel, Netlify) serve for unknown routes
-- The 404 page should still include the Layout (header/footer) so users can navigate away
+**Warning signs:**
+- Dynamic className includes template literal with variable: `` `bg-${color}` `` or `` `w-${percent}` ``
+- Styles work in `npm run dev` but disappear after `npm run build`
+- No safelist entry in Tailwind config for dynamically constructed classes
 
-**Confidence:** HIGH -- Missing 404 handling is directly observable in `App.tsx`.
-
----
-
-### Pitfall 18: Scroll-to-Top Behavior Breaks Browser Expectations
-
-**What goes wrong:** SPAs using React Router do not automatically scroll to the top when navigating between pages. The current codebase has a `ScrollToTop` component. If this is implemented incorrectly (e.g., scrolling on every render rather than only on route changes, or scrolling during back/forward navigation), it breaks the browser's expected scroll restoration behavior.
-
-**Prevention:**
-- Use React Router's built-in `<ScrollRestoration>` component (available in framework mode) or ensure the custom `ScrollToTop` component only fires on `pathname` changes (not search params or hash changes)
-- Preserve scroll position on back/forward navigation using `history.scrollRestoration`
-- Do not animate the scroll-to-top (it should be instant on navigation)
-- Test with browser back/forward buttons to verify scroll position is restored
-
-**Confidence:** MEDIUM -- Depends on the specific implementation of `ScrollToTop.tsx`.
-
----
-
-### Pitfall 19: Chat Widget Loading on Every Page Impacts Performance
-
-**What goes wrong:** The `AvaWidget` component with its Framer Motion animations, message state, and API client is loaded in the Layout component and rendered on every page. Even when closed, it adds to the initial bundle size and renders DOM elements.
-
-**Prevention:**
-- Lazy-load the AvaWidget: use `React.lazy()` and only import it after user interaction (e.g., when the floating button is clicked for the first time)
-- Alternatively, render only the floating button eagerly (minimal DOM) and lazy-load the full chat panel on first open
-- If using Framer Motion's `AnimatePresence`, the exit animation still works with lazy-loaded components as long as the component mounts before animating out
-- Idle-load the chat bundle using `requestIdleCallback` or an intersection observer so it is ready when the user scrolls to the bottom of the page
-
-**Confidence:** MEDIUM -- The performance impact depends on bundle analysis. The architectural pattern (lazy chat) is well-established.
+**Phase to address:** Both Quote Wizard and Cost Estimator phases (any component using dynamic classes)
 
 ---
 
-## Minor Pitfalls
+## Technical Debt Patterns
 
-Mistakes that cause minor friction or code quality issues. Address opportunistically.
+Shortcuts that seem reasonable but create long-term problems.
 
----
-
-### Pitfall 20: Demo Data Left in Production
-
-**What goes wrong:** Buyers deploy the template without replacing all demo data. "Acme Home Services" appears on their live site. The "555-123-4567" phone number receives calls intended for a real business. Placeholder testimonials ("John D. from Springfield") appear on a live business site. This is embarrassing and damages credibility.
-
-**Prevention:**
-- Add a build-time check: if `SITE.name` is still "Acme Home Services" or `SITE.phone` still contains "555", show a prominent development banner ("This site is using demo data -- update your config before going live")
-- Use clearly fake placeholder data that is obviously not real (e.g., "Your Company Name Here" rather than a realistic-sounding name)
-- The build-time validation script should warn about unchanged default values
-- Consider a `npm run preflight` command that checks for demo data before deployment
-
-**Confidence:** HIGH -- This is a universally reported issue with template products.
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Hard-code wizard to 4 steps | Faster to build | Buyers cannot add/remove steps without component changes | Never — use a steps config array |
+| Use `localStorage` for wizard state | Survives refresh | State leaks between test users on shared devices; stale data on return visits | Acceptable if cleared after successful submit |
+| Inline Google Maps API key in config | Easy setup for buyers | Key stolen if repo is public; no referrer restriction | Never for production key — always use env var |
+| Skip canvas EXIF stripping | Fewer moving parts | Privacy liability for buyers' customers | Never — homeowner GPS data must not be transmitted |
+| Estimator numbers match real averages | Looks credible in demo | Buyers don't update before launch; customer expectations mismatched | Only if "Example Only" watermark is shown |
+| Single Zod schema for all wizard steps | Simpler code | `isValid` always false until final step is complete; blocks all Next buttons | Never — use per-step field triggers |
+| Submit wizard photos as base64 JSON | Avoids multipart complexity | 33% file size inflation; hits Vercel body limit; memory pressure | Never |
 
 ---
 
-### Pitfall 21: Hardcoded Routes Create Maintenance Burden
+## Integration Gotchas
 
-**What goes wrong:** The current `App.tsx` has hardcoded route paths (`"roofing"`, `"siding"`, `"storm-damage"`, etc.) and `Header.tsx`/`Footer.tsx` have hardcoded navigation links (noted as a known gap). When the config allows customizing services, the routes and navigation must be dynamically generated. If routes are hardcoded in multiple places (App, Header, Footer, internal links throughout pages), changing one and missing another creates broken links.
+Common mistakes when connecting to external services.
 
-**Prevention:**
-- Define routes in config and generate them dynamically in `App.tsx`
-- Create a `routes.ts` utility that maps config to route objects, used by the router, navigation, footer, and sitemap generator
-- Use a single source of truth for all internal links: never hardcode paths like `"/roofing"` in component code; instead, reference the route config
-- Add a build-time check that verifies all internal `<Link>` targets resolve to valid routes
-
-**Confidence:** HIGH -- The hardcoded routes are directly visible in the current `App.tsx` and noted as a gap in `PROJECT.md`.
-
----
-
-### Pitfall 22: TypeScript Config Without Runtime Safety Net
-
-**What goes wrong:** TypeScript types are erased at runtime. If a buyer edits `site.ts` and introduces a type error, `tsc` will catch it. But if the config is moved to JSON, YAML, or a plain JS file (common for non-developer users), there is no type checking. Even with TypeScript, `as const` assertions can mask errors: a misspelled property name on an object literal typed `as const` does not produce an error -- it just adds a new property.
-
-**Prevention:**
-- Keep config files as `.ts` files for TypeScript checking, but also validate at runtime with Zod schemas
-- Export validated config objects (run through Zod parse at module load time) so that invalid config fails fast with clear messages
-- Do not use `as const` for user-edited config objects -- use explicit TypeScript interfaces that enforce the expected shape
-- If supporting JSON config files in the future, validate them with the same Zod schemas at build time
-
-**Confidence:** MEDIUM -- TypeScript limitations with `as const` are well-understood but may not manifest depending on how buyers edit the config.
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| Formspree (file upload) | Send files through a Vercel `/api/*` function | Submit multipart/form-data directly to `formspree.io/f/{id}` to bypass Vercel's 4.5 MB body limit |
+| Formspree (file upload) | Manually set `Content-Type: multipart/form-data` header | Omit Content-Type header entirely — the browser sets the correct boundary automatically |
+| Formspree (file upload) | Base64-encode photos before submitting | Append raw `File` objects to FormData — Formspree handles binary uploads natively |
+| Google Maps Embed API | Copy iframe from "Share > Embed" without modification | Add `loading="lazy"`, explicit `width`/`height`, and `referrerPolicy="no-referrer-when-downgrade"` |
+| Google Maps Embed API | Store API key in config file | Store in `VITE_GOOGLE_MAPS_KEY` env var; reference via `import.meta.env` |
+| Google Maps Embed API | Use one unrestricted key for all environments | Separate key per environment; restrict production key to production domain + Maps Embed API only |
+| React Hook Form (multi-step) | Call `useForm()` in each step component | One `useForm()` at wizard root; pass `register`, `control`, `trigger` down to steps |
 
 ---
 
-### Pitfall 23: Vercel-Specific Deployment Locks Out Other Hosts
+## Performance Traps
 
-**What goes wrong:** The current project has `vercel.json`, Vercel-specific serverless functions (`api/chat.js`), and deployment instructions targeting Vercel. If a buyer uses Netlify, Cloudflare Pages, AWS Amplify, or a traditional VPS, the serverless functions do not work without modification. The chat feature breaks entirely.
+Patterns that work at small scale but degrade performance for end users.
 
-**Prevention:**
-- Abstract the serverless API into a provider-agnostic pattern
-- Provide deployment adapters for the top 3 platforms: Vercel (current), Netlify (functions), and Cloudflare Workers (already partially done with `worker.js`)
-- Document how to deploy the API portion to each platform
-- Consider offering the form submission and chat API as optional external services that work with any static host
-- Ensure the core template works as a pure static site (all features except AI chat) on any host
-
-**Confidence:** MEDIUM -- The Vercel lock-in is visible in the codebase. The severity depends on target market distribution across hosting providers.
-
----
-
-### Pitfall 24: Accessibility Beyond Animations
-
-**What goes wrong:** Beyond motion sensitivity, common accessibility gaps in template products include:
-- Missing or incorrect ARIA labels (the current chat button has a good `aria-label`, but other interactive elements may not)
-- Insufficient color contrast (safety-orange on white may fail WCAG AA contrast ratio)
-- No keyboard navigation support for custom interactive elements (chat widget, dropdowns, modals)
-- Focus trapping not implemented in modal/overlay components
-- Form inputs without proper `<label>` associations (the current Contact form uses labels, which is good)
-
-**Prevention:**
-- Run axe-core accessibility audit and fix all critical/serious issues
-- Verify color contrast ratios for all text/background combinations using WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
-- Ensure all interactive elements are keyboard-accessible (Tab, Enter, Escape)
-- Implement focus trapping in the chat modal (the current chat opens/closes with Escape, which is good)
-- Add `aria-live` regions for dynamic content (chat messages, form success/error states)
-- Include accessibility as a product feature in marketing ("WCAG 2.1 AA compliant")
-
-**Confidence:** MEDIUM -- Specific accessibility gaps require auditing with axe-core to quantify. The patterns are well-established.
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Naive Google Maps iframe on every city page | LCP +2.8s, CLS > 0.25, Lighthouse drops 15-20 points | `loading="lazy"`, explicit dimensions, static placeholder option | Every city page load for every user |
+| Unprocessed phone photos in wizard | 8-12 MB upload per photo; mobile users time out or hit limits | Canvas resize to 1920px max before upload; show progress indicator | Any mobile user submitting more than 1 photo |
+| Importing heavy map library (Maps JS API) on city pages | +342 KB JS parse cost on every city page | Use Maps Embed API (iframe) instead of Maps JavaScript API (no JS needed) | City page initial load on mobile |
+| Wizard re-renders on every keystroke | Input lag on Step 2 (details/text areas) if parent re-renders | Use `mode: 'onBlur'` in `useForm()`; avoid unnecessary state in wizard root | Noticeable on mid-range Android devices |
+| No `loading="lazy"` on wizard step images (service icons, etc.) | Images for hidden steps load eagerly | `loading="lazy"` on any image not visible on the initial wizard step | Low-bandwidth users on mobile |
 
 ---
 
-## Phase-Specific Warnings
+## Security Mistakes
 
-| Phase Topic | Likely Pitfall | Mitigation |
-|-------------|---------------|------------|
-| Pre-rendering / SSG setup | Breaking existing client-side navigation when adding pre-rendering | Test that SPA navigation still works after hydration; pre-render static HTML but hydrate on the client |
-| Config system redesign | Introducing regressions while splitting the monolithic config | Write config migration tests; keep backward compatibility with old `SITE` export during transition |
-| Blog implementation | Markdown parsing adding 30-50KB to the bundle | Lazy-load the markdown renderer; only include it in blog route chunks |
-| City page generation | Creating 20+ thin pages that dilute site authority | Require minimum content fields per city; validate at build time |
-| Form submission backend | Email delivery failures that are invisible | Implement logging/monitoring from day one; add a "test submission" feature |
-| Booking calendar | Date/time picker libraries adding bundle weight | Build a lightweight custom picker or use native `<input type="date">` with progressive enhancement |
-| Animation polish | CLS regressions from new animations on existing pages | Run Lighthouse before and after each animation addition; set CLS budget of < 0.05 |
-| AI chat improvements | Over-engineering the chat when it should stay simple | Keep the scope tight: answer FAQs, provide contact info, book inspection. Not a general-purpose AI. |
-| Image optimization pipeline | Build time increasing significantly with image processing | Process images in parallel; cache processed images; only reprocess changed images |
-| Template packaging for sale | Including node_modules, .env files, or large assets in the download | Create a packaging script that builds a clean distribution; add a .npmignore or explicit include list |
+Domain-specific security issues specific to these features.
+
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| API key in config file committed to public repo | Unauthorized Maps usage charges; Gemini privilege escalation if other APIs enabled | Env var pattern (`VITE_GOOGLE_MAPS_KEY`); repo scan with TruffleHog before first deploy |
+| No HTTP referrer restriction on Maps API key | Key usable from any domain if found | Restrict key to production domain in Google Cloud Console before launch |
+| EXIF GPS data transmitted with photos | Homeowner location privacy; potential liability | Canvas-based re-encode strips all EXIF before upload |
+| No file type validation on photo input | Users submit PDFs, executables disguised as images | Validate `file.type` against allowlist (`image/jpeg`, `image/png`, `image/webp`, `image/heic`) before processing |
+| No file size cap before upload | Denial of service against Formspree endpoint; user frustration | Enforce 10 MB raw file limit before canvas processing; show clear error message |
+| Cost estimator with no disclaimer | Implied price guarantee; buyer liability with customers | Disclaimer required by config schema; rendered unconditionally by component |
+
+---
+
+## UX Pitfalls
+
+Common user experience mistakes in multi-step wizard, estimator, and map features.
+
+| Pitfall | User Impact | Better Approach |
+|---------|-------------|-----------------|
+| No progress indicator showing how many steps remain | Users abandon because they don't know how long the process is | Show step counter ("Step 2 of 4") and visual progress bar from the first step |
+| Step validation errors only shown on "Next" click | Users complete the entire step, click Next, then see a wall of errors | Use `mode: 'onBlur'` to show errors as users leave each field |
+| Photo upload accepts any format but fails silently on unsupported types | User selects a HEIC (iPhone default) and gets no feedback | Validate file type immediately on selection; list accepted formats in the UI |
+| Estimator result shown without prompt to request a quote | User sees the estimate and leaves; no conversion | Estimator result section should include a prominent CTA to the wizard or contact form |
+| Map renders at full size on mobile, takes up the entire screen | City page is visually broken on mobile; user cannot see any other content | Cap map height at 300px on mobile (responsive iframe wrapper); test on 375px viewport |
+| No step-completed checkmarks or ability to go back to a prior step | Users cannot fix answers from earlier steps without losing current step data | Allow backward navigation with state preserved; show completed indicators |
+| Wizard has no keyboard trap management | Screen reader users and keyboard navigators get lost when new step renders | Move focus to the new step's first field or heading when step changes (`useEffect` + `ref.focus()`) |
+| Photo upload has no drag-and-drop on desktop | Desktop users expect drag-and-drop for photos | Implement `dragover`/`drop` event handlers alongside `<input type="file">` |
+
+---
+
+## "Looks Done But Isn't" Checklist
+
+Things that appear complete but are missing critical pieces.
+
+- [ ] **Quote Wizard:** Wizard loads and submits — verify browser Back button at Step 3 returns to Step 2, not to the previous page. Test in both Chrome and Safari.
+- [ ] **Quote Wizard:** Final submission email received in Formspree dashboard — verify photo attachments are present as actual files, not base64 strings in the email body.
+- [ ] **Quote Wizard:** Step validation tested with empty fields — verify "Next" is blocked when required fields are empty, and the correct per-step fields trigger errors (not all fields at once).
+- [ ] **Cost Estimator:** Disclaimer text renders and is visible — verify it is not hidden behind a feature flag or optional CSS toggle.
+- [ ] **Cost Estimator:** Estimator config has placeholder-only default values — verify cost ranges are either `0` or obviously demo values so buyers are forced to update them.
+- [ ] **Google Maps:** Map renders on production domain, not just localhost — referrer restrictions will cause `RefererNotAllowedMapError` in production if not configured. Test with actual deployed URL.
+- [ ] **Google Maps:** API key has HTTP referrer restriction AND API restriction in Google Cloud Console — verify both restrictions are active before launch documentation is written.
+- [ ] **Google Maps:** City pages Lighthouse scores tested after map embed — run Lighthouse on a city page after adding the map. Score should not drop more than 5 points with `loading="lazy"`.
+- [ ] **Photo Upload:** EXIF stripping verified — upload an iPhone photo, download it from Formspree, check EXIF data with an EXIF viewer. GPS coordinates should be absent.
+- [ ] **Photo Upload:** Large file tested — upload a 10 MB raw photo. Verify resize completes, file is accepted, and submission succeeds.
+- [ ] **Photo Upload:** HEIC format tested on Safari iOS — iPhone default format. Verify either accepted via canvas API or rejected with clear error message.
+- [ ] **All wizard steps:** Mobile viewport tested at 375px — each step should be fully usable without horizontal scroll or overlapping elements.
+- [ ] **All wizard steps:** Keyboard navigation tested — Tab through all fields, Enter submits steps, Escape does not accidentally close the wizard.
+
+---
+
+## Recovery Strategies
+
+When pitfalls occur despite prevention, how to recover.
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| API key leaked to public repo | HIGH | Rotate key immediately in Google Cloud Console; create new key with referrer restriction; remove old key; scan git history with `git filter-repo` if repo is public |
+| Browser Back loses wizard state | MEDIUM | Add URL-based step encoding (`?step=N`); this requires refactoring the step state management but does not change the UI |
+| Lighthouse drops on city pages from map | LOW | Add `loading="lazy"` to iframe; add explicit dimensions; run Lighthouse again. If still failing, switch to static map placeholder |
+| Formspree 413 errors on photo upload | LOW | Add client-side canvas resize before upload; cap total payload at 80 MB; add error handling for 4xx responses |
+| EXIF data already sent via Formspree | MEDIUM | Add canvas re-encoding; Formspree does not store photos long-term by default but stored submissions should be cleared via dashboard |
+| Tailwind classes missing in production | LOW | Add missing class names to safelist in CSS or convert dynamic classes to lookup tables; `npm run build` to verify |
+| Cost estimator numbers trusted literally by customers | MEDIUM | Update config values to reflect actual local pricing; add disclaimer; communicate to buyer via support |
+
+---
+
+## Pitfall-to-Phase Mapping
+
+How roadmap phases should address these pitfalls.
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Browser Back loses wizard state | Quote Wizard — step 1 (routing architecture) | Test browser Back at each step before calling phase done |
+| API key exposed without restriction | Google Maps — step 1 (config/env var setup) | Verify no literal key string in any committed file; verify Cloud Console restrictions |
+| Maps iframe kills Lighthouse | Google Maps — embed implementation | Run Lighthouse on city page before and after; delta < 5 points |
+| Photo upload hits Vercel 4.5 MB limit | Quote Wizard — photo step | Test 10 MB photo upload end-to-end in production Formspree |
+| React Hook Form state across steps | Quote Wizard — architecture decision | Final submission contains all 4 steps' data; console.log before submit to verify |
+| `isValid` blocks all Next buttons | Quote Wizard — per-step validation | Step 1 Next is clickable with only Step 1 fields filled |
+| Cost estimator sets bad expectations | Cost Estimator — config schema design | Config schema requires disclaimer; default cost values are 0 or clearly placeholder |
+| EXIF GPS data transmitted | Quote Wizard — photo step | Upload iPhone photo; verify GPS absent in downloaded copy |
+| Referrer policy breaks map in production | Google Maps — production smoke test | Test on actual deployed URL, not localhost |
+| Tailwind dynamic class purge | Quote Wizard + Cost Estimator — implementation | `npm run build` + visual check of progress bar and estimator colors in built output |
 
 ---
 
 ## Sources
 
-### Template Market & Product Quality
-- [Trustpilot ThemeForest Reviews](https://www.trustpilot.com/review/www.themeforest.net) -- Template marketplace complaint patterns
-- [ThemeForest Review 2026 - Website Planet](https://www.websiteplanet.com/blog/themeforest-review/) -- Template quality analysis
+- [Baymard Institute: Back Button UX in Multi-Step Flows](https://baymard.com/blog/back-button-expectations) — MEDIUM confidence (industry research)
+- [React Hook Form Issue #3648: Multi-step wizard warning](https://github.com/react-hook-form/react-hook-form/issues/3648) — HIGH confidence (official issue tracker)
+- [React Hook Form Discussion #11722: Per-step Zod validation](https://github.com/orgs/react-hook-form/discussions/11722) — HIGH confidence
+- [Building a reusable multi-step form with React Hook Form and Zod — LogRocket](https://blog.logrocket.com/building-reusable-multi-step-form-react-hook-form-zod/) — MEDIUM confidence
+- [Google Maps Platform security guidance](https://developers.google.com/maps/api-security-best-practices) — HIGH confidence (official docs)
+- [Truffle Security: Google API Keys and Gemini Privilege Escalation](https://trufflesecurity.com/blog/google-api-keys-werent-secrets-but-then-gemini-changed-the-rules) — HIGH confidence (March 2025 research)
+- [Set up the Maps Embed API — Google for Developers](https://developers.google.com/maps/documentation/embed/get-api-key) — HIGH confidence (official docs)
+- [Embed a map — referrer policy note](https://developers.google.com/maps/documentation/embed/embedding-map) — HIGH confidence (official docs)
+- [Best practices for third-party embeds — web.dev](https://web.dev/articles/embed-best-practices) — HIGH confidence (Google Web Fundamentals)
+- [Google Maps 100% PageSpeed — corewebvitals.io](https://www.corewebvitals.io/pagespeed/google-maps-100-percent-pagespeed) — MEDIUM confidence (performance measurements)
+- [Vercel body size limit — 4.5 MB](https://vercel.com/kb/guide/how-to-bypass-vercel-body-size-limit-serverless-functions) — HIGH confidence (official Vercel docs)
+- [Formspree file upload limits](https://help.formspree.io/hc/en-us/articles/115008380088-File-uploads) — HIGH confidence (official Formspree docs)
+- [Formspree system limits](https://help.formspree.io/hc/en-us/articles/7017303616659-System-Limits) — HIGH confidence (official Formspree docs)
+- [Uploading images in React, removing EXIF client side — Medium](https://medium.com/@sst.trinath/uploading-images-single-multiple-in-react-js-removing-exif-data-at-client-side-and-display-3c02d94a9594) — MEDIUM confidence
+- [Tailwind dynamic class names — GitHub Discussion #18137](https://github.com/tailwindlabs/tailwindcss/discussions/18137) — HIGH confidence (official Tailwind repo)
+- [Tailwind CSS safelist — Perficient](https://blogs.perficient.com/2025/08/19/understanding-tailwind-css-safelist-keep-your-dynamic-classes-safe/) — MEDIUM confidence
+- [ARIA live regions for multi-step forms — Medium](https://medium.com/@python-javascript-php-html-css/enhancing-multi-step-form-accessibility-with-aria-live-78d2459e415a) — MEDIUM confidence
+- [Creating an effective multistep form — Smashing Magazine](https://www.smashingmagazine.com/2024/12/creating-effective-multistep-form-better-user-experience/) — MEDIUM confidence
+- [Construction Estimate Disclaimer — FieldPromax](https://www.fieldpromax.com/blog/everything-about-estimate-disclaimers) — MEDIUM confidence (industry guidance)
+- [Google Maps Embed API pricing change March 2025](https://developers.google.com/maps/documentation/embed/get-api-key) — HIGH confidence (official docs)
+- [React Router 7 pre-rendering hydration pitfalls](https://reactrouter.com/how-to/pre-rendering) — HIGH confidence (official RR7 docs)
 
-### SEO & Indexing
-- [How to fix technical SEO issues on client-side React apps](https://searchengineland.com/how-to-fix-technical-seo-issues-on-client-side-react-apps-455124) -- React SPA SEO challenges
-- [React SEO Best Practices](https://www.dheemanthshenoy.com/blogs/react-seo-best-practices-spa) -- SPA optimization for search engines
-- [Google Duplicate Content](https://developers.google.com/search/blog/2008/09/demystifying-duplicate-content-penalty) -- Official Google guidance on duplicate content
-- [Duplicate Content Ranking Impact 2025](https://www.webapex.com.au/blog/duplicate-content/) -- September 2025 spam update impact on city pages
-- [Pre-Rendering with React Router](https://reactrouter.com/how-to/pre-rendering) -- Official React Router pre-rendering documentation
+---
 
-### Performance & Core Web Vitals
-- [Core Web Vitals Optimization Guide 2025](https://www.ateamsoftsolutions.com/core-web-vitals-optimization-guide-2025-showing-lcp-inp-cls-metrics-and-performance-improvement-strategies-for-web-applications/) -- CWV metrics and strategies
-- [Fix LCP by Optimizing Image Loading - MDN](https://developer.mozilla.org/en-US/blog/fix-image-lcp/) -- LCP image optimization
-- [Lazy Loading LCP Hero Images - Google Clarification](https://www.etavrian.com/news/lazy-loading-lcp-hero-images) -- Do not lazy-load hero images
-- [Taming Large Chunks in Vite + React](https://www.mykolaaleksandrov.dev/posts/2025/11/taming-large-chunks-vite-react/) -- Bundle splitting strategies
-- [Image Optimization 2025: WebP/AVIF, srcset, and Preload](https://aibudwp.com/image-optimization-in-2025-webp-avif-srcset-and-preload/) -- Modern image optimization techniques
-
-### Form & Lead Generation
-- [Online Form Statistics 2024 - WPForms](https://wpforms.com/online-form-statistics-facts/) -- Form abandonment rates and causes
-- [Simplify B2B Lead Gen Forms](https://www.funnelenvy.com/blog/simplify-your-b2b-lead-gen-forms-to-reduce-abandonment-rates/) -- Form design best practices
-
-### Email Deliverability
-- [Email Deliverability 2025 - 1827 Marketing](https://1827marketing.com/smart-thinking/email-deliverability-in-2025-new-rules-higher-standards-and-what-b2b-marketers-should-do/) -- Gmail/Microsoft enforcement changes
-- [Email Deliverability Issues 2026 - Mailtrap](https://mailtrap.io/blog/email-deliverability-issues/) -- Common delivery failures
-
-### AI Chat
-- [Why Are Some Chatbots Still Bad in 2025 - Forethought](https://forethought.ai/blog/why-are-some-chatbots-still-bad) -- Chatbot failure patterns
-- [Customers Still Don't Love AI - CX Dive](https://www.customerexperiencedive.com/news/customers-dislike-ai-customer-service/757711/) -- Consumer sentiment data (53% find chatbots annoying)
-- [Hidden Cost of Chatbots - STRYDE](https://www.stryde.com/the-hidden-cost-of-chatbots-why-ai-driven-customer-service-is-killing-your-conversions/) -- Conversion impact
-
-### Accessibility & Animation
-- [Motion for React Accessibility](https://motion.dev/docs/react-accessibility) -- Official Framer Motion accessibility guide
-- [MotionConfig - Framer Motion](https://motion.dev/docs/react-motion-config?via=cptv8) -- MotionConfig reducedMotion API
-- [Accessible Animation and Movement - Pope Tech](https://blog.pope.tech/2025/12/08/design-accessible-animation-and-movement/) -- WCAG animation requirements
-- [prefers-reduced-motion - MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion) -- Media query specification
-
-### Groq API
-- [Groq Rate Limits](https://console.groq.com/docs/rate-limits) -- Official rate limit documentation
-- [Groq Free Tier Limits - Community](https://community.groq.com/t/what-are-the-rate-limits-for-the-groq-api-for-the-free-and-dev-tier-plans/42) -- Free tier specifics
-
-### Markdown & Blog
-- [Best Practices for Frontmatter - SSW Rules](https://www.ssw.com.au/rules/best-practices-for-frontmatter-in-markdown) -- Frontmatter validation patterns
+*Pitfalls research for: v1.2 Feature Expansion — multi-step quote wizard, cost estimator, Google Maps embed, photo upload*
+*Researched: 2026-03-05*
