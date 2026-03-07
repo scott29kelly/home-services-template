@@ -7,7 +7,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import PageMeta from '../components/ui/PageMeta'
 import SectionHeading from '../components/ui/SectionHeading'
-import { getAllPosts, getAllTags } from '../lib/blog'
 import type { BlogPost } from '../lib/blog'
 
 const POSTS_PER_PAGE = 6
@@ -84,14 +83,15 @@ function PostCard({ post }: { post: BlogPost }) {
   )
 }
 
-export default function ResourcesIndex() {
+interface ResourcesIndexProps {
+  allPosts: BlogPost[]
+  allTags: string[]
+}
+
+export default function ResourcesIndex({ allPosts, allTags }: ResourcesIndexProps) {
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTag = searchParams.get('tag') ?? ''
   const [page, setPage] = useState(1)
-
-  // Load posts and tags once at module scope — getAllPosts() is cached
-  const allPosts = useMemo(() => getAllPosts(), [])
-  const allTags = useMemo(() => getAllTags(), [])
 
   // Filter posts by active tag
   const filteredPosts = useMemo(
