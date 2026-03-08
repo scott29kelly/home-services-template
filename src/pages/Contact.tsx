@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { Link } from 'react-router'
 import { Phone, Mail, MapPin, Clock } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
 import ContactForm from '../components/forms/ContactForm'
 import BookingForm from '../components/forms/BookingForm'
+import FinancingCalculator from '../components/ui/FinancingCalculator'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
 import { SITE } from '../config/site'
@@ -32,18 +34,23 @@ const faqs = [
   },
 ]
 
-type TabKey = 'message' | 'booking'
+type TabKey = 'message' | 'booking' | 'financing'
 
 const tabs: { key: TabKey; label: string; id: string }[] = [
   { key: 'message', label: 'Send a Message', id: 'tab-message' },
-  { key: 'booking', label: 'Schedule Inspection', id: 'tab-booking' },
+  ...(features.onlineBooking
+    ? [{ key: 'booking' as TabKey, label: 'Schedule Inspection', id: 'tab-booking' }]
+    : []),
+  ...(features.financingCalculator
+    ? [{ key: 'financing' as TabKey, label: 'Financing', id: 'tab-financing' }]
+    : []),
 ]
 
 export default function Contact() {
   const { ref, isInView } = useScrollReveal()
   const [activeTab, setActiveTab] = useState<TabKey>('message')
 
-  const showTabs = features.onlineBooking
+  const showTabs = features.onlineBooking || features.financingCalculator
 
   /** Handle keyboard navigation between tabs (arrow keys per ARIA tab pattern). */
   const handleTabKeyDown = (e: React.KeyboardEvent, idx: number) => {
@@ -137,6 +144,26 @@ export default function Contact() {
                     hidden={activeTab !== 'booking'}
                   >
                     {activeTab === 'booking' && <BookingForm />}
+                  </div>
+                  <div
+                    id="panel-financing"
+                    role="tabpanel"
+                    aria-labelledby="tab-financing"
+                    hidden={activeTab !== 'financing'}
+                  >
+                    {activeTab === 'financing' && (
+                      <>
+                        <FinancingCalculator compact />
+                        <p className="mt-6 text-center">
+                          <Link
+                            to="/financing"
+                            className="text-brand-blue hover:underline font-medium"
+                          >
+                            View all financing details &amp; FAQs &rarr;
+                          </Link>
+                        </p>
+                      </>
+                    )}
                   </div>
                 </>
               ) : (

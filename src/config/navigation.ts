@@ -14,20 +14,18 @@ export interface NavLink {
 /** Main navigation links used by the Header */
 export function getNavLinks(): NavLink[] {
   return [
-    { href: '/', label: 'Home' },
     {
       href: '/services',
       label: 'Services',
-      dropdown: services.map((s) => ({ href: `/${s.slug}`, label: s.navLabel })),
+      dropdown: [
+        ...services.map((s) => ({ href: `/${s.slug}`, label: s.navLabel })),
+      ],
     },
     { href: '/projects', label: 'Projects' },
     { href: '/testimonials', label: 'Testimonials' },
     { href: '/about', label: 'About' },
     { href: '/service-areas', label: 'Service Areas' },
     ...(features.assistant ? [{ href: '/ava', label: 'Ask Ava' }] : []),
-    ...(features.financingCalculator
-      ? [{ href: '/financing', label: 'Financing' }]
-      : []),
     ...(features.blog ? [{ href: '/resources', label: 'Resources' }] : []),
     { href: '/contact', label: 'Contact' },
   ]

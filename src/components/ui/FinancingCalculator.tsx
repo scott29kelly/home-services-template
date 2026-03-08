@@ -35,7 +35,7 @@ function calculateMonthlyPayment(
   return principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
 }
 
-export default function FinancingCalculator() {
+export default function FinancingCalculator({ compact = false }: { compact?: boolean }) {
   const [loanAmount, setLoanAmount] = useState(financing.defaultLoanAmount)
   const { ref, isInView } = useScrollReveal()
 
@@ -49,9 +49,8 @@ export default function FinancingCalculator() {
       (financing.maxLoanAmount - financing.minLoanAmount)) *
     100
 
-  return (
-    <section className="py-20 lg:py-28" ref={ref as React.RefObject<HTMLElement>}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+  const content = (
+    <>
         {/* Loan Amount Slider */}
         <div
           className={`scroll-reveal ${isInView ? 'in-view' : ''} mb-12`}
@@ -93,7 +92,7 @@ export default function FinancingCalculator() {
         </div>
 
         {/* Comparison Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${compact ? '' : 'lg:grid-cols-4'} gap-4 lg:gap-6`}>
           {financing.options.map((option, i) => {
             const monthly = calculateMonthlyPayment(
               loanAmount,
@@ -123,7 +122,7 @@ export default function FinancingCalculator() {
                   {option.label}
                 </h3>
 
-                <p className="text-3xl font-bold text-navy mb-1">
+                <p className={`${compact ? 'text-2xl' : 'text-3xl'} font-bold text-navy mb-1`}>
                   {formatCurrency(Math.round(monthly * 100) / 100)}
                   <span className="text-sm font-normal text-text-secondary">
                     /mo
@@ -174,6 +173,17 @@ export default function FinancingCalculator() {
         >
           {financing.disclaimer}
         </p>
+    </>
+  )
+
+  if (compact) {
+    return <div ref={ref as React.RefObject<HTMLDivElement>}>{content}</div>
+  }
+
+  return (
+    <section className="py-20 lg:py-28" ref={ref as React.RefObject<HTMLElement>}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        {content}
       </div>
     </section>
   )
