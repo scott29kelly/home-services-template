@@ -5,7 +5,7 @@ import { SITE } from '../config/site'
 import useChatEnhancements from '../hooks/useChatEnhancements'
 
 export default function Ava() {
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const {
@@ -20,11 +20,14 @@ export default function Ava() {
   } = useChatEnhancements(SITE.assistant.pageGreeting)
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const container = messagesContainerRef.current
+    if (container) {
+      container.scrollTop = container.scrollHeight
+    }
   }, [messages])
 
   useEffect(() => {
-    inputRef.current?.focus()
+    inputRef.current?.focus({ preventScroll: true })
   }, [])
 
   // Show quick actions after the last assistant message when not loading
@@ -58,7 +61,7 @@ export default function Ava() {
         {/* Chat Area */}
         <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
           {/* Messages */}
-          <div className="h-[400px] overflow-y-auto p-6 space-y-4">
+          <div ref={messagesContainerRef} className="h-[400px] overflow-y-auto overscroll-y-contain p-6 space-y-4" style={{ scrollBehavior: 'auto' }}>
             {messages.map((msg, i) => (
               <div
                 key={i}
@@ -127,7 +130,6 @@ export default function Ava() {
               </div>
             )}
 
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}

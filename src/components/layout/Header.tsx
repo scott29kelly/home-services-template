@@ -99,21 +99,23 @@ export default function Header() {
                     <ChevronDown className="w-3.5 h-3.5" />
                   </Link>
                   <div
-                    className={`absolute top-full left-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-border py-2 transition-all duration-200 ${
+                    className={`absolute top-full left-0 w-48 pt-2 transition-all duration-200 ${
                       dropdownOpen
                         ? 'opacity-100 translate-y-0 pointer-events-auto'
                         : 'opacity-0 -translate-y-2 pointer-events-none'
                     }`}
                   >
-                    {link.dropdown.map((sub) => (
-                      <Link
-                        key={sub.href}
-                        to={sub.href}
-                        className="block px-4 py-2 text-sm text-navy/70 hover:text-navy hover:bg-surface transition-colors"
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
+                    <div className="bg-white rounded-xl shadow-lg border border-border py-2">
+                      {link.dropdown.map((sub) => (
+                        <Link
+                          key={sub.href}
+                          to={sub.href}
+                          className="block px-4 py-2 text-sm text-navy/70 hover:text-navy hover:bg-surface transition-colors"
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ) : (

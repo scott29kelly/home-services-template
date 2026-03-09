@@ -5,7 +5,7 @@ import useChatEnhancements from '../../hooks/useChatEnhancements'
 
 export default function AvaWidget() {
   const [isOpen, setIsOpen] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const {
@@ -22,11 +22,14 @@ export default function AvaWidget() {
   const openChat = useCallback(() => setIsOpen(true), [])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const container = messagesContainerRef.current
+    if (container) {
+      container.scrollTop = container.scrollHeight
+    }
   }, [messages])
 
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus()
+    if (isOpen) inputRef.current?.focus({ preventScroll: true })
   }, [isOpen])
 
   // Listen for open-ava-chat events from StickyMobileCTA
@@ -101,7 +104,7 @@ export default function AvaWidget() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto overscroll-y-contain p-4 space-y-4" style={{ scrollBehavior: 'auto' }}>
             {messages.map((msg, i) => (
               <div
                 key={i}
@@ -150,7 +153,6 @@ export default function AvaWidget() {
               </div>
             )}
 
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}
