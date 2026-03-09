@@ -72,13 +72,6 @@
 }
 
 /* Base styles */
-html {
-  scroll-behavior: smooth;
-  /* Use clip instead of hidden to prevent horizontal scroll
-     without breaking position: sticky on descendant elements */
-  overflow-x: clip;
-}
-
 body {
   font-family: var(--font-body);
   color: var(--color-navy);
@@ -86,6 +79,11 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* clip instead of hidden: prevents horizontal scroll without breaking
+     position: sticky. On <body> instead of <html> because overflow-x: clip
+     on the root element can force overflow-y to also compute as clip,
+     which silently breaks window.scrollTo(). */
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4, h5, h6 {

@@ -3,7 +3,6 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration,
 } from 'react-router'
 import './index.css'
 import interRegularFont from './fonts/inter-v18-latin-regular.woff2?url'
@@ -94,10 +93,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
             }),
           }}
         />
+
+        {/* Kill browser scroll restoration before it fires (before hydration) */}
+        <script dangerouslySetInnerHTML={{ __html: "history.scrollRestoration='manual'" }} />
       </head>
       <body>
         {children}
-        <ScrollRestoration />
         <Scripts />
       </body>
     </html>
