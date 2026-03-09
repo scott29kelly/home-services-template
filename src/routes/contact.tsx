@@ -1,11 +1,5 @@
-import { lazy, Suspense } from 'react'
-
-const Contact = lazy(() => import('../pages/Contact'))
+import Contact from '../pages/Contact'
 
 export default function ContactRoute() {
-  return (
-    <Suspense fallback={null}>
-      <Contact />
-    </Suspense>
-  )
+  return <Contact />
 }

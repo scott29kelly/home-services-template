@@ -3,6 +3,7 @@ import { Send, MessageCircle } from 'lucide-react'
 import PageMeta from '../components/ui/PageMeta'
 import { SITE } from '../config/site'
 import useChatEnhancements from '../hooks/useChatEnhancements'
+import { useScrollReveal } from '../hooks/useScrollReveal'
 
 export default function Ava() {
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -18,6 +19,8 @@ export default function Ava() {
     handleSend,
     handleKeyDown,
   } = useChatEnhancements(SITE.assistant.pageGreeting)
+
+  const { ref: headerRef, isInView } = useScrollReveal('0px 0px')
 
   useEffect(() => {
     const container = messagesContainerRef.current
@@ -40,7 +43,7 @@ export default function Ava() {
       <section className="py-10 lg:py-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         {/* Header */}
-        <div className="scroll-reveal in-view text-center mb-8">
+        <div ref={headerRef as React.RefObject<HTMLDivElement>} className={`scroll-reveal ${isInView ? 'in-view' : ''} text-center mb-8`}>
           <img
             src={SITE.assistant.avatarLarge}
             alt={`${SITE.assistant.name} AI Assistant`}

@@ -1,11 +1,5 @@
-import { lazy, Suspense } from 'react'
-
-const Services = lazy(() => import('../pages/Services'))
+import Services from '../pages/Services'
 
 export default function ServicesRoute() {
-  return (
-    <Suspense fallback={null}>
-      <Services />
-    </Suspense>
-  )
+  return <Services />
 }

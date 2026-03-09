@@ -1,11 +1,5 @@
-import { lazy, Suspense } from 'react'
-
-const Projects = lazy(() => import('../pages/Projects'))
+import Projects from '../pages/Projects'
 
 export default function ProjectsRoute() {
-  return (
-    <Suspense fallback={null}>
-      <Projects />
-    </Suspense>
-  )
+  return <Projects />
 }

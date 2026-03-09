@@ -1,5 +1,6 @@
 import Button from '../ui/Button'
 import { SITE } from '../../config/site'
+import { useScrollReveal } from '../../hooks/useScrollReveal'
 
 interface HeroProps {
   backgroundImage?: string
@@ -33,22 +34,30 @@ export default function Hero({
   secondaryCTA = { text: `Call ${SITE.phone}`, href: `tel:${SITE.phone}`, external: true },
   compact = false,
 }: HeroProps) {
+  const { ref, isInView } = useScrollReveal('0px 0px')
+
   return (
     <section
       className={`relative overflow-hidden ${compact ? 'min-h-[400px]' : 'min-h-[600px] lg:min-h-[700px]'} flex items-center`}
     >
-      {/* Background — uses <picture> with AVIF primary and WebP fallback for LCP optimization */}
+      {/* Background — uses <picture> with AVIF primary and WebP fallback for LCP optimization.
+           Responsive variants (-768w, -1280w, .avif) are generated at build time only,
+           so in dev we fall back to just the original image. */}
       <picture>
-        <source
-          srcSet={heroAvifSrcSet(backgroundImage)}
-          sizes="100vw"
-          type="image/avif"
-        />
-        <source
-          srcSet={heroSrcSet(backgroundImage)}
-          sizes="100vw"
-          type="image/webp"
-        />
+        {!import.meta.env.DEV && (
+          <>
+            <source
+              srcSet={heroAvifSrcSet(backgroundImage)}
+              sizes="100vw"
+              type="image/avif"
+            />
+            <source
+              srcSet={heroSrcSet(backgroundImage)}
+              sizes="100vw"
+              type="image/webp"
+            />
+          </>
+        )}
         <img
           src={backgroundImage}
           alt=""
@@ -61,17 +70,17 @@ export default function Hero({
       </picture>
       <div className="absolute inset-0 bg-gradient-to-r from-navy/80 via-navy/60 to-navy/30" />
 
-      {/* Content — renders instantly, no animation delay for LCP */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full py-20">
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full py-20" ref={ref as React.RefObject<HTMLDivElement>}>
         <div className="max-w-2xl">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
+          <h1 className={`scroll-reveal ${isInView ? 'in-view' : ''} text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6`}>
             {headline}{' '}
             <span className="text-safety-orange">{highlightText}</span>
           </h1>
-          <p className="text-lg sm:text-xl text-white/80 mb-8 leading-relaxed max-w-xl">
+          <p className={`scroll-reveal delay-1 ${isInView ? 'in-view' : ''} text-lg sm:text-xl text-white/80 mb-8 leading-relaxed max-w-xl`}>
             {subhead}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className={`scroll-reveal delay-2 ${isInView ? 'in-view' : ''} flex flex-col sm:flex-row gap-4`}>
             <Button variant="primary" size="lg" href={primaryCTA.href}>
               {primaryCTA.text}
             </Button>

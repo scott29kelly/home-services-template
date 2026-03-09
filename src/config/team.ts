@@ -16,7 +16,7 @@ export interface Value {
 
 export const team = {
   members: [
-    { name: 'Alex Johnson', title: 'Founder & Owner', image: '/images/team-mike-thompson.webp' },
+    { name: 'Alex Johnson', title: 'Founder & Owner', image: '/images/team-alex-johnson.webp' },
     { name: 'Mike Thompson', title: 'Project Manager', image: '/images/team-mike-thompson.webp' },
     { name: 'Sarah Mitchell', title: 'Office Administrator', image: '/images/team-sarah-mitchell.webp' },
     { name: 'James Carter', title: 'Sales Consultant', image: '/images/team-james-carter.webp' },
