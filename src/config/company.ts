@@ -38,4 +38,9 @@ export const company = {
     instagram: '#',
     linkedin: '#',
   },
+
+  google: {
+    placeId: '', // Google Place ID — leave empty to show placeholder reviews
+    // API key is set via GOOGLE_PLACES_API_KEY env var (server-side only)
+  },
 }

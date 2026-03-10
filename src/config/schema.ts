@@ -47,6 +47,9 @@ export const companySchema = z.object({
     instagram: z.string(),
     linkedin: z.string(),
   }),
+  google: z.object({
+    placeId: z.string(),
+  }).optional(),
 })
 
 /* ── Service Areas ────────────────────────────────────────────────── */
