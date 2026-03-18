@@ -6,9 +6,9 @@ async function waitForAppHydration(page: Parameters<typeof test>[0]['page']) {
 
 async function waitForFormReady(
   page: Parameters<typeof test>[0]['page'],
-  buttonName: RegExp,
+  submitButton: ReturnType<Parameters<typeof test>[0]['page']['locator']>,
 ) {
-  await expect(page.getByRole('button', { name: buttonName })).toBeEnabled({
+  await expect(submitButton).toBeEnabled({
     timeout: 45000,
   })
 }
@@ -46,10 +46,18 @@ test('homepage loads primary conversion paths', async ({ page }) => {
   await expect(page.getByRole('link', { name: /roofing/i }).first()).toBeVisible()
 })
 
+test('service pages render without runtime errors', async ({ page }) => {
+  await page.goto('/roofing')
+  await waitForAppHydration(page)
+
+  await expect(page.getByRole('heading', { name: /helpful roofing resources/i })).toBeVisible()
+  await expect(page.getByText(/application error/i)).not.toBeVisible()
+})
+
 test('contact form submits and reaches thank-you page', async ({ page }) => {
   await attachAnalyticsCollector(page)
   await page.goto('/contact?service=Roofing&source=test-suite')
-  await waitForFormReady(page, /send message/i)
+  await waitForFormReady(page, page.locator('form button[type="submit"]').first())
 
   await page.getByLabel(/first name/i).fill('Taylor')
   await page.getByLabel(/last name/i).fill('Jordan')
@@ -85,7 +93,7 @@ test('resource article exposes helpful internal links', async ({ page }) => {
 test('booking flow reaches thank-you page and preserves attribution', async ({ page }) => {
   await attachAnalyticsCollector(page)
   await page.goto('/contact?tab=booking&service=Roofing&source=test-booking&utm_source=google&utm_campaign=spring-storm')
-  await waitForFormReady(page, /request appointment/i)
+  await waitForFormReady(page, page.locator('form button[type="submit"]').first())
 
   await page.locator('[role="grid"] button:not([disabled])').first().click()
   await page.getByText('Morning (8am-12pm)').click()

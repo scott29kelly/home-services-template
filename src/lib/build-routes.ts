@@ -6,7 +6,7 @@
  */
 import { readdirSync, readFileSync } from 'fs'
 import { resolve } from 'path'
-import matter from 'gray-matter'
+import { parseFrontmatter } from './frontmatter'
 
 /**
  * Reads feature flags from src/config/features.ts by parsing the source text.
@@ -72,7 +72,7 @@ export function getBlogSlugs(): string[] {
     return readdirSync(blogDir)
       .filter((fileName: string) => fileName.endsWith('.md'))
       .map((fileName: string) => {
-        const { data } = matter(readFileSync(resolve(blogDir, fileName), 'utf-8'))
+        const { data } = parseFrontmatter(readFileSync(resolve(blogDir, fileName), 'utf-8'))
         return data.published !== false ? (data.slug as string) : null
       })
       .filter(Boolean) as string[]
