@@ -4,7 +4,12 @@ import { Link } from 'react-router-dom'
 import Hero from '../components/sections/Hero'
 import PageMeta from '../components/ui/PageMeta'
 import { company } from '../config/company'
-import { getLastSubmission, type SubmissionSummary } from '../lib/attribution'
+import {
+  getAttributionSnapshot,
+  getLastSubmission,
+  type SubmissionSummary,
+} from '../lib/attribution'
+import { trackEvent } from '../lib/analytics'
 import { forms } from '../config/forms'
 
 const { thankYou } = forms
@@ -13,7 +18,20 @@ export default function ThankYou() {
   const [lastSubmission, setLastSubmission] = useState<SubmissionSummary | null>(null)
 
   useEffect(() => {
-    setLastSubmission(getLastSubmission())
+    const submission = getLastSubmission()
+    const attribution = getAttributionSnapshot('/thank-you')
+
+    setLastSubmission(submission)
+
+    trackEvent('thank_you_viewed', {
+      lead_type: submission?.leadType ?? '',
+      source_label: submission?.sourceLabel ?? '',
+      service: submission?.service ?? '',
+      landing_page: submission?.landingPage ?? attribution?.landingPage ?? '',
+      utm_source: submission?.utmSource ?? attribution?.utmSource ?? '',
+      utm_medium: submission?.utmMedium ?? attribution?.utmMedium ?? '',
+      utm_campaign: submission?.utmCampaign ?? attribution?.utmCampaign ?? '',
+    })
   }, [])
 
   return (
@@ -60,6 +78,13 @@ export default function ThankYou() {
                   Source: {lastSubmission.sourceLabel}
                   {lastSubmission.preferredDate ? ` | Preferred date: ${lastSubmission.preferredDate}` : ''}
                 </p>
+                {(lastSubmission.landingPage || lastSubmission.utmSource || lastSubmission.utmCampaign) && (
+                  <p className="text-xs text-text-secondary mt-1">
+                    Started on {lastSubmission.landingPage}
+                    {lastSubmission.utmSource ? ` | UTM source: ${lastSubmission.utmSource}` : ''}
+                    {lastSubmission.utmCampaign ? ` | Campaign: ${lastSubmission.utmCampaign}` : ''}
+                  </p>
+                )}
               </div>
             )}
 

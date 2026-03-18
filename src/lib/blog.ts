@@ -1,19 +1,15 @@
 /**
- * Blog engine — glob import, frontmatter parsing, Zod validation, sorting, filtering.
- * Uses Vite's native import.meta.glob with ?raw query to import markdown as strings.
- * No vite-plugin-markdown needed.
+ * Blog engine using Vite raw imports plus a lightweight frontmatter parser.
+ * This avoids pulling Node-oriented parsing code into the browser bundle.
  */
-import matter from 'gray-matter'
 import { z } from 'zod'
 
-// Import all .md files as raw strings at build time (eager = synchronous, no async needed)
 const modules = import.meta.glob('../content/blog/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
 }) as Record<string, string>
 
-// Zod schema for post frontmatter validation
 const postFrontmatterSchema = z.object({
   title: z.string().min(1),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
@@ -32,13 +28,104 @@ export interface BlogPost extends PostFrontmatter {
   content: string
 }
 
-// Module-level cache — posts are sorted once and reused across calls
 let cachedPosts: BlogPost[] | null = null
 
+function stripQuotes(value: string): string {
+  const trimmed = value.trim()
+
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1)
+  }
+
+  return trimmed
+}
+
+function parseScalar(value: string): string | boolean | string[] {
+  const trimmed = value.trim()
+
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    const inner = trimmed.slice(1, -1).trim()
+    if (!inner) return []
+
+    return inner.split(',').map((item) => stripQuotes(item))
+  }
+
+  if (trimmed === 'true') return true
+  if (trimmed === 'false') return false
+
+  return stripQuotes(trimmed)
+}
+
 /**
- * Returns all published blog posts sorted by date descending (newest first).
- * Invalid or unpublished posts are skipped with a console warning.
- * Duplicate slugs are detected and the second occurrence is skipped.
+ * Minimal parser for the simple YAML frontmatter shape used by blog content.
+ */
+function parseFrontmatter(raw: string): { data: Record<string, unknown>; content: string } {
+  if (!raw.startsWith('---')) {
+    return { data: {}, content: raw }
+  }
+
+  const lines = raw.split(/\r?\n/)
+  const data: Record<string, unknown> = {}
+  let index = 1
+
+  while (index < lines.length) {
+    const line = lines[index]
+
+    if (line.trim() === '---') {
+      index += 1
+      break
+    }
+
+    if (!line.trim()) {
+      index += 1
+      continue
+    }
+
+    const keyMatch = line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/)
+    if (!keyMatch) {
+      index += 1
+      continue
+    }
+
+    const [, key, value] = keyMatch
+
+    if (value.trim() === '') {
+      const items: string[] = []
+      index += 1
+
+      while (index < lines.length) {
+        const itemLine = lines[index]
+
+        if (itemLine.trim() === '---') break
+        if (!itemLine.trim()) {
+          index += 1
+          continue
+        }
+        if (!itemLine.match(/^\s*-\s+/)) break
+
+        items.push(String(parseScalar(itemLine.replace(/^\s*-\s+/, ''))))
+        index += 1
+      }
+
+      data[key] = items
+      continue
+    }
+
+    data[key] = parseScalar(value)
+    index += 1
+  }
+
+  return {
+    data,
+    content: lines.slice(index).join('\n').trimStart(),
+  }
+}
+
+/**
+ * Returns all published blog posts sorted by date descending.
  */
 export function getAllPosts(): BlogPost[] {
   if (cachedPosts !== null) return cachedPosts
@@ -47,7 +134,7 @@ export function getAllPosts(): BlogPost[] {
   const slugs = new Set<string>()
 
   for (const [filePath, raw] of Object.entries(modules)) {
-    const { data, content } = matter(raw)
+    const { data, content } = parseFrontmatter(raw)
     const parsed = postFrontmatterSchema.safeParse(data)
 
     if (!parsed.success) {
@@ -58,7 +145,7 @@ export function getAllPosts(): BlogPost[] {
     if (!parsed.data.published) continue
 
     if (slugs.has(parsed.data.slug)) {
-      console.warn(`[blog] Duplicate slug detected: "${parsed.data.slug}" in ${filePath} — skipping`)
+      console.warn(`[blog] Duplicate slug detected: "${parsed.data.slug}" in ${filePath} - skipping`)
       continue
     }
 
@@ -66,22 +153,15 @@ export function getAllPosts(): BlogPost[] {
     posts.push({ ...parsed.data, content })
   }
 
-  // Sort by date descending (newest first) — ISO date strings sort correctly with localeCompare
   cachedPosts = posts.sort((a, b) => b.date.localeCompare(a.date))
   return cachedPosts
 }
 
-/**
- * Returns a single post by its slug, or undefined if not found.
- */
 export function getPostBySlug(slug: string): BlogPost | undefined {
-  return getAllPosts().find((p) => p.slug === slug)
+  return getAllPosts().find((post) => post.slug === slug)
 }
 
-/**
- * Returns all unique tags across all published posts, sorted alphabetically.
- */
 export function getAllTags(): string[] {
-  const all = getAllPosts().flatMap((p) => p.tags)
+  const all = getAllPosts().flatMap((post) => post.tags)
   return [...new Set(all)].sort()
 }

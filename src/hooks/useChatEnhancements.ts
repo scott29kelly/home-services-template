@@ -5,7 +5,11 @@ import { getPageContext, buildSystemPrompt } from '../lib/chat-context'
 import { submitForm } from '../lib/form-handler'
 import { company } from '../config/company'
 import { services } from '../config/services'
-import { buildLeadMetadata, persistLastSubmission } from '../lib/attribution'
+import {
+  buildLeadMetadata,
+  buildSubmissionSummary,
+  persistLastSubmission,
+} from '../lib/attribution'
 import { trackEvent } from '../lib/analytics'
 
 /** Lead capture state machine states */
@@ -147,13 +151,14 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
       return false
     }
 
-    persistLastSubmission({
+    persistLastSubmission(buildSubmissionSummary({
       leadType: 'chat',
       submittedAt: metadata.submittedAt,
       service: matchedService?.name,
       sourceLabel: 'ava-chat',
       customerName: name,
-    })
+      path: pathname,
+    }))
     trackEvent('chat_lead_submitted', {
       path: pathname,
       page_context: pageName,

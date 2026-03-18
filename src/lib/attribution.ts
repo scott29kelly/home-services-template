@@ -21,6 +21,11 @@ export interface SubmissionSummary {
   sourceLabel: string
   customerName?: string
   preferredDate?: string
+  landingPage: string
+  referrer: string
+  utmSource: string
+  utmMedium: string
+  utmCampaign: string
 }
 
 const ATTRIBUTION_STORAGE_KEY = 'home-services:attribution'
@@ -120,6 +125,38 @@ export function buildLeadMetadata(
     msclkid: attribution?.msclkid ?? '',
     submittedAt: new Date().toISOString(),
     serviceContext: context.service ?? '',
+  }
+}
+
+/**
+ * Persist a compact submission summary so the thank-you page can render lead
+ * context without depending on the original form state still being mounted.
+ */
+export function buildSubmissionSummary(
+  summary: {
+    leadType: SubmissionSummary['leadType']
+    submittedAt: string
+    service?: string
+    sourceLabel: string
+    customerName?: string
+    preferredDate?: string
+    path: string
+  },
+): SubmissionSummary {
+  const attribution = getAttributionSnapshot(summary.path)
+
+  return {
+    leadType: summary.leadType,
+    submittedAt: summary.submittedAt,
+    service: summary.service,
+    sourceLabel: summary.sourceLabel,
+    customerName: summary.customerName,
+    preferredDate: summary.preferredDate,
+    landingPage: attribution?.landingPage ?? summary.path,
+    referrer: attribution?.referrer ?? '',
+    utmSource: attribution?.utmSource ?? '',
+    utmMedium: attribution?.utmMedium ?? '',
+    utmCampaign: attribution?.utmCampaign ?? '',
   }
 }
 

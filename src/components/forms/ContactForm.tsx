@@ -8,7 +8,11 @@ import { contactSchema, type ContactFormData } from '../../lib/schemas'
 import { submitForm } from '../../lib/form-handler'
 import { services } from '../../config'
 import { forms } from '../../config/forms'
-import { buildLeadMetadata, persistLastSubmission } from '../../lib/attribution'
+import {
+  buildLeadMetadata,
+  buildSubmissionSummary,
+  persistLastSubmission,
+} from '../../lib/attribution'
 import { trackEvent } from '../../lib/analytics'
 
 const serviceOptions = [
@@ -97,13 +101,14 @@ export default function ContactForm() {
     })
 
     if (result.ok) {
-      persistLastSubmission({
+      persistLastSubmission(buildSubmissionSummary({
         leadType: 'contact',
         submittedAt: metadata.submittedAt,
         service: data.service,
         sourceLabel,
         customerName: `${data.firstName} ${data.lastName}`.trim(),
-      })
+        path: location.pathname + location.search,
+      }))
       trackEvent('lead_form_submitted', {
         form_type: 'contact',
         service: data.service,

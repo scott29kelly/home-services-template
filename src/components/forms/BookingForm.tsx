@@ -9,7 +9,11 @@ import { submitForm } from '../../lib/form-handler'
 import { services } from '../../config'
 import { forms } from '../../config/forms'
 import BookingCalendar from '../ui/BookingCalendar'
-import { buildLeadMetadata, persistLastSubmission } from '../../lib/attribution'
+import {
+  buildLeadMetadata,
+  buildSubmissionSummary,
+  persistLastSubmission,
+} from '../../lib/attribution'
 import { trackEvent } from '../../lib/analytics'
 
 const serviceOptions = [
@@ -92,14 +96,15 @@ export default function BookingForm() {
     })
 
     if (result.ok) {
-      persistLastSubmission({
+      persistLastSubmission(buildSubmissionSummary({
         leadType: 'booking',
         submittedAt: metadata.submittedAt,
         service: data.service,
         sourceLabel,
         customerName: `${data.firstName} ${data.lastName}`.trim(),
         preferredDate: data.preferredDate,
-      })
+        path: location.pathname + location.search,
+      }))
       trackEvent('lead_form_submitted', {
         form_type: 'booking',
         service: data.service,
