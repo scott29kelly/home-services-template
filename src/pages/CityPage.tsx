@@ -13,6 +13,7 @@ import { company } from '../config/company'
 import { services } from '../config/services'
 import { getTestimonialsByCity } from '../config/testimonials'
 import { getIcon } from '../lib/icons'
+import { getProjectsForCity, getRelatedPostsForCity } from '../lib/content-relationships'
 
 /* ── FAQ accordion item ───────────────────────────────────────────── */
 
@@ -53,6 +54,8 @@ export default function CityPage() {
 
   const { ref: servicesRef, isInView: servicesInView } = useScrollReveal()
   const { ref: testimonialsRef, isInView: testimonialsInView } = useScrollReveal()
+  const { ref: projectsRef, isInView: projectsInView } = useScrollReveal()
+  const { ref: resourcesRef, isInView: resourcesInView } = useScrollReveal()
   const { ref: faqRef, isInView: faqInView } = useScrollReveal()
   const { ref: nearbyRef, isInView: nearbyInView } = useScrollReveal()
 
@@ -67,6 +70,8 @@ export default function CityPage() {
   if (!city) return null
 
   const cityTestimonials = getTestimonialsByCity(city.slug)
+  const localProjects = getProjectsForCity(city.name, 3)
+  const relatedPosts = getRelatedPostsForCity(city.name, 3)
 
   const pageTitle = city.metaTitle ?? `${city.name} Roofing & Siding | ${company.name}`
   const pageDescription = city.metaDescription ?? city.description.slice(0, 160)
@@ -188,6 +193,82 @@ export default function CityPage() {
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {localProjects.length > 0 && (
+        <section className="py-20 lg:py-28" ref={projectsRef}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <SectionHeading
+              title={`Recent Projects Near ${city.name}`}
+              subtitle="Examples of similar work we have completed nearby."
+              className="mb-10"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {localProjects.map((project, index) => (
+                <Link
+                  key={project.slug}
+                  to={`/portfolio/${project.slug}`}
+                  className={`scroll-reveal ${projectsInView ? 'in-view' : ''} overflow-hidden rounded-2xl border border-border bg-white shadow-sm hover:shadow-md transition-shadow`}
+                  style={{ transitionDelay: `${0.1 + index * 0.1}s` }}
+                >
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-48 w-full object-cover"
+                  />
+                  <div className="p-5">
+                    <h3 className="font-bold text-navy">{project.title}</h3>
+                    <p className="mt-1 text-sm text-text-secondary">{project.detail}</p>
+                    <p className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-blue">
+                      View case study
+                      <ArrowRight className="w-4 h-4" />
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {relatedPosts.length > 0 && (
+        <section className="py-20 lg:py-24 bg-surface border-y border-border" ref={resourcesRef}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <SectionHeading
+              title={`Helpful Resources for ${city.name} Homeowners`}
+              subtitle="Guides worth reading before your next inspection or replacement."
+              className="mb-10"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedPosts.map((post, index) => (
+                <Link
+                  key={post.slug}
+                  to={`/resources/${post.slug}`}
+                  className={`scroll-reveal ${resourcesInView ? 'in-view' : ''} rounded-2xl border border-border bg-white p-6 shadow-sm hover:shadow-md transition-shadow`}
+                  style={{ transitionDelay: `${0.1 + index * 0.1}s` }}
+                >
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {post.tags.slice(0, 2).map((tag) => (
+                      <span key={tag} className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-medium text-brand-blue">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <h3 className="font-bold text-navy">{post.title}</h3>
+                  <p className="mt-2 text-sm text-text-secondary">{post.excerpt}</p>
+                  <p className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-blue">
+                    Read article
+                    <ArrowRight className="w-4 h-4" />
+                  </p>
+                </Link>
               ))}
             </div>
           </div>

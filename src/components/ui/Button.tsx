@@ -47,8 +47,15 @@ export default function Button({
   const classes = `inline-flex items-center justify-center font-semibold rounded-full transition-all duration-300 ${variantStyles[variant]} ${sizeStyles[size]} ${className}`
 
   if (href && external) {
+    const isWebUrl = /^https?:\/\//.test(href)
     return (
-      <a href={href} className={classes} target="_blank" rel="noopener noreferrer">
+      <a
+        href={href}
+        className={classes}
+        target={isWebUrl ? '_blank' : undefined}
+        rel={isWebUrl ? 'noopener noreferrer' : undefined}
+        onClick={onClick}
+      >
         {children}
       </a>
     )
@@ -56,7 +63,7 @@ export default function Button({
 
   if (href) {
     return (
-      <Link to={href} className={classes}>
+      <Link to={href} className={classes} onClick={onClick}>
         {children}
       </Link>
     )

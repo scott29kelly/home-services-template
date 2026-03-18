@@ -16,11 +16,11 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["@react-router/dev"],
     "rootDirs": [".", "./.react-router/types"]
   },
   "include": ["src", ".react-router/types/**/*"]

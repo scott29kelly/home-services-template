@@ -15,9 +15,13 @@ const scrollToTop = () => {
 }
 
 for (const method of ['pushState', 'replaceState'] as const) {
-  const original = history[method].bind(history)
-  history[method] = function (...args: Parameters<typeof original>) {
-    original(...args)
+  const original = history[method].bind(history) as History[typeof method]
+  history[method] = function (
+    data: unknown,
+    unused: string,
+    url?: string | URL | null,
+  ) {
+    original(data, unused, url)
     // Immediate + next frame — covers both sync and async render paths
     scrollToTop()
     requestAnimationFrame(scrollToTop)

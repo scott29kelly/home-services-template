@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { Send, MessageCircle } from 'lucide-react'
 import PageMeta from '../components/ui/PageMeta'
-import { SITE } from '../config/site'
+import { assistant } from '../config/assistant'
 import useChatEnhancements from '../hooks/useChatEnhancements'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 
@@ -18,7 +18,7 @@ export default function Ava() {
     quickActions,
     handleSend,
     handleKeyDown,
-  } = useChatEnhancements(SITE.assistant.pageGreeting)
+  } = useChatEnhancements(assistant.pageGreeting)
 
   const { ref: headerRef, isInView } = useScrollReveal('0px 0px')
 
@@ -39,14 +39,14 @@ export default function Ava() {
 
   return (
     <>
-      <PageMeta title={`Ask ${SITE.assistant.name} - AI Virtual Assistant`} description={`Chat with ${SITE.assistant.name}, your AI-powered virtual assistant. Get instant answers about storm damage, claims, and services.`} path="/ava" />
+      <PageMeta title={`Ask ${assistant.name} - AI Virtual Assistant`} description={`Chat with ${assistant.name}, your AI-powered virtual assistant. Get instant answers about storm damage, claims, and services.`} path="/ava" />
       <section className="py-10 lg:py-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <div ref={headerRef as React.RefObject<HTMLDivElement>} className={`scroll-reveal ${isInView ? 'in-view' : ''} text-center mb-8`}>
           <img
-            src={SITE.assistant.avatarLarge}
-            alt={`${SITE.assistant.name} AI Assistant`}
+            src={assistant.avatarLarge}
+            alt={`${assistant.name} AI Assistant`}
             width={80}
             height={80}
             loading="lazy"
@@ -54,7 +54,7 @@ export default function Ava() {
             className="w-20 h-20 rounded-full mx-auto mb-4 object-cover shadow-lg"
           />
           <h1 className="text-3xl sm:text-4xl font-extrabold text-navy mb-2">
-            Ask <span className="text-brand-blue">{SITE.assistant.name}</span>
+            Ask <span className="text-brand-blue">{assistant.name}</span>
           </h1>
           <p className="text-text-secondary">
             Your AI-powered virtual assistant. Ask anything about storm damage, claims, or our services.
@@ -72,8 +72,8 @@ export default function Ava() {
               >
                 {msg.role === 'assistant' && (
                   <img
-                    src={SITE.assistant.avatarSmall}
-                    alt={SITE.assistant.name}
+                    src={assistant.avatarSmall}
+                    alt={assistant.name}
                     width={32}
                     height={32}
                     loading="lazy"
@@ -96,8 +96,8 @@ export default function Ava() {
             {isLoading && (
               <div className="flex justify-start">
                 <img
-                  src={SITE.assistant.avatarSmall}
-                  alt={SITE.assistant.name}
+                  src={assistant.avatarSmall}
+                  alt={assistant.name}
                   width={32}
                   height={32}
                   loading="lazy"

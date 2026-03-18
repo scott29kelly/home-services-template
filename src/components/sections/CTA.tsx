@@ -1,7 +1,8 @@
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import Button from '../ui/Button'
 import SectionHeading from '../ui/SectionHeading'
-import { SITE } from '../../config/site'
+import { company } from '../../config/company'
+import { trackEvent } from '../../lib/analytics'
 
 export default function CTA() {
   const { ref, isInView } = useScrollReveal()
@@ -19,11 +20,22 @@ export default function CTA() {
           className={`scroll-reveal ${isInView ? 'in-view' : ''} flex flex-col sm:flex-row gap-4 justify-center`}
           style={{ transitionDelay: '0.2s' }}
         >
-          <Button variant="primary" size="lg" href="/contact">
+          <Button
+            variant="primary"
+            size="lg"
+            href="/contact?source=site-cta"
+            onClick={() => trackEvent('cta_clicked', { cta_name: 'schedule_free_inspection', placement: 'global-cta' })}
+          >
             Schedule Free Inspection
           </Button>
-          <Button variant="outline-white" size="lg" href={`tel:${SITE.phone}`} external>
-            Call {SITE.phone}
+          <Button
+            variant="outline-white"
+            size="lg"
+            href={`tel:${company.phone}`}
+            external
+            onClick={() => trackEvent('cta_clicked', { cta_name: 'call_now', placement: 'global-cta' })}
+          >
+            Call {company.phone}
           </Button>
         </div>
       </div>

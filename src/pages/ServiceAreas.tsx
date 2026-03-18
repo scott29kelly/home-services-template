@@ -5,8 +5,8 @@ import CTA from '../components/sections/CTA'
 import SectionHeading from '../components/ui/SectionHeading'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
-import { SITE } from '../config/site'
-import { cityPages } from '../config/service-areas'
+import { company } from '../config/company'
+import { cityPages, serviceAreas } from '../config/service-areas'
 
 export default function ServiceAreas() {
   const { ref, isInView } = useScrollReveal()
@@ -18,12 +18,12 @@ export default function ServiceAreas() {
 
   return (
     <>
-      <PageMeta title="Service Areas" description={`${SITE.name} serves the greater metro area. Licensed & insured.`} path="/service-areas" />
+      <PageMeta title="Service Areas" description={`${company.name} serves the greater metro area. Licensed & insured.`} path="/service-areas" />
       <Hero
         backgroundImage="/images/service-areas-hero.webp"
         headline="Areas We"
         highlightText="Serve"
-        subhead={`Licensed and serving homeowners across the ${SITE.serviceArea.summary.toLowerCase().replace('serving the ', '')}.`}
+        subhead={`Licensed and serving homeowners across the ${serviceAreas.summary.toLowerCase().replace('serving the ', '')}.`}
         compact
       />
 
@@ -36,10 +36,10 @@ export default function ServiceAreas() {
             <Building className="w-6 h-6 text-brand-blue shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-navy text-sm">Headquarters</p>
-              <p className="text-sm text-text-secondary">{SITE.address.full}</p>
+              <p className="text-sm text-text-secondary">{company.address.full}</p>
               <div className="flex items-center gap-1.5 mt-1 text-xs text-text-secondary">
                 <Clock className="w-3.5 h-3.5" />
-                {SITE.hours.weekday}, {SITE.hours.saturday}
+                {company.hours.weekday}, {company.hours.saturday}
               </div>
             </div>
           </div>
@@ -52,7 +52,7 @@ export default function ServiceAreas() {
           <SectionHeading title="Service Areas by State" className="mb-10" />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {SITE.serviceArea.states.map((state, i) => (
+            {serviceAreas.states.map((state, i) => (
               <div
                 key={i}
                 className={`scroll-reveal ${statesInView ? 'in-view' : ''} bg-white rounded-2xl border border-border p-6`}

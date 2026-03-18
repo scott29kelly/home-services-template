@@ -1,6 +1,6 @@
 import type { Route } from './+types/service-page'
-import { redirect } from 'react-router'
-import { Shield, CheckCircle } from 'lucide-react'
+import { Link, redirect } from 'react-router'
+import { Shield, CheckCircle, ArrowRight, Star } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
 import CTA from '../components/sections/CTA'
@@ -13,7 +13,12 @@ import { buildServiceSchema, buildBreadcrumbSchema, buildFAQSchema } from '../li
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { getServiceBySlug } from '../config/services'
 import { company } from '../config/company'
+import { testimonials } from '../config/testimonials'
 import { getIcon } from '../lib/icons'
+import {
+  getProjectsForService,
+  getRelatedPostsForService,
+} from '../lib/content-relationships'
 import type {
   ServiceSection,
   CardGridSection,
@@ -336,6 +341,13 @@ function RenderSection({ section }: { section: ServiceSection }) {
 
 export default function ServicePageRoute({ loaderData }: Route.ComponentProps) {
   const { service } = loaderData
+  const serviceTestimonials = testimonials.all.filter((item) => item.serviceSlug === service.slug).slice(0, 3)
+  const serviceProjects = getProjectsForService(service.slug, 3)
+  const relatedPosts = getRelatedPostsForService(service.slug, 3)
+  const primaryCTA = {
+    text: service.hero.primaryCTA?.text ?? 'Get Free Inspection',
+    href: `/contact?service=${encodeURIComponent(service.name)}&source=service-page`,
+  }
 
   const secondaryCTA = service.hero.showEmergencyPhone
     ? { text: `Emergency: ${company.phone}`, href: `tel:${company.phone}`, external: true }
@@ -362,7 +374,7 @@ export default function ServicePageRoute({ loaderData }: Route.ComponentProps) {
         headline={service.hero.headline}
         highlightText={service.hero.highlightText}
         subhead={service.hero.subhead}
-        primaryCTA={service.hero.primaryCTA}
+        primaryCTA={primaryCTA}
         secondaryCTA={secondaryCTA}
         compact
       />
@@ -370,6 +382,110 @@ export default function ServicePageRoute({ loaderData }: Route.ComponentProps) {
       {service.sections.map((section, i) => (
         <RenderSection key={i} section={section} />
       ))}
+
+      {serviceProjects.length > 0 && (
+        <section className="py-20 lg:py-28 bg-surface">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <SectionHeading
+              title={`Recent ${service.name} Projects`}
+              subtitle="Real work from across our service area."
+              className="mb-10"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {serviceProjects.map((project) => (
+                <Link
+                  key={project.slug}
+                  to={`/portfolio/${project.slug}`}
+                  className="group overflow-hidden rounded-2xl border border-border bg-white shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    width={800}
+                    height={600}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="p-5">
+                    <h3 className="font-bold text-navy group-hover:text-brand-blue transition-colors">
+                      {project.title}
+                    </h3>
+                    <p className="mt-1 text-sm text-text-secondary">{project.location}</p>
+                    <p className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-brand-blue">
+                      View project
+                      <ArrowRight className="w-4 h-4" />
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {serviceTestimonials.length > 0 && (
+        <section className="py-20 lg:py-28">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <SectionHeading
+              title={`What Customers Say About Our ${service.name} Work`}
+              subtitle="A few highlights from similar projects."
+              className="mb-10"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {serviceTestimonials.map((testimonial) => (
+                <div key={`${testimonial.name}-${testimonial.location}`} className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+                  <div className="mb-3 flex gap-0.5">
+                    {Array.from({ length: testimonial.rating ?? 5 }).map((_, index) => (
+                      <Star key={index} className="w-4 h-4 fill-safety-orange text-safety-orange" />
+                    ))}
+                  </div>
+                  <p className="text-sm leading-relaxed text-text-secondary">&ldquo;{testimonial.quote}&rdquo;</p>
+                  <div className="mt-4 border-t border-border pt-4">
+                    <p className="font-semibold text-navy">{testimonial.name}</p>
+                    <p className="text-xs text-text-secondary">{testimonial.location}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {relatedPosts.length > 0 && (
+        <section className="py-20 lg:py-24 bg-surface border-y border-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <SectionHeading
+              title={`Helpful ${service.name} Resources`}
+              subtitle="Guides and answers that pair well with this service."
+              className="mb-10"
+            />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedPosts.map((post) => (
+                <Link
+                  key={post.slug}
+                  to={`/resources/${post.slug}`}
+                  className="rounded-2xl border border-border bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="mb-3 flex flex-wrap gap-2">
+                    {post.tags.slice(0, 2).map((tag) => (
+                      <span key={tag} className="rounded-full border border-sky-100 bg-sky-50 px-2.5 py-1 text-xs font-medium text-brand-blue">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <h3 className="font-bold text-navy">{post.title}</h3>
+                  <p className="mt-2 text-sm text-text-secondary">{post.excerpt}</p>
+                  <p className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-blue">
+                    Read article
+                    <ArrowRight className="w-4 h-4" />
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <FAQ title={service.faqs.title} items={service.faqs.items} />
       <CTA />

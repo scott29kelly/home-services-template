@@ -13,6 +13,7 @@ import { buildBlogPostingSchema, buildBreadcrumbSchema } from '../lib/seo'
 import { getAllPosts, getPostBySlug } from '../lib/blog'
 import type { BlogPost } from '../lib/blog'
 import { features } from '../config/features'
+import { getSuggestedServicesForPost } from '../lib/content-relationships'
 
 /* ── Loader ───────────────────────────────────────────────────────── */
 
@@ -92,6 +93,7 @@ function getRelatedPosts(currentPost: BlogPost, allPosts: BlogPost[]): BlogPost[
 export default function ResourcesPostRoute({ loaderData }: Route.ComponentProps) {
   const { post, allPosts } = loaderData
   const relatedPosts = getRelatedPosts(post, allPosts)
+  const suggestedServices = getSuggestedServicesForPost(post)
 
   return (
     <>
@@ -172,6 +174,28 @@ export default function ResourcesPostRoute({ loaderData }: Route.ComponentProps)
         </div>
       </article>
 
+      {suggestedServices.length > 0 && (
+        <section className="border-t border-border bg-surface py-12">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6">
+            <h2 className="text-xl font-bold text-navy mb-3">Helpful Service Pages</h2>
+            <p className="text-sm text-text-secondary mb-5">
+              If this topic applies to your home, these service pages are a good next step.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {suggestedServices.map((service) => (
+                <Link
+                  key={service.slug}
+                  to={`/${service.slug}`}
+                  className="rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-navy hover:border-brand-blue hover:text-brand-blue transition-colors"
+                >
+                  {service.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Post footer CTA */}
       <section className="bg-brand-blue py-14">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
@@ -184,13 +208,13 @@ export default function ResourcesPostRoute({ loaderData }: Route.ComponentProps)
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              to="/contact"
+              to={`/contact?source=resource-post&message=${encodeURIComponent(`I have a question about "${post.title}"`)}`}
               className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-brand-blue font-semibold rounded-full shadow hover:bg-sky-50 transition-colors duration-150 min-w-[200px]"
             >
               Schedule an Inspection
             </Link>
             <Link
-              to="/contact"
+              to={`/contact?source=resource-post&message=${encodeURIComponent(`I want a quote related to "${post.title}"`)}`}
               className="inline-flex items-center justify-center px-8 py-3.5 bg-transparent text-white font-semibold rounded-full border-2 border-white hover:bg-white/10 transition-colors duration-150 min-w-[200px]"
             >
               Get a Free Quote

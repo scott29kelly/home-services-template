@@ -70,9 +70,9 @@ export function getBlogSlugs(): string[] {
   try {
     const blogDir = resolve('src/content/blog')
     return readdirSync(blogDir)
-      .filter((f) => f.endsWith('.md'))
-      .map((f) => {
-        const { data } = matter(readFileSync(resolve(blogDir, f), 'utf-8'))
+      .filter((fileName: string) => fileName.endsWith('.md'))
+      .map((fileName: string) => {
+        const { data } = matter(readFileSync(resolve(blogDir, fileName), 'utf-8'))
         return data.published !== false ? (data.slug as string) : null
       })
       .filter(Boolean) as string[]

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   Links,
   Meta,
@@ -8,6 +9,8 @@ import './index.css'
 import interRegularFont from './fonts/inter-v18-latin-regular.woff2?url'
 import interSemiboldFont from './fonts/inter-v18-latin-600.woff2?url'
 import jakartaExtraboldFont from './fonts/plus-jakarta-sans-v8-latin-800.woff2?url'
+import { company } from './config/company'
+import { seo } from './config/seo'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,9 +20,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta
           name="description"
-          content="Professional roofing, siding, and storm damage repair services. Licensed &amp; insured. Free inspections. Call today for a free estimate."
+          content={seo.defaultDescription}
         />
-        <title>Home Services Template | Roofing, Siding &amp; Storm Repair</title>
+        <title>{seo.defaultTitle}</title>
 
         {/* Per-route meta tags (title, description, og:*) injected here */}
         <Meta />
@@ -57,12 +60,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Home Services Template | Roofing, Siding &amp; Storm Repair" />
+        <meta property="og:title" content={seo.defaultTitle} />
         <meta
           property="og:description"
-          content="Professional roofing, siding, and storm damage repair services. Licensed &amp; insured. Free inspections."
+          content={seo.defaultDescription}
         />
-        <meta property="og:image" content="/images/hero-roofing.webp" />
+        <meta property="og:image" content={seo.ogImage} />
 
         {/* Schema.org */}
         <script
@@ -71,16 +74,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'HomeAndConstructionBusiness',
-              name: 'Acme Home Services',
-              description: 'Professional roofing, siding, and storm damage repair services.',
-              telephone: '555-123-4567',
-              email: 'info@acmehomeservices.com',
+              name: company.name,
+              description: seo.defaultDescription,
+              telephone: company.phone,
+              email: company.email,
               address: {
                 '@type': 'PostalAddress',
-                streetAddress: '123 Main St',
-                addressLocality: 'Anytown',
-                addressRegion: 'TX',
-                postalCode: '78701',
+                streetAddress: company.address.street,
+                addressLocality: company.address.city,
+                addressRegion: company.address.state,
+                postalCode: company.address.zip,
                 addressCountry: 'US',
               },
               priceRange: '$$',
@@ -106,5 +109,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function Root() {
+  useEffect(() => {
+    document.documentElement.dataset.appHydrated = 'true'
+
+    return () => {
+      delete document.documentElement.dataset.appHydrated
+    }
+  }, [])
+
   return <Outlet />
 }

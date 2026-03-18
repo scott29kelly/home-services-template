@@ -6,6 +6,7 @@ import ScrollToTop from '../components/layout/ScrollToTop'
 import AvaWidget from '../components/ui/AvaWidget'
 import StickyMobileCTA from '../components/ui/StickyMobileCTA'
 import AnnouncementBanner from '../components/ui/AnnouncementBanner'
+import { PageTracker } from '../components/analytics/PageTracker'
 import { features } from '../config'
 
 export default function AppLayout() {
@@ -15,6 +16,7 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <PageTracker />
       <ScrollToTop />
       {/* Skip to content link — visible on focus for keyboard users */}
       <a

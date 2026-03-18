@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import { Phone, Mail, MapPin, Clock } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
@@ -8,7 +8,7 @@ import BookingForm from '../components/forms/BookingForm'
 import FinancingCalculator from '../components/ui/FinancingCalculator'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import PageMeta from '../components/ui/PageMeta'
-import { SITE } from '../config/site'
+import { company } from '../config/company'
 import { features } from '../config/features'
 
 const faqs = [
@@ -48,9 +48,29 @@ const tabs: { key: TabKey; label: string; id: string }[] = [
 
 export default function Contact() {
   const { ref, isInView } = useScrollReveal()
-  const [activeTab, setActiveTab] = useState<TabKey>('message')
+  const [searchParams] = useSearchParams()
+  const requestedTab = searchParams.get('tab')
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    requestedTab === 'booking' && features.onlineBooking
+      ? 'booking'
+      : requestedTab === 'financing' && features.financingCalculator
+        ? 'financing'
+        : 'message',
+  )
 
   const showTabs = features.onlineBooking || features.financingCalculator
+
+  useEffect(() => {
+    if (requestedTab === 'booking' && features.onlineBooking) {
+      setActiveTab('booking')
+      return
+    }
+    if (requestedTab === 'financing' && features.financingCalculator) {
+      setActiveTab('financing')
+      return
+    }
+    setActiveTab('message')
+  }, [requestedTab])
 
   /** Handle keyboard navigation between tabs (arrow keys per ARIA tab pattern). */
   const handleTabKeyDown = (e: React.KeyboardEvent, idx: number) => {
@@ -78,7 +98,7 @@ export default function Contact() {
 
   return (
     <>
-      <PageMeta title="Contact Us" description={`Schedule your free roof or siding inspection. Call ${SITE.phone} or fill out our contact form.`} path="/contact" />
+      <PageMeta title="Contact Us" description={`Schedule your free roof or siding inspection. Call ${company.phone} or fill out our contact form.`} path="/contact" />
       <Hero
         backgroundImage="/images/contact-hero.webp"
         headline="Get In"
@@ -183,8 +203,8 @@ export default function Contact() {
                     <Phone className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium text-navy">Call Us</p>
-                      <a href={`tel:${SITE.phone}`} className="text-sm text-brand-blue hover:underline">
-                        {SITE.phone}
+                      <a href={`tel:${company.phone}`} className="text-sm text-brand-blue hover:underline">
+                        {company.phone}
                       </a>
                     </div>
                   </li>
@@ -193,10 +213,10 @@ export default function Contact() {
                     <div>
                       <p className="font-medium text-navy">Email Us</p>
                       <a
-                        href={`mailto:${SITE.email}`}
+                        href={`mailto:${company.email}`}
                         className="text-sm text-brand-blue hover:underline"
                       >
-                        {SITE.email}
+                        {company.email}
                       </a>
                     </div>
                   </li>
@@ -205,9 +225,9 @@ export default function Contact() {
                     <div>
                       <p className="font-medium text-navy">Office</p>
                       <p className="text-sm text-text-secondary">
-                        {SITE.address.street}
+                        {company.address.street}
                         <br />
-                        {SITE.address.city}, {SITE.address.state} {SITE.address.zip}
+                        {company.address.city}, {company.address.state} {company.address.zip}
                       </p>
                     </div>
                   </li>
@@ -216,14 +236,14 @@ export default function Contact() {
                     <div>
                       <p className="font-medium text-navy">Office Hours</p>
                       <p className="text-sm text-text-secondary">
-                        {SITE.hours.weekday}
+                        {company.hours.weekday}
                         <br />
-                        {SITE.hours.saturday}
+                        {company.hours.saturday}
                         <br />
-                        {SITE.hours.sunday}
+                        {company.hours.sunday}
                       </p>
                       <p className="text-xs text-safety-orange font-medium mt-1">
-                        {SITE.hours.emergency}
+                        {company.hours.emergency}
                       </p>
                     </div>
                   </li>

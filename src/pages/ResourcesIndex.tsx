@@ -8,6 +8,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import PageMeta from '../components/ui/PageMeta'
 import SectionHeading from '../components/ui/SectionHeading'
 import type { BlogPost } from '../lib/blog'
+import { services } from '../config/services'
+import { cityPages } from '../config/service-areas'
 
 const POSTS_PER_PAGE = 6
 
@@ -135,6 +137,37 @@ export default function ResourcesIndex({ allPosts, allTags }: ResourcesIndexProp
       {/* Main content */}
       <section className="py-16 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div className="rounded-2xl border border-border bg-surface p-6">
+              <h2 className="text-lg font-bold text-navy mb-3">Popular Service Pages</h2>
+              <div className="flex flex-wrap gap-2">
+                {services.map((service) => (
+                  <Link
+                    key={service.slug}
+                    to={`/${service.slug}`}
+                    className="rounded-full border border-border bg-white px-3 py-1.5 text-sm font-medium text-navy hover:border-brand-blue hover:text-brand-blue transition-colors"
+                  >
+                    {service.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-surface p-6">
+              <h2 className="text-lg font-bold text-navy mb-3">Top Service Areas</h2>
+              <div className="flex flex-wrap gap-2">
+                {cityPages.slice(0, 6).map((city) => (
+                  <Link
+                    key={city.slug}
+                    to={`/service-areas/${city.slug}`}
+                    className="rounded-full border border-border bg-white px-3 py-1.5 text-sm font-medium text-navy hover:border-brand-blue hover:text-brand-blue transition-colors"
+                  >
+                    {city.name}, {city.state}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
 
           {/* Tag filter pills */}
           {allTags.length > 0 && (

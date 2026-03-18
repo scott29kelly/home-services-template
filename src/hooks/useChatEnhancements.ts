@@ -4,6 +4,9 @@ import { sendMessage, type Message } from '../lib/api'
 import { getPageContext, buildSystemPrompt } from '../lib/chat-context'
 import { submitForm } from '../lib/form-handler'
 import { company } from '../config/company'
+import { services } from '../config/services'
+import { buildLeadMetadata, persistLastSubmission } from '../lib/attribution'
+import { trackEvent } from '../lib/analytics'
 
 /** Lead capture state machine states */
 type LeadState =
@@ -38,7 +41,7 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
   const { pathname } = useLocation()
 
   // Page context is derived on every render — updates automatically on navigation
-  const { quickActions } = getPageContext(pathname)
+  const { quickActions, pageName } = getPageContext(pathname)
 
   // Full UI message history — never truncated (API capping happens in sendMessage)
   const [messages, setMessages] = useState<Message[]>([
@@ -117,13 +120,46 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
     const { name, phone, email } = leadDataRef.current
     if (!name || !phone) return
 
-    await submitForm({
+    const matchedService = services.find((service) => pathname === `/${service.slug}`)
+    const metadata = buildLeadMetadata({
+      path: pathname,
+      formType: 'chat',
+      service: matchedService?.name,
+      sourceLabel: 'ava-chat',
+    })
+
+    const result = await submitForm({
       source: 'ava-chat',
       name,
       phone,
       ...(email ? { email } : {}),
       page: pathname,
+      pageContext: pageName,
+      conversationPreview: messages.slice(-6).map((message) => `${message.role}: ${message.content}`).join('\n'),
+      ...metadata,
     })
+
+    if (!result.ok) {
+      trackEvent('chat_lead_submit_failed', {
+        path: pathname,
+        page_context: pageName,
+      })
+      return false
+    }
+
+    persistLastSubmission({
+      leadType: 'chat',
+      submittedAt: metadata.submittedAt,
+      service: matchedService?.name,
+      sourceLabel: 'ava-chat',
+      customerName: name,
+    })
+    trackEvent('chat_lead_submitted', {
+      path: pathname,
+      page_context: pageName,
+      service: matchedService?.name ?? '',
+    })
+    return true
   }
 
   /**
@@ -175,6 +211,10 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
     // "Talk to a real person" — local injection, no API call
     if (userMessage === 'Talk to a real person') {
       setInput('')
+      trackEvent('chat_escalation_requested', {
+        path: pathname,
+        page_context: pageName,
+      })
       const escalationMessage: Message = {
         role: 'assistant',
         content: `Of course! You can reach our team directly at ${company.phone}. They're available ${company.hours.weekday}. I'm still here if you have more questions!`,
@@ -206,6 +246,10 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
     const systemPrompt = buildSystemPrompt(pathname)
 
     try {
+      trackEvent('chat_message_sent', {
+        path: pathname,
+        page_context: pageName,
+      })
       const data = await sendMessage(newMessages, systemPrompt)
       const assistantMessage: Message = { role: 'assistant', content: data.response }
 
@@ -218,7 +262,16 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
       if (leadDataRef.current.name && leadDataRef.current.phone) {
         if (leadStateRef.current !== 'captured') {
           leadStateRef.current = 'captured'
-          await submitLead()
+          const submitted = await submitLead()
+          if (submitted) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: 'assistant',
+                content: `Thanks ${leadDataRef.current.name}. I've passed your details to our team and someone should reach out shortly. If it's urgent, you can also call ${company.phone}.`,
+              },
+            ])
+          }
         }
       }
     } finally {

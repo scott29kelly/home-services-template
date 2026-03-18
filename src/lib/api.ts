@@ -1,4 +1,4 @@
-import { SITE } from '../config/site'
+import { company } from '../config/company'
 
 export interface Message {
   role: 'user' | 'assistant'
@@ -7,13 +7,13 @@ export interface Message {
 
 const demoResponses: Record<string, string> = {
   storm:
-    `If you've noticed damage after a storm, the first step is to call us for a free inspection. We'll document everything and help you understand if you have a valid insurance claim. Want us to have someone reach out to you? Just leave your name and number and we'll be in touch. Call ${SITE.phone} or schedule online!`,
+    `If you've noticed damage after a storm, the first step is to call us for a free inspection. We'll document everything and help you understand if you have a valid insurance claim. Want us to have someone reach out to you? Just leave your name and number and we'll be in touch. Call ${company.phone} or schedule online!`,
   insurance:
     'Great question! The insurance claims process starts with a free inspection. We document all damage, help you file your claim, meet with the adjuster on your behalf, and then handle all repairs. Most homeowners only pay their deductible. Want me to have someone call you to walk through the process?',
   pay:
     "Most of our customers only pay their insurance deductible for covered storm damage repairs. We work directly with your insurance company so there are no surprise costs. Want us to take a look? It's completely free — want me to set that up?",
   schedule:
-    `I'd love to help you schedule a free inspection! You can call us directly at ${SITE.phone}, or visit our contact page to fill out a form. We typically respond within 24 hours. Want me to have someone reach out to you directly?`,
+    `I'd love to help you schedule a free inspection! You can call us directly at ${company.phone}, or visit our contact page to fill out a form. We typically respond within 24 hours. Want me to have someone reach out to you directly?`,
   roof:
     `Roof damage is one of the most common storm damage claims we handle. We'll do a thorough inspection, document all damage with photos, and help you navigate the insurance process. Most customers only pay their deductible. Want us to have someone take a look? I can set that up.`,
   siding:

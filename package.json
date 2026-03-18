@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc -b",
+    "lint": "npm run typecheck",
+    "test:run": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -30,6 +33,7 @@
     "@playwright/test": "^1.58.2",
     "@react-router/dev": "^7.13.1",
     "@tailwindcss/vite": "^4.1.18",
+    "@types/node": "^24.5.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "sharp": "^0.34.5",

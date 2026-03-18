@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router'
 import { Send } from 'lucide-react'
 import { contactSchema, type ContactFormData } from '../../lib/schemas'
 import { submitForm } from '../../lib/form-handler'
 import { services } from '../../config'
 import { forms } from '../../config/forms'
+import { buildLeadMetadata, persistLastSubmission } from '../../lib/attribution'
+import { trackEvent } from '../../lib/analytics'
 
 const serviceOptions = [
   ...services.map((s) => s.navLabel),
@@ -35,23 +38,85 @@ const errorClasses = 'text-red-600 text-sm mt-1'
 
 export default function ContactForm() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const [isHydrated, setIsHydrated] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const startedTrackingRef = useRef(false)
+
+  const initialService = searchParams.get('service') ?? ''
+  const initialMessage = searchParams.get('message') ?? ''
+  const sourceLabel = searchParams.get('source') ?? 'contact-page'
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     mode: 'onTouched',
+    defaultValues: {
+      service: serviceOptions.includes(initialService) ? initialService : '',
+      message: initialMessage,
+    },
   })
+
+  const watchedValues = watch()
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (startedTrackingRef.current) return
+
+    const hasStarted = Object.values(watchedValues).some((value) => Boolean(value))
+    if (!hasStarted) return
+
+    startedTrackingRef.current = true
+    trackEvent('lead_form_started', {
+      form_type: 'contact',
+      source_label: sourceLabel,
+      path: location.pathname,
+    })
+  }, [location.pathname, sourceLabel, watchedValues])
 
   const onSubmit = async (data: ContactFormData) => {
     setSubmitError(null)
-    const result = await submitForm(data as Record<string, unknown>)
+    const metadata = buildLeadMetadata({
+      path: location.pathname + location.search,
+      formType: 'contact',
+      service: data.service,
+      sourceLabel,
+    })
+
+    const result = await submitForm({
+      ...data,
+      ...metadata,
+    })
+
     if (result.ok) {
+      persistLastSubmission({
+        leadType: 'contact',
+        submittedAt: metadata.submittedAt,
+        service: data.service,
+        sourceLabel,
+        customerName: `${data.firstName} ${data.lastName}`.trim(),
+      })
+      trackEvent('lead_form_submitted', {
+        form_type: 'contact',
+        service: data.service,
+        source_label: sourceLabel,
+        path: location.pathname,
+      })
       navigate('/thank-you')
     } else {
+      trackEvent('lead_form_submit_failed', {
+        form_type: 'contact',
+        source_label: sourceLabel,
+        path: location.pathname,
+      })
       setSubmitError(result.error)
     }
   }
@@ -237,11 +302,15 @@ export default function ContactForm() {
       {/* Submit button */}
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={!isHydrated || isSubmitting}
         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-safety-orange to-orange-500 text-white font-semibold rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         <Send className="w-4 h-4" />
-        {isSubmitting ? forms.contact.submittingText : forms.contact.submitText}
+        {!isHydrated
+          ? 'Loading Form...'
+          : isSubmitting
+            ? forms.contact.submittingText
+            : forms.contact.submitText}
       </button>
     </form>
   )

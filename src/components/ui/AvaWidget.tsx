@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { X, Send, MessageCircle } from 'lucide-react'
-import { SITE } from '../../config/site'
+import { assistant } from '../../config/assistant'
 import useChatEnhancements from '../../hooks/useChatEnhancements'
+import { trackEvent } from '../../lib/analytics'
 
 export default function AvaWidget() {
   const [isOpen, setIsOpen] = useState(false)
@@ -17,9 +18,12 @@ export default function AvaWidget() {
     quickActions,
     handleSend,
     handleKeyDown: hookKeyDown,
-  } = useChatEnhancements(SITE.assistant.greeting)
+  } = useChatEnhancements(assistant.greeting)
 
-  const openChat = useCallback(() => setIsOpen(true), [])
+  const openChat = useCallback(() => {
+    trackEvent('chat_opened', { placement: 'floating-widget' })
+    setIsOpen(true)
+  }, [])
 
   useEffect(() => {
     const container = messagesContainerRef.current
@@ -53,14 +57,14 @@ export default function AvaWidget() {
       {/* Floating Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
-          aria-label={`Open ${SITE.assistant.name} AI chat assistant`}
+          onClick={openChat}
+          aria-label={`Open ${assistant.name} AI chat assistant`}
           className="fixed bottom-20 right-6 md:bottom-6 z-50 group flex items-center gap-2 rounded-full p-[2px] bg-gradient-to-r from-brand-blue to-sky-400 shadow-xl shadow-brand-blue/20 hover:shadow-2xl hover:shadow-brand-blue/30 transition-shadow duration-300"
         >
           <span className="flex items-center gap-2 bg-white rounded-full pl-1 pr-4 py-1">
             <img
-              src={SITE.assistant.avatarSmall}
-              alt={`${SITE.assistant.name} AI Assistant`}
+              src={assistant.avatarSmall}
+              alt={`${assistant.name} AI Assistant`}
               width={32}
               height={32}
               loading="lazy"
@@ -68,7 +72,7 @@ export default function AvaWidget() {
               className="w-8 h-8 rounded-full object-cover"
             />
             <span className="text-sm font-semibold text-navy whitespace-nowrap">
-              Ask {SITE.assistant.name}
+              Ask {assistant.name}
             </span>
           </span>
         </button>
@@ -82,18 +86,18 @@ export default function AvaWidget() {
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-surface/50">
             <img
-              src={SITE.assistant.avatarSmall}
-              alt={SITE.assistant.name}
+              src={assistant.avatarSmall}
+              alt={assistant.name}
               width={36}
               height={36}
               loading="lazy"
               decoding="async"
-              className="w-9 h-9 rounded-full object-cover"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-navy">{SITE.assistant.name}</p>
-              <p className="text-xs text-green-600">{SITE.assistant.role}</p>
-            </div>
+            className="w-9 h-9 rounded-full object-cover"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-navy">{assistant.name}</p>
+            <p className="text-xs text-green-600">{assistant.role}</p>
+          </div>
             <button
               onClick={() => setIsOpen(false)}
               className="p-1.5 rounded-lg text-navy/40 hover:text-navy hover:bg-slate-100 transition-colors"

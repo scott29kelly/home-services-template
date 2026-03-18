@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 import SectionHeading from '../ui/SectionHeading'
-import { SITE } from '../../config/site'
+import { company } from '../../config/company'
 
 const stats = [
-  SITE.stats.homes,
-  SITE.stats.years,
-  SITE.stats.states,
-  SITE.stats.satisfaction,
+  company.stats.homes,
+  company.stats.years,
+  company.stats.states,
+  company.stats.satisfaction,
 ]
 
 function CountUp({ end, suffix, trigger }: { end: number; suffix: string; trigger: boolean }) {

@@ -1,6 +1,7 @@
 import Button from '../ui/Button'
-import { SITE } from '../../config/site'
+import { company } from '../../config/company'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
+import { trackEvent } from '../../lib/analytics'
 
 interface HeroProps {
   backgroundImage?: string
@@ -30,8 +31,8 @@ export default function Hero({
   headline = 'Protecting Your Home,',
   highlightText = 'One Roof at a Time',
   subhead = 'Expert roofing, siding, and storm damage repair with integrity. We guide you through every step of the insurance claims process.',
-  primaryCTA = { text: 'Get Free Inspection', href: '/contact' },
-  secondaryCTA = { text: `Call ${SITE.phone}`, href: `tel:${SITE.phone}`, external: true },
+  primaryCTA = { text: 'Get Free Inspection', href: '/contact?source=hero' },
+  secondaryCTA = { text: `Call ${company.phone}`, href: `tel:${company.phone}`, external: true },
   compact = false,
 }: HeroProps) {
   const { ref, isInView } = useScrollReveal('0px 0px')
@@ -81,7 +82,12 @@ export default function Hero({
             {subhead}
           </p>
           <div className={`scroll-reveal delay-2 ${isInView ? 'in-view' : ''} flex flex-col sm:flex-row gap-4`}>
-            <Button variant="primary" size="lg" href={primaryCTA.href}>
+            <Button
+              variant="primary"
+              size="lg"
+              href={primaryCTA.href}
+              onClick={() => trackEvent('cta_clicked', { cta_name: primaryCTA.text, placement: 'hero' })}
+            >
               {primaryCTA.text}
             </Button>
             <Button
@@ -89,6 +95,7 @@ export default function Hero({
               size="lg"
               href={secondaryCTA.href}
               external={secondaryCTA.external}
+              onClick={() => trackEvent('cta_clicked', { cta_name: secondaryCTA.text, placement: 'hero' })}
             >
               {secondaryCTA.text}
             </Button>

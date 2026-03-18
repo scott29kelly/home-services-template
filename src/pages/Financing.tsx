@@ -6,7 +6,7 @@ import FinancingCalculator from '../components/ui/FinancingCalculator'
 import PageMeta from '../components/ui/PageMeta'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { financing } from '../config/financing'
-import { SITE } from '../config/site'
+import { company } from '../config/company'
 
 export default function Financing() {
   const { ref: ctaRef, isInView: ctaInView } = useScrollReveal()
@@ -25,7 +25,7 @@ export default function Financing() {
         highlightText="Financing Options"
         subhead="Making home improvements affordable. Compare monthly payments across multiple financing plans to find the right fit for your budget."
         primaryCTA={{ text: 'Get a Free Quote', href: '/contact' }}
-        secondaryCTA={{ text: `Call ${SITE.phone}`, href: `tel:${SITE.phone}`, external: true }}
+        secondaryCTA={{ text: `Call ${company.phone}`, href: `tel:${company.phone}`, external: true }}
         compact
       />
 
@@ -57,10 +57,10 @@ export default function Financing() {
             <Button
               variant="outline-white"
               size="lg"
-              href={`tel:${SITE.phone}`}
+              href={`tel:${company.phone}`}
               external
             >
-              Call {SITE.phone}
+              Call {company.phone}
             </Button>
           </div>
         </div>

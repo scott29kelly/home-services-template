@@ -1,13 +1,21 @@
+import { useEffect, useState } from 'react'
 import { CheckCircle, Phone, Mail, Clock, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Hero from '../components/sections/Hero'
 import PageMeta from '../components/ui/PageMeta'
-import { SITE } from '../config/site'
+import { company } from '../config/company'
+import { getLastSubmission, type SubmissionSummary } from '../lib/attribution'
 import { forms } from '../config/forms'
 
 const { thankYou } = forms
 
 export default function ThankYou() {
+  const [lastSubmission, setLastSubmission] = useState<SubmissionSummary | null>(null)
+
+  useEffect(() => {
+    setLastSubmission(getLastSubmission())
+  }, [])
+
   return (
     <>
       <PageMeta
@@ -41,6 +49,20 @@ export default function ThankYou() {
               {thankYou.subheading}
             </p>
 
+            {lastSubmission && (
+              <div className="mb-8 rounded-xl border border-brand-blue/15 bg-brand-blue/5 px-5 py-4 text-left max-w-md mx-auto">
+                <p className="text-sm font-semibold text-navy mb-1">Request Summary</p>
+                <p className="text-sm text-text-secondary">
+                  {lastSubmission.leadType === 'booking' ? 'Inspection request' : lastSubmission.leadType === 'chat' ? 'Chat handoff' : 'Contact request'}
+                  {lastSubmission.service ? ` for ${lastSubmission.service}` : ''} received.
+                </p>
+                <p className="text-xs text-text-secondary mt-1">
+                  Source: {lastSubmission.sourceLabel}
+                  {lastSubmission.preferredDate ? ` | Preferred date: ${lastSubmission.preferredDate}` : ''}
+                </p>
+              </div>
+            )}
+
             {/* Next Steps */}
             <div className="text-left max-w-md mx-auto mb-10">
               <h2 className="text-lg font-semibold text-navy mb-4">What Happens Next</h2>
@@ -62,29 +84,29 @@ export default function ThankYou() {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <a
-                  href={`tel:${SITE.phone}`}
+                  href={`tel:${company.phone}`}
                   className="inline-flex items-center gap-2 text-brand-blue hover:underline font-medium"
                 >
                   <Phone className="w-5 h-5" />
-                  {SITE.phone}
+                  {company.phone}
                 </a>
                 <a
-                  href={`mailto:${SITE.email}`}
+                  href={`mailto:${company.email}`}
                   className="inline-flex items-center gap-2 text-brand-blue hover:underline font-medium"
                 >
                   <Mail className="w-5 h-5" />
-                  {SITE.email}
+                  {company.email}
                 </a>
               </div>
 
               <div className="flex items-center justify-center gap-2 text-sm text-text-secondary mt-4">
                 <Clock className="w-4 h-4" />
                 <span>
-                  {SITE.hours.weekday} | {SITE.hours.saturday}
+                  {company.hours.weekday} | {company.hours.saturday}
                 </span>
               </div>
               <p className="text-xs text-safety-orange font-medium">
-                {SITE.hours.emergency}
+                {company.hours.emergency}
               </p>
             </div>
 
