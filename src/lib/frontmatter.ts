@@ -31,18 +31,22 @@ function parseScalar(value: string): string | boolean | string[] {
  * Minimal parser for the simple YAML frontmatter shape used by site content.
  */
 export function parseFrontmatter(raw: string): { data: Record<string, unknown>; content: string } {
-  if (!raw.startsWith('---')) {
+  const normalizedRaw = raw.startsWith('\uFEFF') ? raw.slice(1) : raw
+
+  if (!normalizedRaw.startsWith('---')) {
     return { data: {}, content: raw }
   }
 
-  const lines = raw.split(/\r?\n/)
+  const lines = normalizedRaw.split(/\r?\n/)
   const data: Record<string, unknown> = {}
   let index = 1
+  let foundClosingDelimiter = false
 
   while (index < lines.length) {
     const line = lines[index]
 
     if (line.trim() === '---') {
+      foundClosingDelimiter = true
       index += 1
       break
     }
@@ -84,6 +88,10 @@ export function parseFrontmatter(raw: string): { data: Record<string, unknown>; 
 
     data[key] = parseScalar(value)
     index += 1
+  }
+
+  if (!foundClosingDelimiter) {
+    return { data: {}, content: raw }
   }
 
   return {

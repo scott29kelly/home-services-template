@@ -73,7 +73,7 @@ export function getBlogSlugs(): string[] {
       .filter((fileName: string) => fileName.endsWith('.md'))
       .map((fileName: string) => {
         const { data } = parseFrontmatter(readFileSync(resolve(blogDir, fileName), 'utf-8'))
-        return data.published !== false ? (data.slug as string) : null
+        return data.published !== false && typeof data.slug === 'string' ? data.slug : null
       })
       .filter(Boolean) as string[]
   } catch {
