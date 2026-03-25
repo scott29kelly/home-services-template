@@ -1,0 +1,260 @@
+import { useEffect, useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
+import { Phone, Mail, MapPin, Clock } from 'lucide-react'
+import Hero from '../components/sections/Hero'
+import FAQ from '../components/sections/FAQ'
+import ContactForm from '../components/forms/ContactForm'
+import BookingForm from '../components/forms/BookingForm'
+import FinancingCalculator from '../components/ui/FinancingCalculator'
+import { useScrollReveal } from '../hooks/useScrollReveal'
+import PageMeta from '../components/ui/PageMeta'
+import { company } from '../config/company'
+import { features } from '../config/features'
+
+const faqs = [
+  {
+    question: 'Is the inspection really free?',
+    answer:
+      'Yes, 100% free with no obligation. We believe in earning your trust through honest assessments.',
+  },
+  {
+    question: 'How quickly can you come out?',
+    answer:
+      'Usually 1-3 business days. For storm emergencies, we offer same or next-day inspections.',
+  },
+  {
+    question: 'Do I need to be home?',
+    answer:
+      "It's helpful but not required. We can perform an exterior inspection and follow up with a call to discuss our findings.",
+  },
+  {
+    question: 'What areas do you serve?',
+    answer:
+      'We serve the greater metro area and surrounding communities. Visit our Service Areas page for a full list of locations.',
+  },
+]
+
+type TabKey = 'message' | 'booking' | 'financing'
+
+const tabs: { key: TabKey; label: string; id: string }[] = [
+  { key: 'message', label: 'Send a Message', id: 'tab-message' },
+  ...(features.onlineBooking
+    ? [{ key: 'booking' as TabKey, label: 'Schedule Inspection', id: 'tab-booking' }]
+    : []),
+  ...(features.financingCalculator
+    ? [{ key: 'financing' as TabKey, label: 'Financing', id: 'tab-financing' }]
+    : []),
+]
+
+export default function Contact() {
+  const { ref, isInView } = useScrollReveal()
+  const [searchParams] = useSearchParams()
+  const requestedTab = searchParams.get('tab')
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    requestedTab === 'booking' && features.onlineBooking
+      ? 'booking'
+      : requestedTab === 'financing' && features.financingCalculator
+        ? 'financing'
+        : 'message',
+  )
+
+  const showTabs = features.onlineBooking || features.financingCalculator
+
+  useEffect(() => {
+    if (requestedTab === 'booking' && features.onlineBooking) {
+      setActiveTab('booking')
+      return
+    }
+    if (requestedTab === 'financing' && features.financingCalculator) {
+      setActiveTab('financing')
+      return
+    }
+    setActiveTab('message')
+  }, [requestedTab])
+
+  /** Handle keyboard navigation between tabs (arrow keys per ARIA tab pattern). */
+  const handleTabKeyDown = (e: React.KeyboardEvent, idx: number) => {
+    let nextIdx: number | null = null
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault()
+      nextIdx = (idx + 1) % tabs.length
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      nextIdx = (idx - 1 + tabs.length) % tabs.length
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      nextIdx = 0
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      nextIdx = tabs.length - 1
+    }
+    if (nextIdx !== null) {
+      setActiveTab(tabs[nextIdx].key)
+      // Focus the newly activated tab button
+      const btn = document.getElementById(tabs[nextIdx].id)
+      btn?.focus()
+    }
+  }
+
+  return (
+    <>
+      <PageMeta title="Contact Us" description={`Schedule your free roof or siding inspection. Call ${company.phone} or fill out our contact form.`} path="/contact" />
+      <Hero
+        backgroundImage="/images/contact-hero.webp"
+        headline="Get In"
+        highlightText="Touch"
+        subhead={
+          showTabs
+            ? 'Schedule your free inspection or send us a message. We\'re here to help.'
+            : 'Schedule your free inspection or ask us anything. We\'re here to help.'
+        }
+        compact
+      />
+
+      <section className="py-20 lg:py-28" ref={ref}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+            {/* Form area with optional tab UI */}
+            <div
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} lg:col-span-3`}
+            >
+              {showTabs ? (
+                <>
+                  {/* Tab bar */}
+                  <div role="tablist" aria-label="Contact method" className="flex border-b border-border mb-8">
+                    {tabs.map((tab, idx) => {
+                      const isActive = activeTab === tab.key
+                      return (
+                        <button
+                          key={tab.key}
+                          id={tab.id}
+                          role="tab"
+                          type="button"
+                          aria-selected={isActive}
+                          aria-controls={`panel-${tab.key}`}
+                          tabIndex={isActive ? 0 : -1}
+                          onClick={() => setActiveTab(tab.key)}
+                          onKeyDown={(e) => handleTabKeyDown(e, idx)}
+                          className={[
+                            'px-4 py-3 text-sm font-medium transition-all -mb-px',
+                            isActive
+                              ? 'border-b-2 border-brand-blue text-brand-blue font-semibold'
+                              : 'text-text-secondary hover:text-navy',
+                          ].join(' ')}
+                        >
+                          {tab.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Tab panels */}
+                  <div
+                    id="panel-message"
+                    role="tabpanel"
+                    aria-labelledby="tab-message"
+                    hidden={activeTab !== 'message'}
+                  >
+                    {activeTab === 'message' && <ContactForm />}
+                  </div>
+                  <div
+                    id="panel-booking"
+                    role="tabpanel"
+                    aria-labelledby="tab-booking"
+                    hidden={activeTab !== 'booking'}
+                  >
+                    {activeTab === 'booking' && <BookingForm />}
+                  </div>
+                  <div
+                    id="panel-financing"
+                    role="tabpanel"
+                    aria-labelledby="tab-financing"
+                    hidden={activeTab !== 'financing'}
+                  >
+                    {activeTab === 'financing' && (
+                      <>
+                        <FinancingCalculator compact />
+                        <p className="mt-6 text-center">
+                          <Link
+                            to="/financing"
+                            className="text-brand-blue hover:underline font-medium"
+                          >
+                            View all financing details &amp; FAQs &rarr;
+                          </Link>
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <ContactForm />
+              )}
+            </div>
+
+            {/* Contact Info Sidebar */}
+            <div
+              className={`scroll-reveal ${isInView ? 'in-view' : ''} lg:col-span-2 space-y-6`}
+              style={{ transitionDelay: '0.2s' }}
+            >
+              <div className="bg-surface rounded-2xl border border-border p-6">
+                <h3 className="font-bold text-navy mb-4">Contact Information</h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3">
+                    <Phone className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-navy">Call Us</p>
+                      <a href={`tel:${company.phone}`} className="text-sm text-brand-blue hover:underline">
+                        {company.phone}
+                      </a>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-navy">Email Us</p>
+                      <a
+                        href={`mailto:${company.email}`}
+                        className="text-sm text-brand-blue hover:underline"
+                      >
+                        {company.email}
+                      </a>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-navy">Office</p>
+                      <p className="text-sm text-text-secondary">
+                        {company.address.street}
+                        <br />
+                        {company.address.city}, {company.address.state} {company.address.zip}
+                      </p>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-navy">Office Hours</p>
+                      <p className="text-sm text-text-secondary">
+                        {company.hours.weekday}
+                        <br />
+                        {company.hours.saturday}
+                        <br />
+                        {company.hours.sunday}
+                      </p>
+                      <p className="text-xs text-safety-orange font-medium mt-1">
+                        {company.hours.emergency}
+                      </p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <FAQ title="Contact FAQs" items={faqs} />
+    </>
+  )
+}
