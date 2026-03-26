@@ -44,7 +44,6 @@ export default function ContactForm() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
-  const [isHydrated, setIsHydrated] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const startedTrackingRef = useRef(false)
 
@@ -67,10 +66,6 @@ export default function ContactForm() {
   })
 
   const watchedValues = watch()
-
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
 
   useEffect(() => {
     if (startedTrackingRef.current) return
@@ -106,6 +101,7 @@ export default function ContactForm() {
         submittedAt: metadata.submittedAt,
         service: data.service,
         sourceLabel,
+        referenceCode: result.referenceCode,
         customerName: `${data.firstName} ${data.lastName}`.trim(),
         path: location.pathname + location.search,
       }))
@@ -130,6 +126,16 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
       <h2 className="text-2xl font-bold text-navy mb-2">{forms.contact.heading}</h2>
       <p className="text-text-secondary mb-6">{forms.contact.subheading}</p>
+
+      {sourceLabel === 'ava-photo-handoff' && (
+        <div className="rounded-xl border border-brand-blue/20 bg-brand-blue/5 px-4 py-4 text-sm text-text-secondary">
+          <p className="font-semibold text-navy mb-1">Photo Handoff</p>
+          <p>
+            Tell us what you photographed and the best way to reach you. Once this request is in,
+            our team can guide you on the fastest way to send roof, siding, gutter, or interior leak photos.
+          </p>
+        </div>
+      )}
 
       {/* First Name / Last Name */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -307,15 +313,11 @@ export default function ContactForm() {
       {/* Submit button */}
       <button
         type="submit"
-        disabled={!isHydrated || isSubmitting}
+        disabled={isSubmitting}
         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-safety-orange to-orange-500 text-white font-semibold rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         <Send className="w-4 h-4" />
-        {!isHydrated
-          ? 'Loading Form...'
-          : isSubmitting
-            ? forms.contact.submittingText
-            : forms.contact.submitText}
+        {isSubmitting ? forms.contact.submittingText : forms.contact.submitText}
       </button>
     </form>
   )

@@ -1,13 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { Link } from 'react-router'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-
-interface Testimonial {
-  name: string
-  location: string
-  quote: string
-  image: string
-  service?: string
-}
+import type { Testimonial } from '../../config/testimonials'
 
 interface AnimatedTestimonialsProps {
   testimonials: Testimonial[]
@@ -144,6 +138,33 @@ export default function AnimatedTestimonials({
               <span> &middot; {currentTestimonial.service}</span>
             )}
           </p>
+          {(currentTestimonial.source || currentTestimonial.reviewDate) && (
+            <p className="mt-1 text-xs uppercase tracking-[0.2em] text-white/40">
+              {[currentTestimonial.source, currentTestimonial.reviewDate].filter(Boolean).join(' · ')}
+            </p>
+          )}
+          {currentTestimonial.highlights && currentTestimonial.highlights.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {currentTestimonial.highlights.slice(0, 2).map((highlight) => (
+                <span
+                  key={highlight}
+                  className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs font-medium text-white/80"
+                >
+                  {highlight}
+                </span>
+              ))}
+            </div>
+          )}
+          {currentTestimonial.projectSlug && (
+            <div className="mt-4">
+              <Link
+                to={`/portfolio/${currentTestimonial.projectSlug}`}
+                className="text-sm font-medium text-safety-orange hover:text-white transition-colors"
+              >
+                View related case study
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Navigation */}

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { sendMessage, type Message } from '../lib/api'
 import { getPageContext, buildSystemPrompt } from '../lib/chat-context'
@@ -12,7 +12,6 @@ import {
 } from '../lib/attribution'
 import { trackEvent } from '../lib/analytics'
 
-/** Lead capture state machine states */
 type LeadState =
   | 'idle'
   | 'offered'
@@ -34,20 +33,40 @@ export interface UseChatEnhancementsReturn {
   handleKeyDown: (e: React.KeyboardEvent) => void
 }
 
-/** Client-side rate limit: 1 message per 2 seconds */
 const RATE_LIMIT_MS = 2000
 
+function isBookingAction(text: string): boolean {
+  const normalized = text.trim().toLowerCase()
+  return (
+    normalized === 'book a confirmed inspection' ||
+    normalized === 'schedule an inspection' ||
+    normalized === 'schedule a free inspection' ||
+    normalized.startsWith('book a ') && normalized.endsWith(' inspection')
+  )
+}
+
+function isPhotoHandoffAction(text: string): boolean {
+  const normalized = text.trim().toLowerCase()
+  return (
+    normalized === 'share damage photos' ||
+    normalized === 'send damage photos' ||
+    normalized === 'upload damage photos'
+  )
+}
+
+function isBrowser(): boolean {
+  return typeof window !== 'undefined'
+}
+
 /**
- * Shared custom hook encapsulating page context awareness, lead capture state
- * machine, and client-side rate limiting for both AvaWidget and Ava full-page chat.
+ * Shared hook for page-aware quick actions, conversational lead capture, and
+ * structured handoff into booking or photo-sharing flows.
  */
 export default function useChatEnhancements(initialGreeting: string): UseChatEnhancementsReturn {
   const { pathname } = useLocation()
-
-  // Page context is derived on every render — updates automatically on navigation
   const { quickActions, pageName } = getPageContext(pathname)
+  const matchedService = services.find((service) => pathname === `/${service.slug}`)
 
-  // Full UI message history — never truncated (API capping happens in sendMessage)
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: initialGreeting },
   ])
@@ -55,76 +74,99 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
   const [isLoading, setIsLoading] = useState(false)
   const [rateLimited, setRateLimited] = useState(false)
 
-  // Rate limiting: track timestamp of last send
   const lastSendTimeRef = useRef<number>(0)
-
-  // Lead capture state machine
   const leadStateRef = useRef<LeadState>('idle')
-  const exchangeCountRef = useRef<number>(0)
   const leadDataRef = useRef<{ name?: string; phone?: string; email?: string }>({})
+  const leadSubmittedRef = useRef(false)
 
-  /**
-   * Attempt to extract name, phone, or email from a user message based on the
-   * current lead state. Updates leadDataRef in place. Returns true if we have
-   * enough data (name + phone) to submit.
-   */
+  const buildBookingUrl = (): string => {
+    const params = new URLSearchParams({
+      tab: 'booking',
+      source: 'ava-booking',
+    })
+
+    const serviceLabel = matchedService?.navLabel ?? matchedService?.name
+    if (serviceLabel) {
+      params.set('service', serviceLabel)
+    }
+
+    return `/contact?${params.toString()}`
+  }
+
+  const buildPhotoHandoffUrl = (): string => {
+    const params = new URLSearchParams({
+      source: 'ava-photo-handoff',
+      message: matchedService
+        ? `I have ${matchedService.name.toLowerCase()} photos to share with the team.`
+        : 'I have storm damage photos to share with the team.',
+    })
+
+    const serviceLabel = matchedService?.navLabel ?? matchedService?.name
+    if (serviceLabel) {
+      params.set('service', serviceLabel)
+    }
+
+    return `/contact?${params.toString()}`
+  }
+
+  const redirectToHandoff = (handoffType: 'booking' | 'photo'): void => {
+    if (!isBrowser()) return
+
+    const destination = handoffType === 'booking' ? buildBookingUrl() : buildPhotoHandoffUrl()
+
+    trackEvent('chat_handoff_redirected', {
+      handoff_type: handoffType,
+      path: pathname,
+      page_context: pageName,
+      service: matchedService?.name ?? '',
+    })
+
+    window.location.assign(destination)
+  }
+
   const tryExtractLeadData = (text: string): boolean => {
     const state = leadStateRef.current
 
     if (state === 'capturing-name') {
-      // Simple heuristic: treat the reply as the name if it's short and doesn't look like a phone/email
       const trimmed = text.trim()
       if (trimmed && trimmed.length < 60 && !trimmed.match(/^\d/) && !trimmed.includes('@')) {
         leadDataRef.current.name = trimmed
         leadStateRef.current = 'capturing-phone'
       }
     } else if (state === 'capturing-phone') {
-      // Detect phone-like content: digits and common separators
       const phoneMatch = text.match(/[\d\s\-().+]{7,}/)
       if (phoneMatch) {
         leadDataRef.current.phone = phoneMatch[0].trim()
         leadStateRef.current = 'capturing-email'
       }
     } else if (state === 'capturing-email') {
-      // Detect email address
       const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)
       if (emailMatch) {
         leadDataRef.current.email = emailMatch[0]
       }
-      // Email is optional — move to captured regardless
       leadStateRef.current = 'captured'
     }
 
-    // Check if we have enough data regardless of current state
-    // (AI might collect multiple fields in one response)
-    if (
-      !leadDataRef.current.name &&
-      !leadDataRef.current.phone
-    ) {
-      // Also detect if the user provided both name and phone in one message
+    if (!leadDataRef.current.name || !leadDataRef.current.phone) {
       const phoneMatch = text.match(/[\d\s\-().+]{7,}/)
       const nameBeforePhone = phoneMatch
         ? text.slice(0, text.indexOf(phoneMatch[0])).trim()
         : null
-      if (nameBeforePhone && nameBeforePhone.length > 0 && nameBeforePhone.length < 60) {
+
+      if (nameBeforePhone && phoneMatch && nameBeforePhone.length < 60) {
         leadDataRef.current.name = nameBeforePhone.replace(/[,.\-]+$/, '').trim()
-        leadDataRef.current.phone = phoneMatch![0].trim()
+        leadDataRef.current.phone = phoneMatch[0].trim()
         leadStateRef.current = 'captured'
       }
     }
 
-    return !!(leadDataRef.current.name && leadDataRef.current.phone)
+    return Boolean(leadDataRef.current.name && leadDataRef.current.phone)
   }
 
-  /**
-   * Submit captured lead data via submitForm.
-   * Called when we have at minimum name + phone.
-   */
-  const submitLead = async () => {
+  const submitLead = async (): Promise<boolean> => {
     const { name, phone, email } = leadDataRef.current
-    if (!name || !phone) return
+    if (!name || !phone) return false
 
-    const matchedService = services.find((service) => pathname === `/${service.slug}`)
     const metadata = buildLeadMetadata({
       path: pathname,
       formType: 'chat',
@@ -156,6 +198,7 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
       submittedAt: metadata.submittedAt,
       service: matchedService?.name,
       sourceLabel: 'ava-chat',
+      referenceCode: result.referenceCode,
       customerName: name,
       path: pathname,
     }))
@@ -164,35 +207,31 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
       page_context: pageName,
       service: matchedService?.name ?? '',
     })
+    leadSubmittedRef.current = true
     return true
   }
 
-  /**
-   * Check if the AI's response appears to be initiating lead capture.
-   * We advance state to 'offered' so subsequent user replies trigger extraction.
-   */
-  const detectLeadCaptureOffer = (aiResponse: string) => {
+  const detectLeadCaptureOffer = (aiResponse: string): void => {
     if (leadStateRef.current !== 'idle' && leadStateRef.current !== 'declined-once') return
 
     const lower = aiResponse.toLowerCase()
     const isOfferingCapture =
       lower.includes("what's a good name") ||
-      lower.includes("your name") ||
-      lower.includes("who should we ask for") ||
-      lower.includes("reach out to you") ||
-      lower.includes("have someone call") ||
-      lower.includes("have one of our") ||
-      lower.includes("best number") ||
-      lower.includes("phone number")
+      lower.includes('your name') ||
+      lower.includes('who should we ask for') ||
+      lower.includes('reach out to you') ||
+      lower.includes('have someone call') ||
+      lower.includes('have one of our') ||
+      lower.includes('best number') ||
+      lower.includes('phone number')
 
-    if (isOfferingCapture) {
-      if (leadStateRef.current === 'idle') {
-        leadStateRef.current = 'offered'
-      }
-      // Advance to capturing-name if offered state was set
-      if (leadStateRef.current === 'offered') {
-        leadStateRef.current = 'capturing-name'
-      }
+    if (!isOfferingCapture) return
+
+    if (leadStateRef.current === 'idle') {
+      leadStateRef.current = 'offered'
+    }
+    if (leadStateRef.current === 'offered') {
+      leadStateRef.current = 'capturing-name'
     }
   }
 
@@ -200,20 +239,6 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
     const userMessage = (text ?? input).trim()
     if (!userMessage || isLoading) return
 
-    // Rate limit check
-    const now = Date.now()
-    const elapsed = now - lastSendTimeRef.current
-    if (elapsed < RATE_LIMIT_MS) {
-      setRateLimited(true)
-      setTimeout(() => setRateLimited(false), RATE_LIMIT_MS - elapsed)
-      return
-    }
-    lastSendTimeRef.current = now
-
-    // Increment exchange counter (user message)
-    exchangeCountRef.current += 1
-
-    // "Talk to a real person" — local injection, no API call
     if (userMessage === 'Talk to a real person') {
       setInput('')
       trackEvent('chat_escalation_requested', {
@@ -232,7 +257,25 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
       return
     }
 
-    // Update lead state if AI previously offered capture and user is replying
+    if (isBookingAction(userMessage)) {
+      redirectToHandoff('booking')
+      return
+    }
+
+    if (isPhotoHandoffAction(userMessage)) {
+      redirectToHandoff('photo')
+      return
+    }
+
+    const now = Date.now()
+    const elapsed = now - lastSendTimeRef.current
+    if (elapsed < RATE_LIMIT_MS) {
+      setRateLimited(true)
+      setTimeout(() => setRateLimited(false), RATE_LIMIT_MS - elapsed)
+      return
+    }
+    lastSendTimeRef.current = now
+
     if (
       leadStateRef.current === 'capturing-name' ||
       leadStateRef.current === 'capturing-phone' ||
@@ -241,13 +284,11 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
       tryExtractLeadData(userMessage)
     }
 
-    // Add user message to state
     setInput('')
     const newMessages: Message[] = [...messages, { role: 'user', content: userMessage }]
     setMessages(newMessages)
     setIsLoading(true)
 
-    // Build system prompt with current page context
     const systemPrompt = buildSystemPrompt(pathname)
 
     try {
@@ -255,28 +296,23 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
         path: pathname,
         page_context: pageName,
       })
+
       const data = await sendMessage(newMessages, systemPrompt)
       const assistantMessage: Message = { role: 'assistant', content: data.response }
-
       setMessages((prev) => [...prev, assistantMessage])
 
-      // Detect if the AI is initiating lead capture
       detectLeadCaptureOffer(data.response)
 
-      // Submit lead if we captured enough data from user's message
-      if (leadDataRef.current.name && leadDataRef.current.phone) {
-        if (leadStateRef.current !== 'captured') {
-          leadStateRef.current = 'captured'
-          const submitted = await submitLead()
-          if (submitted) {
-            setMessages((prev) => [
-              ...prev,
-              {
-                role: 'assistant',
-                content: `Thanks ${leadDataRef.current.name}. I've passed your details to our team and someone should reach out shortly. If it's urgent, you can also call ${company.phone}.`,
-              },
-            ])
-          }
+      if (leadDataRef.current.name && leadDataRef.current.phone && !leadSubmittedRef.current) {
+        const submitted = await submitLead()
+        if (submitted) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: 'assistant',
+              content: `Thanks ${leadDataRef.current.name}. I've passed your details to our team. If you'd rather reserve a confirmed inspection window right now, tap "Book a confirmed inspection" anytime.`,
+            },
+          ])
         }
       }
     } finally {
@@ -284,12 +320,11 @@ export default function useChatEnhancements(initialGreeting: string): UseChatEnh
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      void handleSend()
     }
-    // Escape is intentionally not handled here — component-level responsibility
   }
 
   return {

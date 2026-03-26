@@ -1,6 +1,6 @@
 import type { Route } from './+types/service-page'
 import { Link, redirect } from 'react-router'
-import { Shield, CheckCircle, ArrowRight, Star } from 'lucide-react'
+import { Shield, CheckCircle, ArrowRight } from 'lucide-react'
 import Hero from '../components/sections/Hero'
 import FAQ from '../components/sections/FAQ'
 import CTA from '../components/sections/CTA'
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button'
 import SectionHeading from '../components/ui/SectionHeading'
 import PageMeta from '../components/ui/PageMeta'
 import JsonLd from '../components/seo/JsonLd'
+import TestimonialCard from '../components/ui/TestimonialCard'
 import { buildServiceSchema, buildBreadcrumbSchema, buildFAQSchema } from '../lib/seo'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { getServiceBySlug } from '../config/services'
@@ -434,18 +435,10 @@ export default function ServicePageRoute({ loaderData }: Route.ComponentProps) {
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {serviceTestimonials.map((testimonial) => (
-                <div key={`${testimonial.name}-${testimonial.location}`} className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-                  <div className="mb-3 flex gap-0.5">
-                    {Array.from({ length: testimonial.rating ?? 5 }).map((_, index) => (
-                      <Star key={index} className="w-4 h-4 fill-safety-orange text-safety-orange" />
-                    ))}
-                  </div>
-                  <p className="text-sm leading-relaxed text-text-secondary">&ldquo;{testimonial.quote}&rdquo;</p>
-                  <div className="mt-4 border-t border-border pt-4">
-                    <p className="font-semibold text-navy">{testimonial.name}</p>
-                    <p className="text-xs text-text-secondary">{testimonial.location}</p>
-                  </div>
-                </div>
+                <TestimonialCard
+                  key={`${testimonial.name}-${testimonial.location}`}
+                  testimonial={testimonial}
+                />
               ))}
             </div>
           </div>

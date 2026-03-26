@@ -89,8 +89,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
               priceRange: '$$',
               aggregateRating: {
                 '@type': 'AggregateRating',
-                ratingValue: '4.9',
-                reviewCount: '500',
+                ratingValue: company.proof.averageRating.toFixed(1),
+                reviewCount: String(company.proof.reviewCount),
                 bestRating: '5',
               },
             }),

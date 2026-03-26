@@ -9,7 +9,7 @@ export default function Testimonials() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SectionHeading
           title="What Our Customers Say"
-          subtitle="Don't just take our word for it -- hear from homeowners we've helped."
+          subtitle="Recent homeowner feedback tied to real projects, documented warranty coverage, and claim support."
           theme="dark"
           className="mb-14"
         />

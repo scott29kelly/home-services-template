@@ -1,123 +1,96 @@
-# Home Services Website Template
+# Home Services Template
 
-A modern, conversion-optimized website template for roofing, siding, and home services contractors. Built with React 19, Vite, TypeScript, and Tailwind CSS v4. Includes an AI-powered chat assistant (Ava).
+Conversion-focused home services site built with React Router 7, React 19, Vite, TypeScript, Tailwind CSS v4, and Vercel-friendly serverless endpoints.
 
 ## Quick Start
 
 ```bash
 npm install
-npm run dev        # Start dev server at http://localhost:5173
-npm run build      # Production build → dist/
-npm run preview    # Preview production build
+npm run dev
+npm run typecheck
+npm run test:run
+npm run build
 ```
 
-## Customization
+Local dev runs on the React Router dev server. Production builds output to `build/client`, which matches [vercel.json](/C:/Users/scott/Documents/home-services-template/vercel.json).
 
-### 1. Edit `src/config/site.ts`
+## Stack
 
-This is the **single source of truth** for your company info. Update it with your:
+- React 19
+- React Router 7 framework mode
+- Vite 7
+- TypeScript
+- Tailwind CSS v4
+- Playwright smoke tests
+- Vercel deployment target with serverless functions in `api/`
 
-- Company name & tagline
-- Phone number, email, address
-- Office hours
-- Service areas (states & cities)
-- Certifications
-- Stats (homes restored, years experience, etc.)
-- Social media links
-- AI assistant name & greetings
+## Architecture
 
-All components import from this file, so most branding changes only require editing this one file.
+The live runtime route tree is defined in [src/routes.ts](/C:/Users/scott/Documents/home-services-template/src/routes.ts) and implemented from [src/routes](/C:/Users/scott/Documents/home-services-template/src/routes.ts).
 
-### 2. Replace Images
+Key runtime routes:
 
-Replace the placeholder images in `/images/`:
+- [src/routes/service-page.tsx](/C:/Users/scott/Documents/home-services-template/src/routes/service-page.tsx)
+- [src/routes/service-areas.$slug.tsx](/C:/Users/scott/Documents/home-services-template/src/routes/service-areas.$slug.tsx)
+- [src/routes/resources.$slug.tsx](/C:/Users/scott/Documents/home-services-template/src/routes/resources.$slug.tsx)
+- [src/routes/portfolio.$slug.tsx](/C:/Users/scott/Documents/home-services-template/src/routes/portfolio.$slug.tsx)
 
-| Image | Size | Purpose |
-|-------|------|---------|
-| `hero-roofing.webp` | 1920x1080 | Homepage hero |
-| `about-hero.webp` | 1920x1080 | About page hero |
-| `contact-hero.webp` | 1920x1080 | Contact page hero |
-| `project-1.webp` – `project-10.webp` | 800x600 | Project gallery |
-| `testimonial-1.webp` – `testimonial-8.webp` | 400x400 | Customer photos |
-| `team-*.webp` | 400x400 | Team headshots |
-| `avatar-ava.webp` | 80x80 | Chat assistant avatar (small) |
-| `avatar-ava-large.webp` | 200x200 | Chat assistant avatar (large) |
+Shared content and configuration live in:
 
-Provide both `.webp` and `.jpg` versions for browser compatibility.
+- [src/config](/C:/Users/scott/Documents/home-services-template/src/config/index.ts): business data and feature flags, validated with Zod
+- [src/content/blog](/C:/Users/scott/Documents/home-services-template/src/content/blog): markdown resource articles
+- [src/lib/build-routes.ts](/C:/Users/scott/Documents/home-services-template/src/lib/build-routes.ts): build-time sitemap and prerender route discovery
+- [api](/C:/Users/scott/Documents/home-services-template/api/chat.js): Vercel serverless endpoints for Ava chat, Google reviews, lead capture, and booking availability
 
-### 3. Set Up Ava AI Assistant
+`src/pages` contains presentational page components used by several route files. Route-specific loaders, redirects, and runtime-only behavior belong in `src/routes`.
 
-The AI chat assistant uses [Groq](https://console.groq.com/) (free tier available):
+## Configuration
 
-1. Get a free API key at https://console.groq.com/keys
-2. Set the environment variable `GROQ_API_KEY` in your hosting provider (e.g., Vercel environment variables)
-3. The chat will work in demo mode (canned responses) if no API key is configured
+Most site data is configured through the modular files under [src/config](/C:/Users/scott/Documents/home-services-template/src/config/index.ts):
 
-The system prompt is in `api/chat.js` — customize it with your company details.
+- `company.ts`: business identity, contact info, URL, hours
+- `services.ts`: service definitions and service-page content
+- `service-areas.ts`: city pages and service-area coverage
+- `projects.ts`: portfolio and before/after content
+- `testimonials.ts`: featured and city/service-specific social proof
+- `features.ts`: runtime feature flags
+- `forms.ts`: contact and booking UI copy plus the live booking/lead submission settings
 
-### 4. Update Content
+## Environment Variables
 
-- **Testimonials**: Edit quotes in `src/pages/TestimonialsPage.tsx` and `src/components/sections/Testimonials.tsx`
-- **Team**: Edit team members in `src/pages/About.tsx` (look for `// TODO: Replace with your team`)
-- **Service Areas**: Edit states/cities in `src/config/site.ts` under `serviceArea`
-- **Projects**: Edit project data in `src/pages/Projects.tsx`
-- **FAQs**: Edit FAQ content in individual page files
+Optional runtime integrations:
 
-## Tech Stack
+- `GROQ_API_KEY`: enables live Ava chat responses through [api/chat.js](/C:/Users/scott/Documents/home-services-template/api/chat.js)
+- `ALLOWED_ORIGIN`: restricts chat API CORS in production
+- `GOOGLE_PLACES_API_KEY`: enables live Google reviews fetches
+- `GOOGLE_PLACE_ID`: target Google Business Profile place id for reviews
+- `SUPABASE_URL`: Supabase project URL used by [api/leads.js](/C:/Users/scott/Documents/home-services-template/api/leads.js)
+- `SUPABASE_SERVICE_ROLE_KEY`: server-side key for inserting leads and bookings into Supabase
+- `SUPABASE_LEADS_TABLE`: optional table override for lead storage, defaults to `leads`
+- `LEAD_NOTIFICATION_WEBHOOK_URL`: optional webhook for immediate team alerts after a lead is saved
 
-- **React 19** with React Router 7
-- **Vite 7** for fast builds
-- **Tailwind CSS v4** with custom theme tokens
-- **Framer Motion** for animations
-- **Lucide React** for icons
-- **TypeScript** for type safety
+Without those values, the site still builds. Ava and Google reviews degrade safely, while `/api/leads` uses an in-memory fallback in local development and returns a setup error in production until Supabase is configured.
 
-## Project Structure
+The SQL migration for the lead table lives at [supabase/migrations/202603250001_create_leads.sql](/C:/Users/scott/Documents/home-services-template/supabase/migrations/202603250001_create_leads.sql).
 
+## Testing and Validation
+
+Use the existing checks before shipping changes:
+
+```bash
+npm run typecheck
+npm run test:run
+npm run build
 ```
-src/
-├── config/site.ts          # Central configuration (edit this!)
-├── pages/                  # Route pages
-├── components/
-│   ├── layout/             # Header, Footer, Layout
-│   ├── sections/           # Reusable page sections
-│   └── ui/                 # UI components (Button, Card, AvaWidget)
-├── lib/api.ts              # Chat API client
-└── hooks/                  # Custom React hooks
 
-api/
-├── chat.js                 # Vercel serverless function (Groq)
-├── worker.js               # Cloudflare Worker (Anthropic)
-└── worker-groq.js          # Cloudflare Worker (Groq)
-```
+The Playwright smoke suite covers the main conversion paths, including homepage hydration, contact submission, booking submission, resources navigation, service-area routing, and Ava escalation.
 
 ## Deployment
 
-### Vercel (Recommended)
+This project is configured for Vercel:
 
-```bash
-npm i -g vercel
-vercel
-```
+- Build command: `npm run build`
+- Output directory: `build/client`
+- Serverless endpoints: `api/*.js`
 
-Set `GROQ_API_KEY` in Vercel → Settings → Environment Variables.
-
-### Other Hosts
-
-Run `npm run build` and deploy the `dist/` folder to any static host. The AI chat requires a serverless backend — use the `api/` files for Vercel or Cloudflare Workers.
-
-## Theme Tokens
-
-Colors are defined in `src/index.css` via Tailwind v4 `@theme`:
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--color-navy` | `#0F172A` | Primary text, dark backgrounds |
-| `--color-brand-blue` | `#0EA5E9` | Accent, links, interactive elements |
-| `--color-safety-orange` | `#F97316` | CTAs, highlights |
-| `--color-surface` | `#F8FAFC` | Light backgrounds |
-| `--color-border` | `#E2E8F0` | Borders, dividers |
-
-## License
-
-MIT — use this template for any project.
+The build also generates `sitemap.xml`, `robots.txt`, and optimized image variants during the Vite production build.

@@ -4,13 +4,13 @@
 export const features = {
   /** Show the AI chat assistant (Ava) */
   assistant: true,
-  /** Enable the blog / content section (Phase 4) */
+  /** Show the homeowner resources/blog section */
   blog: true,
-  /** Enable financing calculator (Phase 3) */
+  /** Show the financing calculator experience */
   financingCalculator: true,
-  /** Enable online booking (Phase 3) */
+  /** Show the online booking tab and form */
   onlineBooking: true,
-  /** Enable city/service-area pages (Phase 5) */
+  /** Show city-level service-area detail pages */
   cityPages: true,
   /** Show before/after comparison slider on Projects page */
   beforeAfter: true,

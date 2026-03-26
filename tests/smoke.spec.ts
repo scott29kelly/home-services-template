@@ -68,6 +68,7 @@ test('contact form submits and reaches thank-you page', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/thank-you$/)
   await expect(page.getByText(/request summary/i)).toBeVisible()
+  await expect(page.getByText(/reference:/i)).toBeVisible()
 
   const analyticsEvents = await getAnalyticsEvents(page)
   expect(
@@ -96,17 +97,19 @@ test('booking flow reaches thank-you page and preserves attribution', async ({ p
   await waitForFormReady(page, page.locator('form button[type="submit"]').first())
 
   await page.locator('[role="grid"] button:not([disabled])').first().click()
-  await page.getByText('Morning (8am-12pm)').click()
+  await page.locator('[data-booking-slot="true"]').first().click()
   await page.getByLabel(/first name/i).fill('Jordan')
   await page.getByLabel(/last name/i).fill('Casey')
   await page.getByLabel(/^email/i).fill('jordan@example.com')
   await page.getByLabel(/^phone/i).fill('555-222-3333')
   await page.getByLabel(/property address/i).fill('123 Main St')
   await page.getByLabel(/service needed/i).selectOption('Roofing')
-  await page.getByRole('button', { name: /request appointment/i }).click()
+  await page.getByRole('button', { name: /confirm appointment/i }).click()
 
   await expect(page).toHaveURL(/\/thank-you$/)
-  await expect(page.getByText(/inspection request/i)).toBeVisible()
+  await expect(page.getByRole('heading', { name: /appointment confirmed/i })).toBeVisible()
+  await expect(page.getByText(/confirmed for/i)).toBeVisible()
+  await expect(page.getByText(/reference:/i)).toBeVisible()
   await expect(page.getByText(/started on \/contact/i)).toBeVisible()
   await expect(page.getByText(/utm source: google/i)).toBeVisible()
 
@@ -153,16 +156,58 @@ test('resources and city pages route visitors into service pages', async ({ page
   await expect(page).toHaveURL(/\/roofing$/)
 })
 
+test('city pages surface local proof, projects, and resources', async ({ page }) => {
+  await page.goto('/service-areas/anytown')
+  await waitForAppHydration(page)
+
+  await expect(page.getByRole('heading', { name: /recent projects near anytown/i })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: /helpful resources for anytown homeowners/i }),
+  ).toBeVisible()
+  await expect(page.getByRole('link', { name: /view case study/i }).first()).toBeVisible()
+  await expect(page.getByRole('link', { name: /read article/i }).first()).toBeVisible()
+})
+
+test('portfolio case studies expose proof details', async ({ page }) => {
+  await page.goto('/portfolio/complete-roof-replacement')
+  await waitForAppHydration(page)
+
+  await expect(page.getByText(/50-year material coverage/i)).toBeVisible()
+  await expect(page.getByRole('heading', { name: /project scope/i })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /customer feedback/i })).toBeVisible()
+})
+
 test('ava handoff quick action tracks escalation requests', async ({ page }) => {
   await attachAnalyticsCollector(page)
   await page.goto('/ava')
   await waitForAppHydration(page)
 
-  await page.getByRole('button', { name: /talk to a real person/i }).click()
+  await page.getByRole('button', { name: /talk to a real person/i }).first().click()
   await expect(page.getByText(/you can reach our team directly/i)).toBeVisible()
 
   const analyticsEvents = await getAnalyticsEvents(page)
   expect(
     analyticsEvents.some((event) => event.event === 'chat_escalation_requested'),
   ).toBeTruthy()
+})
+
+test('ava routes visitors into live booking flow', async ({ page }) => {
+  await page.goto('/ava')
+  await waitForAppHydration(page)
+
+  await page.getByRole('button', { name: /book a confirmed inspection/i }).first().click()
+
+  await expect(page).toHaveURL(/\/contact\?tab=booking&source=ava-booking/)
+  await expect(page.getByRole('button', { name: /confirm appointment/i })).toBeVisible()
+  await expect(page.getByText(/^live appointment window \*$/i)).toBeVisible()
+})
+
+test('ava photo handoff routes into guided contact flow', async ({ page }) => {
+  await page.goto('/ava')
+  await waitForAppHydration(page)
+
+  await page.getByRole('button', { name: /share damage photos/i }).first().click()
+
+  await expect(page).toHaveURL(/\/contact\?source=ava-photo-handoff/)
+  await expect(page.getByText(/photo handoff/i)).toBeVisible()
 })

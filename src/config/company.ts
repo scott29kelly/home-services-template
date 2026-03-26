@@ -33,6 +33,14 @@ export const company = {
     satisfaction: { end: 100, suffix: '%', label: 'Satisfaction Guarantee' },
   },
 
+  proof: {
+    averageRating: 4.9,
+    reviewCount: 150,
+    materialWarranty: 'Up to 50-year manufacturer coverage',
+    workmanshipWarranty: '10-year workmanship warranty',
+    manufacturerPartners: ['GAF', 'CertainTeed', 'Atlas', 'Owens Corning'],
+  },
+
   social: {
     facebook: '#',
     instagram: '#',

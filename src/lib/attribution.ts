@@ -19,8 +19,11 @@ export interface SubmissionSummary {
   submittedAt: string
   service?: string
   sourceLabel: string
+  referenceCode?: string
   customerName?: string
   preferredDate?: string
+  preferredTime?: string
+  scheduledFor?: string
   landingPage: string
   referrer: string
   utmSource: string
@@ -138,8 +141,11 @@ export function buildSubmissionSummary(
     submittedAt: string
     service?: string
     sourceLabel: string
+    referenceCode?: string
     customerName?: string
     preferredDate?: string
+    preferredTime?: string
+    scheduledFor?: string
     path: string
   },
 ): SubmissionSummary {
@@ -150,8 +156,11 @@ export function buildSubmissionSummary(
     submittedAt: summary.submittedAt,
     service: summary.service,
     sourceLabel: summary.sourceLabel,
+    referenceCode: summary.referenceCode,
     customerName: summary.customerName,
     preferredDate: summary.preferredDate,
+    preferredTime: summary.preferredTime,
+    scheduledFor: summary.scheduledFor,
     landingPage: attribution?.landingPage ?? summary.path,
     referrer: attribution?.referrer ?? '',
     utmSource: attribution?.utmSource ?? '',

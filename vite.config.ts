@@ -3,9 +3,13 @@ import { reactRouter } from '@react-router/dev/vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer'
-import { readFileSync } from 'fs'
-import { resolve } from 'path'
 import { getAllRoutes } from './src/lib/build-routes'
+import { company } from './src/config/company'
+import {
+  handleBookingAvailabilityRequest,
+  handleBookingRequest,
+} from './api/_lib/booking-pipeline.js'
+import { handleLeadRequest } from './api/_lib/lead-pipeline.js'
 
 /**
  * Custom plugin to copy and optimize images from the root images/ directory.
@@ -176,8 +180,7 @@ function copyAndOptimizeImages(): Plugin {
  * Custom Vite plugin that generates sitemap.xml and robots.txt at build time.
  * Runs after bundle close so dist/ directory exists.
  *
- * Hostname and service routes are auto-read from config source files
- * using the same regex extraction pattern as city routes.
+ * Hostname and route discovery come directly from the live config modules.
  */
 function generateSitemap(): Plugin {
   return {
@@ -188,18 +191,7 @@ function generateSitemap(): Plugin {
       const fs = await import('fs/promises')
       const path = await import('path')
 
-      // Read hostname from company.ts config
-      // Match url: 'https://...' directly — strip only block comments to avoid
-      // corrupting https:// URLs with the line-comment stripping regex
-      let hostname = 'https://example.com'
-      try {
-        const companyFile = readFileSync(resolve('src/config/company.ts'), 'utf-8')
-        const stripped = companyFile.replace(/\/\*[\s\S]*?\*\//g, '')
-        const urlMatch = stripped.match(/url:\s*'(https?:\/\/[^']+)'/)
-        if (urlMatch) hostname = urlMatch[1]
-      } catch {
-        // Fallback: keep default
-      }
+      const hostname = company.url || 'https://example.com'
       const routes = getAllRoutes()
       const excludeSet = new Set(['/thank-you', '/404'])
       const filteredRoutes = routes.filter((r) => !excludeSet.has(r))
@@ -232,11 +224,88 @@ function generateSitemap(): Plugin {
   }
 }
 
+async function readRequestBody(request: NodeJS.ReadableStream): Promise<string> {
+  const chunks: Uint8Array[] = []
+
+  for await (const chunk of request) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
+  }
+
+  return Buffer.concat(chunks).toString('utf-8')
+}
+
+/**
+ * Expose the shared lead API during local dev so forms use the same contract
+ * in Playwright, local development, and Vercel.
+ */
+function localLeadApi(): Plugin {
+  return {
+    name: 'local-lead-api',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/leads')) {
+          if (req.url?.startsWith('/api/booking-availability')) {
+            const response = await handleBookingAvailabilityRequest({
+              method: req.method ?? 'GET',
+              headers: req.headers,
+              url: req.url,
+              env: process.env,
+            })
+
+            res.statusCode = response.status
+            Object.entries(response.headers).forEach(([key, value]) => {
+              res.setHeader(key, value)
+            })
+            res.end(JSON.stringify(response.body))
+            return
+          }
+
+          if (req.url?.startsWith('/api/bookings')) {
+            const body = req.method === 'POST' ? await readRequestBody(req) : undefined
+            const response = await handleBookingRequest({
+              method: req.method ?? 'GET',
+              headers: req.headers,
+              body,
+              env: process.env,
+            })
+
+            res.statusCode = response.status
+            Object.entries(response.headers).forEach(([key, value]) => {
+              res.setHeader(key, value)
+            })
+            res.end(JSON.stringify(response.body))
+            return
+          }
+
+          next()
+          return
+        }
+
+        const body = req.method === 'POST' ? await readRequestBody(req) : undefined
+        const response = await handleLeadRequest({
+          method: req.method ?? 'GET',
+          headers: req.headers,
+          body,
+          env: process.env,
+        })
+
+        res.statusCode = response.status
+        Object.entries(response.headers).forEach(([key, value]) => {
+          res.setHeader(key, value)
+        })
+        res.end(JSON.stringify(response.body))
+      })
+    },
+  }
+}
+
 export default defineConfig({
   plugins: [
     reactRouter(),
     tailwindcss(),
     tsconfigPaths(),
+    localLeadApi(),
     // Optimizes any images imported through the JS/CSS build pipeline
     ViteImageOptimizer({
       logStats: true,

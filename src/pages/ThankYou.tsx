@@ -34,6 +34,17 @@ export default function ThankYou() {
     })
   }, [])
 
+  const isConfirmedBooking = Boolean(
+    lastSubmission?.leadType === 'booking' && lastSubmission?.scheduledFor,
+  )
+  const nextSteps = isConfirmedBooking
+    ? [
+        'Your inspection window is reserved.',
+        "We'll reach out if weather or access details require any changes.",
+        'Need to reschedule? Call us directly and reference your booking code.',
+      ]
+    : thankYou.nextSteps
+
   return (
     <>
       <PageMeta
@@ -61,10 +72,12 @@ export default function ThankYou() {
 
             {/* Heading */}
             <h1 className="text-3xl sm:text-4xl font-bold text-navy mb-3">
-              {thankYou.heading}
+              {isConfirmedBooking ? 'Appointment Confirmed' : thankYou.heading}
             </h1>
             <p className="text-lg text-text-secondary mb-10">
-              {thankYou.subheading}
+              {isConfirmedBooking
+                ? "Your inspection window is reserved. Here's what happens next."
+                : thankYou.subheading}
             </p>
 
             {lastSubmission && (
@@ -74,9 +87,16 @@ export default function ThankYou() {
                   {lastSubmission.leadType === 'booking' ? 'Inspection request' : lastSubmission.leadType === 'chat' ? 'Chat handoff' : 'Contact request'}
                   {lastSubmission.service ? ` for ${lastSubmission.service}` : ''} received.
                 </p>
+                {lastSubmission.scheduledFor && (
+                  <p className="text-sm font-medium text-navy mt-2">
+                    Confirmed for {lastSubmission.scheduledFor}.
+                  </p>
+                )}
                 <p className="text-xs text-text-secondary mt-1">
                   Source: {lastSubmission.sourceLabel}
+                  {lastSubmission.referenceCode ? ` | Reference: ${lastSubmission.referenceCode}` : ''}
                   {lastSubmission.preferredDate ? ` | Preferred date: ${lastSubmission.preferredDate}` : ''}
+                  {lastSubmission.preferredTime ? ` | Window: ${lastSubmission.preferredTime}` : ''}
                 </p>
                 {(lastSubmission.landingPage || lastSubmission.utmSource || lastSubmission.utmCampaign) && (
                   <p className="text-xs text-text-secondary mt-1">
@@ -92,7 +112,7 @@ export default function ThankYou() {
             <div className="text-left max-w-md mx-auto mb-10">
               <h2 className="text-lg font-semibold text-navy mb-4">What Happens Next</h2>
               <ol className="space-y-4">
-                {thankYou.nextSteps.map((step, i) => (
+                {nextSteps.map((step, i) => (
                   <li key={i} className="flex gap-3">
                     <span className="flex-shrink-0 w-7 h-7 bg-brand-blue text-white rounded-full flex items-center justify-center text-sm font-semibold">
                       {i + 1}

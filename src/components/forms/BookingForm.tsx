@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLocation, useSearchParams } from 'react-router'
 import { CalendarCheck } from 'lucide-react'
 import { bookingSchema, type BookingFormData } from '../../lib/schemas'
-import { submitForm } from '../../lib/form-handler'
+import { createBooking, fetchBookingAvailability, type BookingSlot } from '../../lib/booking-api'
 import { services } from '../../config'
 import { forms } from '../../config/forms'
 import BookingCalendar from '../ui/BookingCalendar'
@@ -36,8 +36,10 @@ export default function BookingForm() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
-  const [isHydrated, setIsHydrated] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null)
+  const [availabilityState, setAvailabilityState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
+  const [availableSlots, setAvailableSlots] = useState<BookingSlot[]>([])
   const startedTrackingRef = useRef(false)
   const initialService = searchParams.get('service') ?? ''
   const initialNotes = searchParams.get('message') ?? ''
@@ -62,10 +64,7 @@ export default function BookingForm() {
 
   const watchedValues = watch()
   const selectedDate = watch('preferredDate')
-
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
+  const selectedTime = watch('preferredTime')
 
   useEffect(() => {
     if (startedTrackingRef.current) return
@@ -81,6 +80,39 @@ export default function BookingForm() {
     })
   }, [location.pathname, sourceLabel, watchedValues])
 
+  useEffect(() => {
+    if (!selectedDate) {
+      setAvailableSlots([])
+      setAvailabilityError(null)
+      setAvailabilityState('idle')
+      return
+    }
+
+    let cancelled = false
+    setValue('preferredTime', '', { shouldValidate: true })
+    setAvailabilityState('loading')
+    setAvailabilityError(null)
+
+    void fetchBookingAvailability(selectedDate).then((result) => {
+      if (cancelled) return
+
+      if (!result.ok) {
+        setAvailableSlots([])
+        setAvailabilityState('error')
+        setAvailabilityError(result.error)
+        return
+      }
+
+      setAvailableSlots(result.slots)
+      setAvailabilityState('ready')
+      setAvailabilityError(result.message ?? null)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedDate, setValue])
+
   const onSubmit = async (data: BookingFormData) => {
     setSubmitError(null)
     const metadata = buildLeadMetadata({
@@ -90,7 +122,7 @@ export default function BookingForm() {
       sourceLabel,
     })
 
-    const result = await submitForm({
+    const result = await createBooking({
       ...data,
       ...metadata,
     })
@@ -101,8 +133,11 @@ export default function BookingForm() {
         submittedAt: metadata.submittedAt,
         service: data.service,
         sourceLabel,
+        referenceCode: result.referenceCode,
         customerName: `${data.firstName} ${data.lastName}`.trim(),
-        preferredDate: data.preferredDate,
+        preferredDate: result.preferredDate,
+        preferredTime: result.preferredTime,
+        scheduledFor: result.scheduledFor,
         path: location.pathname + location.search,
       }))
       trackEvent('lead_form_submitted', {
@@ -129,14 +164,13 @@ export default function BookingForm() {
 
       {/* Date picker */}
       <div>
-        <label className={labelClasses}>Preferred Date *</label>
+        <label className={labelClasses}>Inspection Date *</label>
         <BookingCalendar
           onSelect={(date) => {
             setValue('preferredDate', date, { shouldValidate: true })
           }}
           selectedDate={selectedDate || null}
         />
-        {/* Hidden field for RHF registration */}
         <input type="hidden" {...register('preferredDate')} />
         {errors.preferredDate && (
           <p id="preferredDate-error" role="alert" className={errorClasses}>
@@ -145,33 +179,67 @@ export default function BookingForm() {
         )}
       </div>
 
-      {/* Time range radio cards */}
+      {/* Live appointment windows */}
       <div>
-        <label className={labelClasses}>Preferred Time *</label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {forms.booking.timeRanges.map((range) => {
-            const isChecked = watch('preferredTime') === range
-            return (
-              <label
-                key={range}
-                className={[
-                  'flex items-center justify-center px-4 py-3 rounded-xl border text-sm font-medium cursor-pointer transition-all',
-                  isChecked
-                    ? 'border-brand-blue bg-brand-blue/10 text-brand-blue ring-2 ring-brand-blue/30'
-                    : 'border-border text-navy hover:border-brand-blue/30 hover:bg-brand-blue/5',
-                ].join(' ')}
-              >
-                <input
-                  type="radio"
-                  value={range}
-                  {...register('preferredTime')}
-                  className="sr-only"
-                />
-                {range}
-              </label>
-            )
-          })}
-        </div>
+        <label className={labelClasses}>Live Appointment Window *</label>
+        <p className="text-sm text-text-secondary mb-3">
+          {forms.booking.timezoneNote}
+        </p>
+
+        {availabilityState === 'idle' && (
+          <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-3 text-sm text-text-secondary">
+            {forms.booking.availabilityHint}
+          </div>
+        )}
+
+        {availabilityState === 'loading' && (
+          <div className="rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-secondary">
+            {forms.booking.availabilityLoadingText}
+          </div>
+        )}
+
+        {availabilityState === 'error' && availabilityError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+            {availabilityError}
+          </div>
+        )}
+
+        {availabilityState === 'ready' && availableSlots.length === 0 && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            {availabilityError ?? forms.booking.availabilityEmptyText}
+          </div>
+        )}
+
+        {availableSlots.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {availableSlots.map((slot) => {
+              const isSelected = selectedTime === slot.label
+              return (
+                <button
+                  key={slot.label}
+                  type="button"
+                  data-booking-slot="true"
+                  onClick={() => {
+                    setValue('preferredTime', slot.label, { shouldValidate: true })
+                  }}
+                  className={[
+                    'rounded-xl border px-4 py-3 text-left transition-all',
+                    isSelected
+                      ? 'border-brand-blue bg-brand-blue/10 text-brand-blue ring-2 ring-brand-blue/30'
+                      : 'border-border bg-surface text-navy hover:border-brand-blue/30 hover:bg-brand-blue/5',
+                  ].join(' ')}
+                >
+                  <span className="block text-sm font-semibold">{slot.label}</span>
+                  <span className="block text-xs text-text-secondary mt-1">
+                    Available to confirm now
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        <input type="hidden" {...register('preferredTime')} />
         {errors.preferredTime && (
           <p id="preferredTime-error" role="alert" className={errorClasses}>
             {errors.preferredTime.message}
@@ -312,7 +380,7 @@ export default function BookingForm() {
           id="booking-notes"
           rows={3}
           {...register('notes')}
-          placeholder="Any details about the inspection or your availability..."
+          placeholder="Any gate codes, access notes, or details about the inspection..."
           className={`${inputClasses} resize-none`}
         />
       </div>
@@ -336,15 +404,11 @@ export default function BookingForm() {
       {/* Submit button */}
       <button
         type="submit"
-        disabled={!isHydrated || isSubmitting}
+        disabled={isSubmitting}
         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-safety-orange to-orange-500 text-white font-semibold rounded-full shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
       >
         <CalendarCheck className="w-4 h-4" />
-        {!isHydrated
-          ? 'Loading Form...'
-          : isSubmitting
-            ? forms.booking.submittingText
-            : forms.booking.submitText}
+        {isSubmitting ? forms.booking.submittingText : forms.booking.submitText}
       </button>
     </form>
   )

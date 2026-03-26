@@ -1,26 +1,20 @@
 import { Star, CheckCircle, MapPin, Shield, Award, Clock, Heart } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { company } from '../../config/company'
-import { testimonials } from '../../config/testimonials'
 
 interface ProofItem {
   icon: LucideIcon
   label: string
 }
 
-const averageRating = (
-  testimonials.all.reduce((total, testimonial) => total + (testimonial.rating ?? 5), 0) /
-  testimonials.all.length
-).toFixed(1)
-
 const proofItems: ProofItem[] = [
-  { icon: Star, label: `${averageRating} Star Reviews` },
+  { icon: Star, label: `${company.proof.averageRating.toFixed(1)} average across ${company.proof.reviewCount}+ reviews` },
   { icon: CheckCircle, label: `${company.stats.homes.end}${company.stats.homes.suffix} ${company.stats.homes.label}` },
   { icon: MapPin, label: `${company.address.city} Based Team` },
-  { icon: Shield, label: company.certifications[0] ?? 'Licensed & Insured' },
-  { icon: Award, label: company.certifications[1] ?? 'Manufacturer Certified' },
+  { icon: Shield, label: company.proof.workmanshipWarranty },
+  { icon: Award, label: `${company.proof.manufacturerPartners.length} certified manufacturer partners` },
   { icon: Clock, label: `${company.stats.years.end}${company.stats.years.suffix} ${company.stats.years.label}` },
-  { icon: Heart, label: 'Family Owned' },
+  { icon: Heart, label: 'Family owned and locally operated' },
 ]
 
 export default function SocialProof() {

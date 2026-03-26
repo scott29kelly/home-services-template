@@ -8,6 +8,11 @@ import { useScrollReveal } from '../hooks/useScrollReveal'
 export default function Ava() {
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const structuredActions = [
+    'Book a confirmed inspection',
+    'Share damage photos',
+    'Talk to a real person',
+  ]
 
   const {
     messages,
@@ -57,8 +62,33 @@ export default function Ava() {
             Ask <span className="text-brand-blue">{assistant.name}</span>
           </h1>
           <p className="text-text-secondary">
-            Your AI-powered virtual assistant. Ask anything about storm damage, claims, or our services.
+            Your AI-powered virtual assistant. Ask questions, reserve a confirmed inspection window, or start a photo handoff for the team.
           </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+          {structuredActions.map((action) => (
+            <button
+              key={action}
+              type="button"
+              onClick={() => handleSend(action)}
+              className={[
+                'rounded-2xl border px-4 py-4 text-left transition-all',
+                action === 'Talk to a real person'
+                  ? 'border-brand-blue/20 bg-brand-blue/5 text-brand-blue hover:bg-brand-blue/10'
+                  : 'border-safety-orange/20 bg-safety-orange/5 text-navy hover:bg-safety-orange/10',
+              ].join(' ')}
+            >
+              <span className="block text-sm font-semibold">{action}</span>
+              <span className="block text-xs text-text-secondary mt-1">
+                {action === 'Book a confirmed inspection'
+                  ? 'Jump straight into live booking.'
+                  : action === 'Share damage photos'
+                    ? 'Start a guided handoff for roof or storm photos.'
+                    : 'See the direct phone route instantly.'}
+              </span>
+            </button>
+          ))}
         </div>
 
         {/* Chat Area */}

@@ -1,66 +1,37 @@
 /**
  * Shared build-time route enumeration.
  *
- * Node.js-safe: uses only fs/path/gray-matter — NO import.meta.glob (Vite-only).
+ * Node.js-safe: imports only plain config/data modules plus fs/path helpers.
  * Used by both react-router.config.ts (prerender function) and vite.config.ts (sitemap plugin).
  */
 import { readdirSync, readFileSync } from 'fs'
 import { resolve } from 'path'
+import { features } from '../config/features'
+import { services } from '../config/services'
+import { cityPages } from '../config/service-areas'
+import { projects } from '../config/projects'
 import { parseFrontmatter } from './frontmatter'
 
 /**
- * Reads feature flags from src/config/features.ts by parsing the source text.
- * Cannot use ESM import in Node build context.
+ * Returns feature flags from the live config module so build-time discovery stays
+ * aligned with the runtime app.
  */
 export function readFeatureFlags(): Record<string, boolean> {
-  try {
-    const src = readFileSync(resolve('src/config/features.ts'), 'utf-8')
-    // Strip block and line comments to avoid false matches
-    const stripped = src
-      .replace(/\/\*[\s\S]*?\*\//g, '')
-      .replace(/\/\/.*/g, '')
-    const flags: Record<string, boolean> = {}
-    for (const [, key, val] of stripped.matchAll(/(\w+):\s*(true|false)/g)) {
-      flags[key] = val === 'true'
-    }
-    return flags
-  } catch {
-    // Fallback: all features enabled (safe default — include all routes in sitemap/prerender)
-    return { assistant: true, blog: true, financingCalculator: true, cityPages: true, beforeAfter: true, onlineBooking: true }
-  }
+  return { ...features }
 }
 
 /**
- * Returns all service slugs extracted from src/config/services.ts.
+ * Returns all service slugs from the live service config.
  */
 export function getServiceSlugs(): string[] {
-  try {
-    const svcFile = readFileSync(resolve('src/config/services.ts'), 'utf-8')
-    const stripped = svcFile
-      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
-      .replace(/\/\/.*/g, '')              // remove line comments
-    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
-    return [...slugMatches].map((m) => m[1])
-  } catch {
-    // Fallback to known slugs if file read fails
-    return ['roofing', 'siding', 'storm-damage']
-  }
+  return services.map((service) => service.slug)
 }
 
 /**
- * Returns all city slugs extracted from src/config/service-areas.ts.
+ * Returns all city slugs from the live service-area config.
  */
 export function getCitySlugs(): string[] {
-  try {
-    const saFile = readFileSync(resolve('src/config/service-areas.ts'), 'utf-8')
-    const stripped = saFile
-      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
-      .replace(/\/\/.*/g, '')              // remove line comments
-    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
-    return [...slugMatches].map((m) => m[1])
-  } catch {
-    return []
-  }
+  return cityPages.map((city) => city.slug)
 }
 
 /**
@@ -82,52 +53,64 @@ export function getBlogSlugs(): string[] {
 }
 
 /**
- * Returns all portfolio project slugs extracted from src/config/projects.ts.
+ * Returns all portfolio project slugs from the live project config.
  */
 export function getPortfolioSlugs(): string[] {
-  try {
-    const projFile = readFileSync(resolve('src/config/projects.ts'), 'utf-8')
-    const stripped = projFile
-      .replace(/\/\*[\s\S]*?\*\//g, '')   // remove block comments
-      .replace(/\/\/.*/g, '')              // remove line comments
-    const slugMatches = stripped.matchAll(/slug:\s*'([^']+)'/g)
-    return [...slugMatches].map((m) => m[1])
-  } catch {
-    return []
-  }
+  return projects.items.map((project) => project.slug)
+}
+
+function dedupeRoutes(routes: string[]): string[] {
+  return [...new Set(routes)]
+}
+
+/**
+ * Returns the non-parameterized marketing routes that should exist in the built site.
+ */
+export function getStaticRoutes(): string[] {
+  const flags = readFeatureFlags()
+
+  return dedupeRoutes([
+    '/',
+    '/services',
+    '/projects',
+    '/testimonials',
+    '/about',
+    '/contact',
+    '/thank-you',
+    '/service-areas',
+    ...(flags.assistant ? ['/ava'] : []),
+    ...(flags.financingCalculator ? ['/financing'] : []),
+    ...(flags.blog ? ['/resources'] : []),
+  ])
+}
+
+/**
+ * Returns config- or content-driven routes that are discovered outside the static
+ * route table declared in src/routes.ts.
+ */
+export function getConfigDrivenRoutes(): string[] {
+  const flags = readFeatureFlags()
+
+  return dedupeRoutes([
+    ...getServiceSlugs().map((slug) => `/${slug}`),
+    ...(flags.cityPages ? getCitySlugs().map((slug) => `/service-areas/${slug}`) : []),
+    ...(flags.blog ? getBlogSlugs().map((slug) => `/resources/${slug}`) : []),
+    ...getPortfolioSlugs().map((slug) => `/portfolio/${slug}`),
+  ])
+}
+
+/**
+ * Merges React Router's statically discovered paths with config-driven paths used
+ * for prerendering.
+ */
+export function getPrerenderRoutes(staticPaths: string[]): string[] {
+  return dedupeRoutes([...staticPaths, ...getConfigDrivenRoutes()])
 }
 
 /**
  * Returns all site routes for sitemap/prerender enumeration.
- * Combines static routes (feature-flag-aware) with all dynamic route paths.
+ * Combines static routes (feature-flag-aware) with config-driven route paths.
  */
 export function getAllRoutes(): string[] {
-  const flags = readFeatureFlags()
-
-  // Static pages — feature-flag-aware
-  const staticRoutes = [
-    '/', '/services', '/projects', '/testimonials',
-    '/about', '/contact', '/service-areas',
-    ...(flags.assistant ? ['/ava'] : []),
-    ...(flags.financingCalculator ? ['/financing'] : []),
-    ...(flags.blog ? ['/resources'] : []),
-  ]
-
-  // Service routes — derived from config slugs
-  const serviceRoutes = getServiceSlugs().map((s) => `/${s}`)
-
-  // City routes — feature-flag guarded
-  const cityRoutes = flags.cityPages
-    ? getCitySlugs().map((s) => `/service-areas/${s}`)
-    : []
-
-  // Blog routes — feature-flag guarded
-  const blogRoutes = flags.blog
-    ? getBlogSlugs().map((s) => `/resources/${s}`)
-    : []
-
-  // Portfolio routes
-  const portfolioRoutes = getPortfolioSlugs().map((s) => `/portfolio/${s}`)
-
-  return [...staticRoutes, ...serviceRoutes, ...cityRoutes, ...blogRoutes, ...portfolioRoutes]
+  return dedupeRoutes([...getStaticRoutes(), ...getConfigDrivenRoutes()])
 }

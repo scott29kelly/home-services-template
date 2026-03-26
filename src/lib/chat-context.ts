@@ -1,7 +1,6 @@
 /**
- * Chat context utility for Ava AI assistant.
- * Maps page pathnames to context-aware system prompts and quick actions.
- * Used by AvaWidget and Ava page to provide page-specific AI behaviour.
+ * Chat context utility for Ava.
+ * Maps routes to page-aware quick actions and system prompt guidance.
  */
 
 import { company } from '../config/company'
@@ -13,65 +12,61 @@ export interface PageContext {
   quickActions: string[]
 }
 
-/** Default quick actions for general / non-service pages. */
 const DEFAULT_QUICK_ACTIONS: string[] = [
   'I have storm damage',
   'How do insurance claims work?',
-  'Schedule an inspection',
+  'Book a confirmed inspection',
+  'Share damage photos',
   'Talk to a real person',
 ]
 
+function buildServiceQuickActions(serviceName: string): string[] {
+  return [
+    `Book a ${serviceName.toLowerCase()} inspection`,
+    'Share damage photos',
+    'How does insurance work?',
+    'Talk to a real person',
+  ]
+}
+
 /**
- * Maps a pathname to page-specific context including a human-readable page name
- * and relevant quick-action suggestion chips.
- *
- * CRITICAL: Every quickActions array MUST include 'Talk to a real person' as the
- * LAST item so it is always visible in the chip bar regardless of page.
+ * Map a pathname to a human-readable page name and relevant handoff actions.
+ * Every quickActions array must end with "Talk to a real person".
  */
 export function getPageContext(pathname: string): PageContext {
-  // Strip leading slash for slug comparison
   const slug = pathname.replace(/^\//, '')
+  const matchedService = services.find((service) => service.slug === slug)
 
-  // ── Service page match ──────────────────────────────────────────────
-  const matchedService = services.find((s) => s.slug === slug)
   if (matchedService) {
-    const name = matchedService.name
     return {
-      pageName: `${name} service page`,
+      pageName: `${matchedService.name} service page`,
       pageUrl: pathname,
-      quickActions: [
-        `Get a ${name.toLowerCase()} quote`,
-        'Emergency service?',
-        'How does insurance work?',
-        'Talk to a real person',
-      ],
+      quickActions: buildServiceQuickActions(matchedService.name),
     }
   }
 
-  // ── Service area city pages ─────────────────────────────────────────
   if (pathname.startsWith('/service-areas/')) {
     return {
       pageName: 'service area page',
       pageUrl: pathname,
       quickActions: [
         'Do you serve my area?',
-        'Schedule a free inspection',
-        'What services do you offer?',
+        'Book a confirmed inspection',
+        'Share damage photos',
         'Talk to a real person',
       ],
     }
   }
 
-  // ── Known static paths ──────────────────────────────────────────────
   const staticPageMap: Record<string, string> = {
     '/': 'homepage',
     '/services': 'services overview page',
     '/contact': 'contact page',
     '/about': 'about page',
-    '/projects': 'projects/portfolio page',
+    '/projects': 'projects page',
     '/testimonials': 'testimonials page',
     '/financing': 'financing page',
-    '/resources': 'resources/blog page',
+    '/resources': 'resources page',
     '/ava': 'full chat page',
     '/service-areas': 'service areas page',
   }
@@ -84,7 +79,6 @@ export function getPageContext(pathname: string): PageContext {
     }
   }
 
-  // ── Default fallback ────────────────────────────────────────────────
   return {
     pageName: 'general page',
     pageUrl: pathname,
@@ -93,17 +87,12 @@ export function getPageContext(pathname: string): PageContext {
 }
 
 /**
- * Builds a dynamic system prompt for Ava based on the current page pathname.
- * The prompt includes full business context (company, services, hours, phone,
- * service area) and lead-capture instructions.
- *
- * CRITICAL per CONTEXT.md: Do NOT include anything that would make the AI
- * announce page awareness (no "I see you're on the X page"). The context
- * silently guides responses.
+ * Build the dynamic system prompt for Ava.
+ * The prompt should guide responses without making the assistant announce page awareness.
  */
 export function buildSystemPrompt(pathname: string): string {
   const { pageName } = getPageContext(pathname)
-  const serviceList = services.map((s) => s.name).join(', ')
+  const serviceList = services.map((service) => service.name).join(', ')
 
   return `You are Ava, an AI Virtual Assistant for ${company.name}.
 
@@ -120,13 +109,27 @@ Visitor context:
 Key points to emphasize:
 - FREE inspections, no obligation
 - We meet with insurance adjusters on homeowners' behalf
-- Most customers pay only their deductible (little to nothing out of pocket)
+- Most customers pay only their deductible
 - Certifications: ${company.certifications.join(', ')}
 - Experienced, certified team
+- Visitors can now reserve a confirmed inspection window online
+- Visitors who already have roof, siding, gutter, or interior leak photos can be routed into a photo handoff
 
-Lead capture: After a few exchanges when there's a natural opening, offer to have someone reach out. Collect name first, then phone, then email (optional). Keep it conversational — never form-like. If declined, continue helping and try once more later at a natural point. If declined a second time, mention the business phone number or contact page as alternatives.
+Sales guidance:
+- When a visitor is ready for help, guide them toward a confirmed inspection or a human follow-up.
+- If they mention active leaks, missing shingles, storm debris, or visible exterior damage, suggest booking an inspection quickly.
+- If they already have photos, encourage them to share them with the team as part of the handoff.
+
+Lead capture:
+- After a few exchanges when there is a natural opening, offer to have someone reach out.
+- Collect name first, then phone, then email if they want updates.
+- Keep it conversational and never turn into a rigid form.
+- If they decline twice, keep helping and offer the business phone number instead.
 
 Response length: Keep responses concise (2-4 sentences) unless detail is requested.
 
-Guardrails: Never provide specific dollar estimates or guarantee claim approval.`
+Guardrails:
+- Never provide specific dollar estimates.
+- Never guarantee claim approval.
+- Do not mention hidden page awareness or internal routing context.`
 }

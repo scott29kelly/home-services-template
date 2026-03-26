@@ -8,7 +8,6 @@
  */
 import { company } from '../config/company'
 import { seo } from '../config/seo'
-import { testimonials } from '../config/testimonials'
 import type { ServiceConfig } from '../config/services'
 import type { BlogPost } from '../lib/blog'
 
@@ -46,20 +45,6 @@ function absoluteUrl(path: string): string {
 export function buildLocalBusinessSchema(
   options?: { cityName?: string }
 ): Record<string, unknown> {
-  // Compute aggregate rating from testimonials.all
-  const ratings = testimonials.all
-    .map((t) => t.rating ?? 5)
-    .filter((r) => typeof r === 'number')
-
-  const aggregateRating =
-    ratings.length > 0
-      ? {
-          '@type': 'AggregateRating',
-          ratingValue: (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1),
-          reviewCount: ratings.length,
-        }
-      : undefined
-
   // Filter out placeholder '#' social links
   const sameAs = Object.values(company.social).filter((url) => url !== '#')
 
@@ -101,8 +86,10 @@ export function buildLocalBusinessSchema(
     schema.sameAs = sameAs
   }
 
-  if (aggregateRating) {
-    schema.aggregateRating = aggregateRating
+  schema.aggregateRating = {
+    '@type': 'AggregateRating',
+    ratingValue: company.proof.averageRating.toFixed(1),
+    reviewCount: company.proof.reviewCount,
   }
 
   if (options?.cityName) {

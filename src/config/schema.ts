@@ -42,6 +42,13 @@ export const companySchema = z.object({
     states: statSchema,
     satisfaction: statSchema,
   }),
+  proof: z.object({
+    averageRating: z.number().min(0).max(5),
+    reviewCount: z.number().int().min(0),
+    materialWarranty: z.string().min(1),
+    workmanshipWarranty: z.string().min(1),
+    manufacturerPartners: z.array(z.string().min(1)).min(1),
+  }),
   social: z.object({
     facebook: z.string(),
     instagram: z.string(),
@@ -231,6 +238,10 @@ const testimonialSchema = z.object({
   featured: z.boolean().optional(),
   citySlug: z.string().optional(),
   serviceSlug: z.string().optional(),
+  source: z.string().optional(),
+  reviewDate: z.string().optional(),
+  projectSlug: z.string().optional(),
+  highlights: z.array(z.string().min(1)).optional(),
 })
 
 export const testimonialsSchema = z.object({
@@ -257,6 +268,11 @@ export const projectSchema = z.object({
   featured: z.boolean().optional(),
   beforeImage: z.string().optional(),
   afterImage: z.string().optional(),
+  system: z.string().optional(),
+  timeline: z.string().optional(),
+  warranty: z.string().optional(),
+  scope: z.array(z.string().min(1)).optional(),
+  outcomes: z.array(z.string().min(1)).optional(),
 })
 
 export const projectsSchema = z.object({

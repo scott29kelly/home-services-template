@@ -100,7 +100,7 @@ export default function ServiceAreas() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <SectionHeading
             title="Browse All Service Areas"
-            subtitle="Click any city to see local services, testimonials, and more."
+            subtitle="Click any city to see local services, customer proof, nearby case studies, and homeowner resources."
             className="mb-12"
           />
 

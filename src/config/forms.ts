@@ -1,15 +1,11 @@
 /**
- * Form configuration — submission settings, field definitions, and content.
+ * Form configuration - submission settings, field definitions, and content.
  * Edit this file to customize form behavior, field labels, and thank-you page content.
  */
 export const forms = {
   submission: {
-    /** Form submission backend: 'formspree' | 'webhook' | 'netlify' | 'none' */
-    provider: 'formspree' as 'formspree' | 'webhook' | 'netlify' | 'none',
-    /** Formspree form ID (e.g., 'xwkgpqrd'). Leave empty to fall back to console.log. */
-    formspreeId: '',
-    /** Webhook URL for CRM integration (used when provider is 'webhook') */
-    webhookUrl: '',
+    /** Shared lead capture endpoint for contact, booking, and Ava handoff flows. */
+    endpoint: '/api/leads',
   },
 
   contact: {
@@ -32,12 +28,15 @@ export const forms = {
 
   booking: {
     heading: 'Schedule an Inspection',
-    subheading: "Pick a date and preferred time. We'll call to confirm.",
-    submitText: 'Request Appointment',
-    submittingText: 'Scheduling...',
-    timeRanges: ['Morning (8am-12pm)', 'Afternoon (12pm-4pm)', 'Evening (4pm-7pm)'],
+    subheading: 'Pick a date and choose from live appointment windows.',
+    submitText: 'Confirm Appointment',
+    submittingText: 'Confirming...',
     blockedDays: [0] as number[], // 0 = Sunday
     maxDaysOut: 60,
+    availabilityHint: 'Select a day to see live openings. Saturday availability is limited.',
+    availabilityLoadingText: 'Checking live availability...',
+    availabilityEmptyText: 'No appointment windows are left for that day. Please choose another date.',
+    timezoneNote: 'All appointment windows are shown in Eastern Time.',
   },
 
   thankYou: {
@@ -45,7 +44,7 @@ export const forms = {
     subheading: "We've received your request and a team member will be in touch shortly.",
     nextSteps: [
       "We'll review your information and call you within 24 hours.",
-      'For emergencies, call us directly — we offer 24/7 emergency services.',
+      'For emergencies, call us directly - we offer 24/7 emergency services.',
       'Check your email for a confirmation with next steps.',
     ],
   },
