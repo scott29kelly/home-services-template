@@ -74,7 +74,7 @@ export default function BeforeAfterSlider({
     <div
       ref={containerRef}
       className={`relative overflow-hidden select-none rounded-2xl cursor-ew-resize ${className}`}
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'pan-y' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -131,6 +131,7 @@ export default function BeforeAfterSlider({
         aria-valuenow={Math.round(position)}
         aria-valuemin={0}
         aria-valuemax={100}
+        aria-valuetext={`${Math.round(position)}% showing before image`}
         aria-label="Before and after comparison slider"
         onKeyDown={handleKeyDown}
       >

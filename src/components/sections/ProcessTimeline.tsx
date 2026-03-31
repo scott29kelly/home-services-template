@@ -35,16 +35,24 @@ export default function ProcessTimeline() {
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
+    let rafId: number | null = null
     const handleScroll = () => {
-      const rect = el.getBoundingClientRect()
-      const start = window.innerHeight * 0.8
-      const end = window.innerHeight * 0.4
-      const progress = Math.min(1, Math.max(0, (start - rect.top) / (rect.height - (start - end))))
-      setLineProgress(progress)
+      if (rafId !== null) return
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        const rect = el.getBoundingClientRect()
+        const start = window.innerHeight * 0.8
+        const end = window.innerHeight * 0.4
+        const progress = Math.min(1, Math.max(0, (start - rect.top) / (rect.height - (start - end))))
+        setLineProgress(progress)
+      })
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafId !== null) cancelAnimationFrame(rafId)
+    }
   }, [])
 
   return (

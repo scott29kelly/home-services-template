@@ -10,6 +10,7 @@ import { company } from '../config/company'
 import { seo } from '../config/seo'
 import type { ServiceConfig } from '../config/services'
 import type { BlogPost } from '../lib/blog'
+import type { Project } from '../config/projects'
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
@@ -200,5 +201,29 @@ export function buildBlogPostingSchema(post: BlogPost): Record<string, unknown> 
     image: absoluteUrl(post.coverImage),
     url: `${company.url}/resources/${post.slug}`,
     keywords: post.tags,
+  }
+}
+
+/**
+ * buildProjectSchema
+ *
+ * Returns a CreativeWork schema for a portfolio case study.
+ */
+export function buildProjectSchema(project: Project): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: project.title,
+    description: project.description || project.detail,
+    image: absoluteUrl(project.image),
+    url: absoluteUrl(`/portfolio/${project.slug}`),
+    creator: {
+      '@type': 'Organization',
+      name: company.name,
+    },
+    locationCreated: {
+      '@type': 'Place',
+      name: project.location,
+    },
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X, ChevronDown } from 'lucide-react'
 import { company } from '../../config/company'
@@ -11,6 +11,8 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const location = useLocation()
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const toggleButtonRef = useRef<HTMLButtonElement>(null)
 
   const isActive = (href: string) => location.pathname === href
 
@@ -29,13 +31,35 @@ export default function Header() {
     }
   }, [mobileOpen])
 
-  // Close on Escape key
+  // Close on Escape key and trap focus within mobile menu
   useEffect(() => {
     if (!mobileOpen) return
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeMobile()
+      if (e.key === 'Escape') {
+        closeMobile()
+        toggleButtonRef.current?.focus()
+        return
+      }
+      if (e.key === 'Tab' && mobileMenuRef.current) {
+        const focusable = mobileMenuRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
     }
     window.addEventListener('keydown', handleKey)
+    // Move focus into the menu when it opens
+    const firstLink = mobileMenuRef.current?.querySelector<HTMLElement>('a[href], button')
+    firstLink?.focus()
     return () => window.removeEventListener('keydown', handleKey)
   }, [mobileOpen, closeMobile])
 
@@ -146,6 +170,7 @@ export default function Header() {
 
           {/* Mobile Toggle */}
           <button
+            ref={toggleButtonRef}
             className="lg:hidden p-2 text-navy"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -167,6 +192,7 @@ export default function Header() {
 
       {/* Mobile Nav — fixed below the sticky header (h-16 = 4rem) */}
       <div
+        ref={mobileMenuRef}
         className={`lg:hidden fixed top-16 left-0 right-0 bottom-0 z-50 bg-white overflow-y-auto transition-transform duration-300 ${
           mobileOpen ? 'translate-x-0' : 'translate-x-full'
         }`}

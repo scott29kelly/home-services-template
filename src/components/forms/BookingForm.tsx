@@ -88,13 +88,13 @@ export default function BookingForm() {
       return
     }
 
-    let cancelled = false
+    const controller = new AbortController()
     setValue('preferredTime', '', { shouldValidate: true })
     setAvailabilityState('loading')
     setAvailabilityError(null)
 
-    void fetchBookingAvailability(selectedDate).then((result) => {
-      if (cancelled) return
+    void fetchBookingAvailability(selectedDate, controller.signal).then((result) => {
+      if (controller.signal.aborted) return
 
       if (!result.ok) {
         setAvailableSlots([])
@@ -109,7 +109,7 @@ export default function BookingForm() {
     })
 
     return () => {
-      cancelled = true
+      controller.abort()
     }
   }, [selectedDate, setValue])
 
@@ -180,7 +180,7 @@ export default function BookingForm() {
       </div>
 
       {/* Live appointment windows */}
-      <div>
+      <div aria-live="polite" aria-atomic="true">
         <label className={labelClasses}>Live Appointment Window *</label>
         <p className="text-sm text-text-secondary mb-3">
           {forms.booking.timezoneNote}

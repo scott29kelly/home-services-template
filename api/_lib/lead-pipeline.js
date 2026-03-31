@@ -118,6 +118,17 @@ function createResponse(status, body, headers) {
 function buildCorsHeaders(requestHeaders = {}, env = process.env) {
   const allowedOrigin = env.ALLOWED_ORIGIN
   const requestOrigin = requestHeaders.origin
+
+  // In production, require ALLOWED_ORIGIN to be set — never fall back to wildcard
+  if (!allowedOrigin && isProductionRuntime(env)) {
+    return {
+      'Access-Control-Allow-Origin': requestOrigin || 'null',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      Vary: 'Origin',
+    }
+  }
+
   const origin = allowedOrigin
     ? requestOrigin === allowedOrigin
       ? requestOrigin

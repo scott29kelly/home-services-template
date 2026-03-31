@@ -7,6 +7,8 @@ import CTA from '../components/sections/CTA'
 import SectionHeading from '../components/ui/SectionHeading'
 import BeforeAfterSlider from '../components/ui/BeforeAfterSlider'
 import TestimonialCard from '../components/ui/TestimonialCard'
+import JsonLd from '../components/seo/JsonLd'
+import { buildProjectSchema, buildBreadcrumbSchema } from '../lib/seo'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { projects, getProjectBySlug } from '../config/projects'
 import { testimonials } from '../config/testimonials'
@@ -52,6 +54,12 @@ export default function PortfolioDetailRoute({ loaderData }: Route.ComponentProp
         description={projectDescription}
         path={`/portfolio/${project.slug}`}
       />
+      <JsonLd data={buildProjectSchema(project)} />
+      <JsonLd data={buildBreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Projects', url: '/projects' },
+        { name: project.title, url: `/portfolio/${project.slug}` },
+      ])} />
 
       <Hero
         backgroundImage={project.image}

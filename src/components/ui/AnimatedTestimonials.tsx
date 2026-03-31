@@ -101,6 +101,18 @@ export default function AnimatedTestimonials({
                 decoding="async"
                 draggable={false}
                 className="w-full h-full object-cover rounded-2xl shadow-xl"
+                onError={(e) => {
+                  const target = e.currentTarget
+                  target.style.display = 'none'
+                  const parent = target.parentElement
+                  if (parent && !parent.querySelector('[data-fallback]')) {
+                    const fallback = document.createElement('div')
+                    fallback.dataset.fallback = 'true'
+                    fallback.className = 'w-full h-full rounded-2xl shadow-xl bg-navy/20 flex items-center justify-center'
+                    fallback.innerHTML = '<span class="text-white/40 text-sm">Image unavailable</span>'
+                    parent.appendChild(fallback)
+                  }
+                }}
               />
               {/* Subtle gradient overlay for depth */}
               {!isActive && (

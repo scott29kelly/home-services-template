@@ -40,12 +40,13 @@ export type BookingSubmissionResponse = BookingSubmissionResult | BookingSubmiss
 /**
  * Fetch live appointment windows for a specific booking date.
  */
-export async function fetchBookingAvailability(date: string): Promise<BookingAvailabilityResponse> {
+export async function fetchBookingAvailability(date: string, signal?: AbortSignal): Promise<BookingAvailabilityResponse> {
   try {
     const response = await fetch(`/api/booking-availability?date=${encodeURIComponent(date)}`, {
       headers: {
         Accept: 'application/json',
       },
+      signal,
     })
 
     const data = (await response.json().catch(() => null)) as BookingAvailabilityResponse | null

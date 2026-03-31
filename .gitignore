@@ -19,6 +19,9 @@ test-results/
 # Public directory (contains junctions/symlinks to root assets)
 public/
 
+# Vercel build artifacts (machine-specific)
+.vercel/react-router-build-result.json
+
 # Logs
 *.log
 

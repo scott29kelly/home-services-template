@@ -6,6 +6,7 @@ import ScrollToTop from '../components/layout/ScrollToTop'
 import AvaWidget from '../components/ui/AvaWidget'
 import StickyMobileCTA from '../components/ui/StickyMobileCTA'
 import AnnouncementBanner from '../components/ui/AnnouncementBanner'
+import ErrorBoundary from '../components/ui/ErrorBoundary'
 import { PageTracker } from '../components/analytics/PageTracker'
 import { features } from '../config'
 
@@ -28,7 +29,9 @@ export default function AppLayout() {
       <AnnouncementBanner />
       <Header />
       <main id="main-content" className="flex-1">
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       <Footer />
       <StickyMobileCTA />
